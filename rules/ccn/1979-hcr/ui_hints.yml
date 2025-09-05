@@ -1,0 +1,160 @@
+# rules/ccn/1979-hcr/ui_hints.yml
+hints:
+  - theme: "classification"
+    slot: step4.header
+    kind: ccn
+    when: { theme: "classification" }
+    text: "Syntec : 2 catégories principales — ETAM et IC (Ingénieurs & Cadres). Choisissez la catégorie et le coefficient correspondant."
+    ref: 
+
+  # ---- Temps de travail (étape 5) ----
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "ccn"
+    when: { }
+    text: "Référence HCR : 39 h/sem. Les heures > 35 h sont des heures supplémentaires : 10 % (36–39), 20 % (40–43), 50 % au‑delà."
+    ref: { label: "Avenant 5 févr. 2007 — DREETS / analyse", url: "https://travail-emploi.gouv.fr/" }
+
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "ccn"
+    when: { work_time_mode: ["forfait_days"] }
+    text: "Forfait‑jours (cadres autonomes) — plafond 218 jours/an. Suivi de la charge, entretien annuel, droit à la déconnexion."
+    ref: { label: "Avenant 22 bis (cadres autonomes)", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000033926595" }
+
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "warn"
+    when: { work_time_mode: "forfait_hours_mod2" }
+    text: "La « modalité 2 » est propre à la branche Syntec ; elle n’est pas prévue par la CCN HCR."
+    ref: { label: "HCR — durée/majorations", url: "https://www.village-justice.com/articles/duree-travail-dans-hotellerie-restauration,22755.html" }
+
+  # Zoom par catégorie (emploi/AM/cadre — tant que la classification fine n’est pas branchée, on vise large)
+  - theme: temps_travail
+    slot: step5.zoom.category
+    kind: ccn
+    text: >
+      Branche HCR : tenir compte des particularités d'organisation (travail en amplitudes, coupures, travail de nuit),
+      des repos et contreparties, ainsi que des minimas selon la classification. Vérifier les usages et accords d'entreprise.
+
+  # 35h standard
+  - theme: temps_travail
+    slot: step5.block.std
+    kind: info
+    text: >
+      35h/semaine (référence légale). Les heures au-delà suivent le régime des heures supplémentaires (paiement/compensation).
+
+  # Forfait heures
+  - theme: temps_travail
+    slot: step5.block.fh
+    kind: ccn
+    text: >
+      Forfait-heures : pratique possible selon l'organisation (amplitudes/coupures). Respect des repos quotidien/hebdomadaire
+      et des contreparties en cas d'heures au-delà de la référence.
+
+  # Forfait-jours (plutôt rare en HCR)
+  - theme: temps_travail
+    slot: step5.block.fd.info
+    kind: warn
+    text: >
+      Forfait-jours : rarement applicable en HCR, à réserver aux fonctions disposant d’une réelle autonomie.
+      Vérifier l'existence d'un accord d'entreprise et les garanties (suivi de la charge, repos, entretien annuel).
+
+  # Modalité 2 (spécifique Syntec -> avertir)
+  - theme: temps_travail
+    slot: step5.block.m2
+    kind: warn
+    text: >
+      La "Modalité 2" est spécifique à la convention Syntec et n'a pas d'équivalent en HCR. Utiliser plutôt 35h ou un forfait-heures adapté.
+
+  # --- Temps partiel ---
+  - theme: temps_travail
+    slot: step5.part_time.header
+    kind: ccn
+    text: >
+      Temps partiel — Rappels de la convention : seuils minimaux, coupures, prévenance. Vérifier aussi les accords d’entreprise.
+
+    - theme: "temps_travail"
+    slot: "step5.part_time.header"
+    kind: "ccn"
+    text: "Dans la branche HCR, la durée minimale peut être inférieure à 24 h si …"
+    when: { work_time_mode: ["part_time"] }
+
+  - theme: temps_travail
+    slot: step5.part_time.fixed
+    kind: info
+    text: >
+      En cas de répartition déterminée, préciser les jours travaillés et la durée journalière.
+
+  - theme: temps_travail
+    slot: step5.part_time.flex
+    kind: info
+    text: >
+      Organisation souple : utiliser un cadre légal (à défaut d’accord) ou conventionnel (si applicable), tout en respectant repos et contreparties.
+
+  - theme: temps_travail
+    slot: step5.part_time.coupures
+    kind: info
+    text: >
+      Coupures journalières : prévoir un plafond (nombre et durée) et les éventuelles contreparties prévues par la convention/accord.
+
+  - theme: temps_travail
+    slot: step5.part_time.modif
+    kind: info
+    text: >
+      Modification de la répartition : lister les cas permettant le changement et indiquer le délai de prévenance.
+
+  # ---- Rémunération (étape 6) ----
+  - theme: "remuneration"
+    slot: "step6.footer"
+    kind: "ccn"
+    when: { }
+    text: "HCR : pensez à l’avantage en nature « repas » (barème URSSAF fondé sur le minimum garanti)."
+    ref: { label: "URSSAF — HCR : avantage repas", url: "https://www.urssaf.fr/portail/home/espaces-dedies/employeur/avantages-en-nature/hotellerie-cafe-restauration-hcr.html" }
+
+      - theme: "remuneration"
+    slot: "step6.more.minima"
+    kind: "ccn"
+    when: { }  # affiché pour HCR, toutes catégories
+    text: "HCR – Heures supplémentaires : 10 % de la 36e à la 39e heure ; 20 % de la 40e à la 43e ; 50 % au-delà."
+    ref: { label: "Avenant HCR — Majoration HS", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005713679" }
+
+  # ---- Période d’essai (étape 7) ----
+  - theme: "periode_essai"
+    slot: "step7.card"
+    kind: "ccn"
+    when: { category: "cadre" }
+    text: "Cadres : 3 mois renouvelables 1 fois (max 6 mois)."
+    ref: { label: "HCR, art. 13", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000005826269/" }
+
+  - theme: "periode_essai"
+    slot: "step7.card"
+    kind: "ccn"
+    when: { category: "non-cadre" }
+    text: "AM/T : 2 mois renouvelables 1 fois. Employés : 1 mois renouvelable, sauf Niveau I Échelon 1 (non renouvelable)."
+    ref: { label: "HCR, art. 13", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000005826269/" }
+
+  # ---- Préavis (étape 8) ----
+  - theme: "preavis"
+    slot: "step8.card"
+    kind: "ccn"
+    when: { category: "non-cadre" }
+    text: "Préavis (démission) : I–III : 1 sem (<6m), 2 sem (6–24m), 1 mois (≥2 ans) • IV : 1 sem (<6m), 1 mois (6–24m), 2 mois (≥2 ans)."
+    ref: { label: "HCR, art. 30", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000005826325/" }
+
+  - theme: "preavis"
+    slot: "step8.card"
+    kind: "ccn"
+    when: { category: "cadre" }
+    text: "Préavis (cadres) : 3 mois (démission ou licenciement)."
+    ref: { label: "HCR, art. 30", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000005826325/" }
+
+  # ---- Congés (étape 8 / encart) ----
+  - theme: "conges_payes"
+    slot: "step8.conges"
+    kind: "ccn"
+    when: { }
+    text: "HCR : 6 jours fériés « garantis » (hors CP). Les CP restent au minimum légal (25 ouvrés / 30 ouvrables)."
+    ref: { label: "Tissot — HCR congés/jours fériés", url: "https://www.editions-tissot.fr/guide/convention-collective-hcr-conges" }
+
+  

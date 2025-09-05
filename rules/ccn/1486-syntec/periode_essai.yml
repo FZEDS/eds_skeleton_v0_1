@@ -1,0 +1,48 @@
+meta:
+  idcc: 1486
+  name: "Syntec (Bureaux d’études techniques, cabinets d’ingénieurs-conseils et sociétés de conseils)"
+  theme: "periode_essai"
+  source:
+    kind: "legifrance"
+    article: "Article 3.4"
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000047513825/?idConteneur=KALICONT000005635173"
+  last_checked: "2025-08-20"
+  notes:
+    - "Renouvellement exceptionnel, écrit et bilatéral."
+
+rules:
+  # ETAM bas de grille (1.1/1.2)
+  - effective: { from: "2022-12-27" }   # extension avenant n°2
+    category: "ETAM"
+    coeff_range: { min: 240, max: 250 }
+    bounds: { max_months: 2, max_total_months: 4 }
+    renewal_allowed: true
+    source_ref: "Syntec art. 3.4 — avenant n°2 (VE)"
+
+  # ETAM haut de grille
+  - effective: { from: "2021-07-16" }
+    category: "ETAM"
+    coeff_range: { min: 275, max: 500 }
+    bounds: { max_months: 3, max_total_months: 6 }
+    renewal_allowed: true
+    source_ref: "Syntec art. 3.4 (VE)"
+
+  # Ingénieurs & Cadres
+  - effective: { from: "2021-07-16" }
+    category: "IC"
+    coeff_range: { min: 95, max: 270 }
+    bounds: { max_months: 4, max_total_months: 8 }
+    renewal_allowed: true
+    source_ref: "Syntec art. 3.4 (VE)"
+
+defaults:
+  # Si coeff non renseigné, on retient la borne la plus protectrice par catégorie
+  fallback:
+    ETAM: { max_months: 2, max_total_months: 4 }
+    IC:   { max_months: 4, max_total_months: 8 }
+
+legal_floor:
+  # Plafonds d’ordre public (Code du travail) — à rappeler pour traçabilité
+  ouvriers_employes:             { max_total_months: 4 }
+  agents_maitrise_techniciens:   { max_total_months: 6 }
+  cadres:                        { max_total_months: 8 }

@@ -1,0 +1,18 @@
+{% extends "layout.html.j2" %}
+{% block content %}
+  <h2>Documents disponibles</h2>
+  <div class="grid-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:10px">
+    {% for d in documents %}
+      <div class="card" style="border:1px solid #e5e7eb;border-radius:8px;padding:12px">
+        <h3 style="margin:0 0 6px">{{ d.label }}</h3>
+        {% if d.description %}<p class="muted" style="margin:0 0 10px">{{ d.description }}</p>{% endif %}
+        {% if d.status == "ready" %}
+          <a class="btn-primary" href="{{ url_for('document_form', dockey=d.key) }}">Démarrer</a>
+        {% else %}
+          <a class="btn" href="{{ url_for('document_form', dockey=d.key) }}">Aperçu</a>
+          <small class="muted"> (bientôt)</small>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}

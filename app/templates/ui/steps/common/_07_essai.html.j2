@@ -1,0 +1,58 @@
+{# app/templates/ui/steps/_07_essai.html.j2 #}
+<div class="step card flow-16" data-step="7" aria-hidden="true">
+  <h3>07. Période d’essai <span class="badge">Bloc 1 — la branche prime</span></h3>
+
+  <div class="hintbar" style="margin-top:25px">
+    <strong>Objet de la période d’essai</strong><br>
+    La période d’essai permet d'évaluer les compétences professionnelles du salarié sur le poste qui lui a été confié.<br>
+    La période d’essai est facultative. Cependant, son usage est recommandé.
+  </div>
+
+  <hr class="divider">
+
+  {# — Bloc 1 : Durée proposée — #}
+  <div class="fieldset flow-12">
+    <div>
+      <label>Durée proposée (mois)</label>
+      <input type="number" min="0" max="12" name="probation_months" id="probation_months" data-legal="essai">
+      <small class="muted">Le plafond CCN s’applique automatiquement.</small>
+      <small id="probation_err" class="error-msg" aria-live="polite"></small>
+    </div>
+  </div>
+
+    {# — Hints « antériorité » (CDI après CDD / stage) fournis par l’API — #}
+  <div id="essai_prior"
+       class="callout"
+       data-slot="step7.prior"
+       style="display:none;"></div>
+
+  <hr class="divider">
+
+  {# — Bloc 2 : Renouvellement — #}
+  <div class="fieldset flow-12">
+    <div>
+      <label>Renouvellement</label>
+      <select name="probation_renewal_requested">
+        <option value="non">Non</option>
+        <option value="oui">Oui</option>
+      </select>
+    </div>
+
+    <div id="essai_renewal"
+         class="callout"
+         data-slot="step7.renewal"
+         style="display:none;"></div>
+  </div>
+
+  <hr class="divider">
+
+  <details id="probation_zoom" class="callout callout-ccn zoom-card mt-24" style="display:block" open>
+    <summary>Zoom CCN — Période d’essai</summary>
+    <div class="body" id="probation_zoom_body"></div>
+  </details>
+
+  <div class="actions">
+    <button class="btn" data-prev>Précédent</button>
+    <button class="btn-primary" data-next>Suivant</button>
+  </div>
+</div>

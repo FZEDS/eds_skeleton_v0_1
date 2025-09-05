@@ -1,0 +1,6 @@
+# Liste d'entrées (pas d'objet "rules") — le moteur balaye et prend celle qui couvre la date
+- effective: { from: "2024-11-01" }
+  smic:
+    hourly_eur: 11.88
+    monthly_35h_eur: 1801.80
+  source_ref: "SMIC (à actualiser si revalorisation)"

@@ -1,0 +1,44 @@
+meta:
+  label: "Syntec — Classification"
+  mapping:
+    categorie_to_backend:
+      cadre: "cadre"
+      agent: "non-cadre"
+      employe: "non-cadre"
+    classification_format: "{cat} Position {pos} — Coef {coeff}"
+
+categories:
+  - key: "cadre"
+    label: "Cadre"
+    tooltip: "Concerne les cadres de Position 1.1 (coef 95) à 3.3 (coef 270)"
+    cat_code: "IC"
+    positions:
+      - { pos: "1.1", coeff: 95,  label: "Position 1.1 — Coef 95", tooltip: "Débutants - Jeunes ingénieurs/cadres techniques ou administratifs sur un premier poste d’application : ils mobilisent surtout des connaissances déjà acquises, avec un encadrement proche." }
+      - { pos: "1.2", coeff: 100, label: "Position 1.2 — Coef 100", tooltip: "Débutants - Même périmètre que 95, mais avec diplôme d’école d’ingénieurs ou expérience reconnue équivalente. Dans le numérique, palier d’entrée pour Bac+3/Bac+5 (Licence/Master)." }
+      - { pos: "2.1", coeff: 105, label: "Position 2.1 — Coef 105 (<26 ans)", tooltip: "Moins de 26 ans et ≥ 2 ans de pratique : montée en compétence rapide sur des travaux d’études ; peut coordonner ponctuellement techniciens/agents de maîtrise/dessinateurs/employés sur les mêmes tâches." }
+      - { pos: "2.1", coeff: 115, label: "Position 2.1 — Coef 115 (≥26 ans)", tooltip: "26 ans et +, avec ≥ 2 ans de pratique : mêmes attendus que 105 (prise en main rapide des sujets d’études) avec possibilité de coordination ponctuelle d’équipes sur les mêmes dossiers." }
+      - { pos: "2.2", coeff: 130, label: "Position 2.2 — Coef 130", tooltip: "Sur instructions précises, prend les initiatives et responsabilités nécessaires à leur exécution. Traite des projets courants et peut y contribuer ; profil études/recherche sans fonction de commandement." }
+      - { pos: "2.3", coeff: 150, label: "Position 2.3 — Coef 150", tooltip: "≥ 6 ans d’expérience en tant que cadre : maîtrise affirmée ; à partir de directives, prend des initiatives et des responsabilités pour piloter employés/techniciens/ingénieurs sur une même mission." }
+      - { pos: "3.1", coeff: 170, label: "Position 3.1 — Coef 170", tooltip: "Généralement rattaché à un chef de service : met en œuvre des savoirs de niveau diplôme et une pratique étendue, sans responsabilité complète et permanente (qui relève du chef)." }
+      - { pos: "3.2", coeff: 210, label: "Position 3.2 — Coef 210", tooltip: "Encadrement avéré : prend les initiatives, organise, oriente et contrôle le travail de ses subordonnés (collaborateurs et cadres)." }
+      - { pos: "3.3", coeff: 270, label: "Position 3.3 — Coef 270", tooltip: "Très large autonomie et responsabilités, coordination inter-services ; exige une expertise technique ou administrative de premier plan." }
+
+  - key: "agent"
+    label: "Agent de maîtrise"
+    tooltip: "Positions 2.1 (coef 275) à 3.3 (coef 500)"
+    cat_code: "ETAM"
+    positions:
+      - { pos: "2.1", coeff: 275, label: "Position 2.1 — Coef 275", tooltip: "Études & préparation (niveau d’entrée AM) - Intervient sur un périmètre technique précis. Connaît les méthodes/procédés usuels et les applique à partir de consignes générales." }
+      - { pos: "2.2", coeff: 310, label: "Position 2.2 — Coef 310", tooltip: "Études & préparation (choix techniques) - Maîtrise les méthodes de sa spécialité et choisit les options pertinentes entre procédés et moyens pour préparer le travail." }
+      - { pos: "2.3", coeff: 355, label: "Position 2.3 — Coef 355", tooltip: "Études & préparation (amélioration continue) - Intègre les contraintes technologiques avec maîtrise ; ses propositions font évoluer méthodes, procédés ou moyens." }
+      - { pos: "3.1", coeff: 400, label: "Position 3.1 — Coef 400", tooltip: "Conception ou gestion élargie (problèmes courants) - Résout de façon autonome un nombre limité de problèmes complets et récurrents avec des méthodes éprouvées. Métiers du numérique : niveau de départ typique pour un titulaire de BTS." }
+      - { pos: "3.2", coeff: 450, label: "Position 3.2 — Coef 450", tooltip: "Conception ou gestion élargie (variété de cas) - Traite des problèmes complets courants mais plus nombreux et variés ; s’appuie sur une expérience diversifiée." }
+      - { pos: "3.3", coeff: 500, label: "Position 3.3 — Coef 500", tooltip: "Conception ou gestion élargie (situations nouvelles) - Au-delà des niveaux précédents, sait s’adapter à des problèmes présentant une nouveauté technique et propose des solutions appropriées." }
+
+  - key: "employe"
+    label: "Employé"
+    tooltip: "Positions 1.1 (coef 240) et 1.2 (coef 250)"
+    cat_code: "ETAM"
+    positions:
+      - { pos: "1.1", coeff: 240, label: "Position 1.1 — Coef 240", tooltip: "Exécution (opérations séquencées) - Enchaîne des opérations guidées en s’appuyant sur des modes opératoires existants ; mobilise une partie des techniques du métier. Profil type : formation métier de base CAP/BEP." }
+      - { pos: "1.2", coeff: 250, label: "Position 1.2 — Coef 250", tooltip: "Exécution (autonomie opératoire + contrôle) - À partir d’instructions détaillant les étapes, choisit et met en œuvre les moyens, enchaîne les séquences et contrôle la conformité du résultat. Profil type : formation métier de base CAP/BEP." }

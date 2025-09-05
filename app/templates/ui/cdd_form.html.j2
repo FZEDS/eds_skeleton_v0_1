@@ -1,0 +1,11 @@
+{% extends "layout.html.j2" %}
+{% block content %}
+  <script>window.EDS_DOC = "cdd";</script>
+  <h2>CDD — Création</h2>
+  <div class="callout" style="margin:10px 0">
+    Formulaire en préparation. Il réutilisera les steps communs (CCN, classification, temps de travail,
+    rémunération, période d’essai, préavis) + un step spécifique CDD (motif, terme, renouvellements).
+  </div>
+  <p><a class="btn" href="{{ url_for('document_form', dockey='cdi') }}">Revenir au CDI</a>
+     <a class="btn-primary" href="{{ url_for('documents_list') }}">Tous les documents</a></p>
+{% endblock %}

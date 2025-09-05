@@ -1,0 +1,112 @@
+# rules/ccn/1979-hcr/preavis.yml
+meta:
+  idcc: 1979
+  theme: "preavis"
+  source:
+    article: "Art. 30 — Préavis"
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000005826325/?idConteneur=KALICONT000005635173"
+
+rules:
+  # --- DÉMISSION ---
+  # Employés (I–III)
+  - key: "dem_i_iii_<6m"
+    category: "non-cadre"
+    coeff_range: { min: 100, max: 139 }
+    anciennete_months: { min: 0, max: 6 }
+    notice_months: { demission: 0.25, licenciement: null }
+    source_ref: "HCR, art. 30 — I–III démission <6m : 1 sem"
+
+  - key: "dem_i_iii_6_24m"
+    category: "non-cadre"
+    coeff_range: { min: 100, max: 139 }
+    anciennete_months: { min: 6, max: 24 }
+    notice_months: { demission: 0.5, licenciement: null }
+    source_ref: "HCR, art. 30 — I–III démission 6–24m : 2 sem"
+
+  - key: "dem_i_iii_>=24m"
+    category: "non-cadre"
+    coeff_range: { min: 100, max: 139 }
+    anciennete_months: { min: 24 }
+    notice_months: { demission: 1.0, licenciement: null }
+    source_ref: "HCR, art. 30 — I–III démission ≥2 ans : 1 mois"
+
+  # AM/T (IV)
+  - key: "dem_iv_<6m"
+    category: "non-cadre"
+    coeff_range: { min: 141, max: 199 }
+    anciennete_months: { min: 0, max: 6 }
+    notice_months: { demission: 0.25, licenciement: null }
+    source_ref: "HCR, art. 30 — IV démission <6m : 1 sem"
+
+  - key: "dem_iv_6_24m"
+    category: "non-cadre"
+    coeff_range: { min: 141, max: 199 }
+    anciennete_months: { min: 6, max: 24 }
+    notice_months: { demission: 1.0, licenciement: null }
+    source_ref: "HCR, art. 30 — IV démission 6–24m : 1 mois"
+
+  - key: "dem_iv_>=24m"
+    category: "non-cadre"
+    coeff_range: { min: 141, max: 199 }
+    anciennete_months: { min: 24 }
+    notice_months: { demission: 2.0, licenciement: null }
+    source_ref: "HCR, art. 30 — IV démission ≥2 ans : 2 mois"
+
+  # Cadres (V)
+  - key: "dem_v"
+    category: "cadre"
+    anciennete_months: { min: 0 }
+    notice_months: { demission: 3.0, licenciement: null }
+    source_ref: "HCR, art. 30 — V démission : 3 mois"
+
+  # --- LICENCIEMENT ---
+  # Employés (I–III)
+  - key: "lic_i_iii_<6m"
+    category: "non-cadre"
+    coeff_range: { min: 100, max: 139 }
+    anciennete_months: { min: 0, max: 6 }
+    notice_months: { demission: null, licenciement: 0.25 }
+    source_ref: "HCR, art. 30 — I–III licenciement <6m : 1 sem"
+
+  - key: "lic_i_iii_6_24m"
+    category: "non-cadre"
+    coeff_range: { min: 100, max: 139 }
+    anciennete_months: { min: 6, max: 24 }
+    notice_months: { demission: null, licenciement: 1.0 }
+    source_ref: "HCR, art. 30 — I–III licenciement 6–24m : 1 mois"
+
+  - key: "lic_i_iii_>=24m"
+    category: "non-cadre"
+    coeff_range: { min: 100, max: 139 }
+    anciennete_months: { min: 24 }
+    notice_months: { demission: null, licenciement: 2.0 }
+    source_ref: "HCR, art. 30 — I–III licenciement ≥2 ans : 2 mois"
+
+  # AM/T (IV)
+  - key: "lic_iv_<6m"
+    category: "non-cadre"
+    coeff_range: { min: 141, max: 199 }
+    anciennete_months: { min: 0, max: 6 }
+    notice_months: { demission: null, licenciement: 0.25 }
+    source_ref: "HCR, art. 30 — IV licenciement <6m : 1 sem"
+
+  - key: "lic_iv_6_24m"
+    category: "non-cadre"
+    coeff_range: { min: 141, max: 199 }
+    anciennete_months: { min: 6, max: 24 }
+    notice_months: { demission: null, licenciement: 1.0 }
+    source_ref: "HCR, art. 30 — IV licenciement 6–24m : 1 mois"
+
+  - key: "lic_iv_>=24m"
+    category: "non-cadre"
+    coeff_range: { min: 141, max: 199 }
+    anciennete_months: { min: 24 }
+    notice_months: { demission: null, licenciement: 2.0 }
+    source_ref: "HCR, art. 30 — IV licenciement ≥2 ans : 2 mois"
+
+  # Cadres (V)
+  - key: "lic_v"
+    category: "cadre"
+    anciennete_months: { min: 0 }
+    notice_months: { demission: null, licenciement: 3.0 }
+    source_ref: "HCR, art. 30 — V licenciement : 3 mois"

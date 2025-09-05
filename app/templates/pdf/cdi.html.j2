@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"/>
+<title>CDI - {{ employee_name }}</title>
+<style>
+  /* --------- Page & typo (WeasyPrint) --------- */
+  @page {
+    size: A4;
+    margin: 18mm 16mm 20mm 16mm;
+    @bottom-right {
+      content: "Page " counter(page) " / " counter(pages);
+      font-size: 9pt; color: #6b7280;
+    }
+  }
+  html { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
+  body { font-size: 10.5pt; line-height: 1.45; color: #111827; hyphens: auto; }
+
+  h1 { font-size: 14pt; margin: 0 0 10px; font-weight: 700; }
+  h2 { font-size: 12pt; margin: 14px 0 6px; font-weight: 700; page-break-after: avoid; }
+  .sec { margin: 10px 0; }
+  .small { font-size: 9.5pt; color: #4b5563; }
+  .no-break { break-inside: avoid; page-break-inside: avoid; }
+
+  /* Table générique */
+  .table { width: 100%; border-collapse: collapse; }
+  .table th, .table td { border: 1px solid #e5e7eb; padding: 6px 8px; vertical-align: top; }
+  .table th { background:#f3f4f6; text-align: left; }
+
+  /* Signatures */
+  .signatures { display: table; width: 100%; margin-top: 18px; }
+  .sigcol { display: table-cell; width: 50%; vertical-align: top; padding-right: 12px; }
+  .sigbox { border-top: 1px solid #9ca3af; margin-top: 36px; padding-top: 6px; height: 80px; }
+
+  /* Annexe */
+  .annexe { page-break-before: always; }
+  .annexe h2 { margin-top: 0; }
+  .badge { display: inline-block; font-size: 9pt; padding: 1px 6px; border: 1px solid #374151; color: #374151; border-radius: 3px; }
+  .note { font-size: 9pt; color:#6b7280; }
+
+  /* Eviter les coupures malheureuses */
+  h1, h2, .no-break { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<h1>Contrat à durée indéterminée à temps plein</h1>
+
+<div class="sec">
+  <strong>Entre les soussignés</strong><br/>
+  La Société {{ employer_name }}<br/>
+  Adresse : {{ employer_address }}<br/>
+  Numéro Urssaf : {{ urssaf_number }}<br/>
+  Représentée par {{ rep_name }}, en qualité de {{ rep_title }},<br/>
+  d'une part,
+  <br/><br/>
+  {{ employee_civility }} {{ employee_name }}<br/>
+  Né(e) le {{ birth_date }} à {{ birth_place }}<br/>
+  Nationalité : {{ nationality }}<br/>
+  Numéro de Sécurité sociale : {{ ssn }}<br/>
+  d'autre part,
+  <br/><br/>
+  Il a été convenu ce qui suit :
+</div>
+
+<h2>Article 1 — Engagement</h2>
+<div class="sec">
+  La société {{ employer_name }} engage {{ employee_civility }} {{ employee_name }} par le présent contrat, conclu à durée indéterminée à temps plein.
+  Ce contrat prendra effet à compter du {{ contract_start }} à {{ workplace_base }}.
+</div>
+
+<h2>Article 2 — Accord(s) collectif(s) applicable(s)</h2>
+<div class="sec">
+  Les dispositions conventionnelles applicables au présent contrat sont celles en vigueur dans l’entreprise
+  {% if idcc %}(CCN : {{ idcc }}){% else %}(à défaut de convention collective déclarée){% endif %},
+  ainsi que, le cas échéant, les accords d’entreprise applicables.
+  {% if ae_exists %}
+    {% for a in ae_items %}
+        <li>
+        {{ a.title or "Accord d’entreprise" }}
+        {% if a.date %} — {{ a.date }}{% else %}{% endif %}
+      </li>
+    {% endfor %}
+  {% endif %}
+
+</div>
+
+
+<h2>Article 3 — Période d’essai</h2>
+<div class="sec">
+  Le présent engagement est conclu sous réserve d’une période d’essai de
+  {% if probation_months is not none %}{{ probation_months }} mois{% else %}—{% endif %},
+  au cours de laquelle il pourra être mis fin au contrat, par l’une ou l’autre des parties, selon les règles légales et conventionnelles.
+  {% if probation_renewal_requested == 'oui' %}
+  <br/>Cette période d’essai pourra être renouvelée si la convention applicable l’autorise et dans ses limites.
+  {% endif %}
+</div>
+
+<h2>Article 4 — Emploi et qualification</h2>
+<div class="sec">
+  {{ employee_civility }} {{ employee_name }} occupera le poste de <strong>{{ job_title }}</strong>{% if classification_level %}, niveau/strate/coefficient : {{ classification_level }}{% endif %}.
+  {% if main_mission %}<br/>Attributions principales : {{ main_mission }}.{% endif %}
+  {% if annex_activities %}<br/>Activités annexes : {{ annex_activities }}.{% endif %}
+</div>
+
+<h2>Article 5 — Rémunération</h2>
+<div class="sec">
+  Rémunération mensuelle brute de base : <strong>{{ "%.2f"|format(salary_gross_monthly|float) }} €</strong>.
+  {% if remuneration_accessories %}<br/>Accessoires éventuels : {{ remuneration_accessories }}.{% endif %}
+  {% if expense_policy %}<br/>Frais professionnels : {{ expense_policy }}.{% endif %}
+</div>
+
+<h2>Article 6 — Durée du travail</h2>
+<div class="sec">
+  {% if work_time_mode == 'standard' %}
+    La durée de travail est fixée à {{ weekly_hours }} heures par semaine.
+    {% if schedule_info %} Organisation indicative : {{ schedule_info }}.{% endif %}
+  {% set fhv = fh_variant or '' %}
+  {% if work_time_mode == 'forfait_hours' %}
+    {% if fhv == 'repos' %}
+      <p>Les heures effectuées au‑delà de la valeur hebdomadaire de référence
+      seront compensées par un repos d’une durée équivalente, le cas échéant
+      majoré conformément aux dispositions applicables.</p>
+    {% else %}
+      <p>Les heures effectuées au‑delà de la valeur hebdomadaire de référence
+      seront rémunérées avec les majorations applicables conformément aux
+      dispositions légales et conventionnelles.</p>
+    {% endif %}
+  {% endif %}
+  {% elif work_time_mode == 'forfait_days' %}
+    Le salarié relève d’un <strong>forfait annuel en jours</strong> de <strong>{{ forfait_days_per_year }}</strong> jours par an.
+    {% if ref_period_desc %}Période de référence : {{ ref_period_desc }}.{% endif %}
+  {% endif %}
+
+  {% if part_time %}
+  <h3>Organisation du temps partiel</h3>
+  {% if part_time.organization == 'fixed' %}
+    <p>Répartition hebdomadaire déterminée :</p>
+    <ul>
+      {% for d in part_time.fixed.days %}
+        <li>{{ d.day|upper }} : {{ '%.2f'|format(d.hours) }} h</li>
+      {% endfor %}
+    </ul>
+    <p>Total hebdomadaire : <strong>{{ '%.2f'|format(part_time.fixed.total_hours) }} h</strong></p>
+  {% elif part_time.organization == 'flex' %}
+    <p>Organisation souple : jours et heures fixés librement dans le cadre choisi ({{ part_time.flex.frame }}).</p>
+    {% if part_time.flex.breaks_max or part_time.flex.break_max_hours %}
+      <p>Coupures : au plus {{ part_time.flex.breaks_max or '—' }} coupure(s) par jour,
+         durée max {{ part_time.flex.break_max_hours or '—' }} h. {{ part_time.flex.counterparties or '' }}</p>
+    {% endif %}
+  {% endif %}
+  {% if part_time.modif.reasons %}
+    <p>Modification possible de la répartition pour les motifs suivants : {{ part_time.modif.reasons }}.
+       Prévenance : {{ part_time.modif.notice_days or '—' }} {{ part_time.modif.notice_unit or '' }}.</p>
+  {% endif %}
+{% endif %}
+
+{% if auto_clauses and auto_clauses|length %}
+  <h3>Clauses spécifiques (temps partiel)</h3>
+  {% for c in auto_clauses %}
+    <h4>{{ c.title }}</h4>
+    <p>{{ c.body }}</p>
+  {% endfor %}
+{% endif %}
+</div>
+
+<h2>Article 7 — Lieu de travail</h2>
+<div class="sec">
+  Lieu d’exercice : {{ workplace_base }}.
+  {% if work_area %}<br/>Secteur géographique : {{ work_area }}.{% endif %}
+  {% if mobility_clause == 'oui' %}<br/>Une clause de mobilité pourra être mise en œuvre dans l’intérêt de l’entreprise, dans des limites compatibles avec la vie personnelle et familiale et moyennant un délai de prévenance raisonnable.{% endif %}
+</div>
+
+<h2>Article 8 — Congés payés</h2>
+<div class="sec">
+  Droits à congés : {{ cp_days_number }} jours {{ cp_unit }} par an. La fixation des dates tient compte des nécessités de service et des règles applicables.
+</div>
+
+<h2>Article 9 — Organismes sociaux</h2>
+<div class="sec">
+  Retraite complémentaire : {{ retirement_org }}.<br/>
+  Frais de santé : {{ health_org }}.{% if welfare_org %}<br/>Prévoyance : {{ welfare_org }}.{% endif %}
+</div>
+
+<h2>Article 10 — Obligations professionnelles</h2>
+<div class="sec">
+  Respect des règles internes (discipline, hygiène et sécurité), des directives de l’employeur et des obligations de discrétion.
+  Information en cas d’absence et mise à jour des informations personnelles.
+</div>
+
+<h2>Article 11 — Préavis</h2>
+<div class="sec">
+  À l’issue de la période d’essai, le contrat peut être rompu dans les conditions légales et conventionnelles, sous réserve des préavis :
+  licenciement : {{ notice_dismissal_months }} mois — démission : {{ notice_resignation_months }} mois (sauf faute grave ou lourde).
+</div>
+
+{# --- Clauses additionnelles --- #}
+{% if clauses_selected or clauses_custom %}
+  <h2>Clauses additionnelles</h2>
+
+  {% for cl in (clauses_selected or []) %}
+    <h3>{{ cl.title }}</h3>
+    <div>{{ cl.text_html | safe }}</div>
+    {% if cl.source_ref %}
+      <p style="margin-top:4px"><small>Réf. : {{ cl.source_ref }}</small></p>
+    {% endif %}
+    <hr style="border:none;border-top:1px solid #ddd;margin:10px 0"/>
+  {% endfor %}
+
+  {% for cl in (clauses_custom or []) %}
+    {% if cl.title %}<h3>{{ cl.title }}</h3>{% endif %}
+    {% if cl.text %}<div><p style="white-space:pre-wrap">{{ cl.text }}</p></div>{% endif %}
+    <hr style="border:none;border-top:1px solid #ddd;margin:10px 0"/>
+  {% endfor %}
+{% endif %}
+
+
+<h2>Article 12 — Formalités</h2>
+<div class="sec">
+  DPAE réalisée auprès de l’Urssaf de {{ dpae_urssaf_city }} le {{ dpae_date }}.
+</div>
+
+<div class="sec">
+  Fait à {{ place_of_signature }}, le {{ date_of_signature }}, en {{ copies_count }} exemplaires.
+</div>
+
+<div class="signatures">
+  <div class="sigcol">
+    <strong>Pour l’employeur</strong><br/>
+    {{ rep_name }} — {{ rep_title }}<br/>
+    <div class="sigbox">Signature</div>
+  </div>
+  <div class="sigcol">
+    <strong>Le salarié</strong><br/>
+    {{ employee_civility }} {{ employee_name }}<br/>
+    <div class="sigbox">Signature précédée de la mention « lu et approuvé »</div>
+  </div>
+</div>
+
+{# ===================== ANNEXE (HORS CORPS DU CONTRAT) ===================== #}
+<div class="annexe">
+  <h2>Annexe — Conformité & Traçabilité <span class="badge">document non contractuel</span></h2>
+  <p class="note">
+    Feuille d’information automatiquement générée d’après les données saisies.
+    Elle récapitule les bornes appliquées et, le cas échéant, les écarts assumés par l’utilisateur.
+  </p>
+
+  {# Bornes appliquées #}
+  {% set has_bounds = (probation_max or notice_min_resignation or notice_min_dismissal) %}
+  {% if has_bounds %}
+    <h3>Bornes appliquées</h3>
+    <table class="table small no-break">
+      <thead>
+        <tr><th>Thème</th><th>Paramètre</th><th>Valeur</th></tr>
+      </thead>
+      <tbody>
+        {% if probation_max %}
+          <tr><td>Période d’essai</td><td>Plafond</td><td>{{ probation_max }} mois{% if probation_max_total %} — Total après renouvellement ≤ {{ probation_max_total }} mois{% endif %}</td></tr>
+        {% endif %}
+        {% if notice_min_resignation is not none or notice_min_dismissal is not none %}
+          <tr><td>Préavis</td><td>Minima</td>
+            <td>
+              Démission : {{ notice_min_resignation if notice_min_resignation is not none else "—" }} mois ·
+              Licenciement : {{ notice_min_dismissal if notice_min_dismissal is not none else "—" }} mois
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  {# Écarts détectés #}
+  {% if conformity_issues and conformity_issues|length > 0 %}
+    <h3>Écarts détectés (UI/serveur)</h3>
+    <table class="table small no-break">
+      <thead>
+        <tr><th>Étape</th><th>Champ</th><th>Problème</th><th>Suggestion</th><th>Référence</th></tr>
+      </thead>
+      <tbody>
+        {% for it in conformity_issues %}
+          <tr>
+            <td>{{ it.step if it.step is defined else "—" }}</td>
+            <td>{{ it.field if it.field is defined else "—" }}</td>
+            <td>{{ it.message }}</td>
+            <td>{% if it.suggested is not none %}{{ it.suggested }}{% else %}—{% endif %}</td>
+            <td>
+              {% if it.ref %}{{ it.ref }}{% else %}—{% endif %}
+              {% if it.url %}<br/><span class="small"><a href="{{ it.url }}">{{ it.url }}</a></span>{% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  {# Overrides (continuer quand même) #}
+  {% if overrides_steps and overrides_steps|length>0 %}
+    {% set step_labels = {1:"Entreprise",2:"Identité",3:"Convention",4:"Poste",5:"Durée du travail",6:"Rémunération",7:"Période d’essai",8:"Préavis",9:"Formalités"} %}
+    <h3>Overrides effectués</h3>
+    <p class="small">
+      Étapes concernées :
+      {% for s in overrides_steps %}
+        {{ s }}{% if step_labels.get(s) %} ({{ step_labels.get(s) }}){% endif %}{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+  {% endif %}
+
+  {% if not has_bounds and not (conformity_issues and conformity_issues|length>0) and not (overrides_steps and overrides_steps|length>0) %}
+    <p class="small">Aucun élément de conformité particulier à signaler.</p>
+  {% endif %}
+</div>
+
+</body>
+</html>

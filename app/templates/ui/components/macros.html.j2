@@ -1,0 +1,11 @@
+templates/ui/components/macros.html.j2
+
+{% macro error_msg(id) -%}
+  <small id="{{ id }}" class="error-msg" aria-live="polite" style="display:none"></small>
+{%- endmacro %}
+
+{% macro callout(id, kind='neutral') -%}
+  <div id="{{ id }}"
+       class="callout{% if kind in ['info','information'] %} callout-info{% elif kind in ['warn','warning','guard'] %} callout-warn{% elif kind in ['ccn','branch'] %} callout-ccn{% elif kind in ['ok','success'] %} callout-ok{% endif %}"
+       aria-live="polite" style="display:none"></div>
+{%- endmacro %}

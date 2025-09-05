@@ -1,0 +1,127 @@
+{% from 'components/macros.html.j2' import callout, error_msg %}
+
+<div class="step card" data-step="6" aria-hidden="true">
+  <h3>06. Rémunération</h3>
+
+  <!-- Bandeau d’info (minima / plancher) alimenté par l’API -->
+  <div id="salary_card" class="callout" data-slot="step6.footer" style="display:none;margin-top:10px"></div>
+
+
+  <!-- Saisie principale -->
+  <div class="grid2">
+    <div>
+      <label for="salary_gross_monthly">Rémunération brute mensuelle</label>
+      <div class="input-with-suffix">
+        <input id="salary_gross_monthly"
+               name="salary_gross_monthly"
+               type="number" step="0.01" inputmode="decimal"
+               data-required="true" placeholder="Ex. 3200">
+        <span class="suffix">€ bruts / mois</span>
+      </div>
+      <div id="salary_err" class="error-msg" aria-live="polite"></div>
+    </div>
+
+    <div>
+      <label for="salary_gross_annual">
+        Rémunération brute annuelle <small>(13ᵉ inclus si coché)</small>
+      </label>
+      <div class="input-with-suffix">
+        <input id="salary_gross_annual" type="text" readonly placeholder="—">
+        <span class="suffix">€ bruts / an</span>
+      </div>
+    </div>
+  </div>
+
+    <div class="divider"></div>
+
+  <!-- Accessoires -->
+  <div class="fieldset" style="margin-top:20px">
+    <label>Éléments de rémunération accessoires (optionnel)</label>
+    <textarea name="remuneration_accessories" id="remuneration_accessories" rows="2"
+              placeholder="Ex. prime d’objectif, prime panier…"></textarea>
+  </div>
+
+  <div class="fieldset" style="margin-top:8px">
+    <label>Politique de frais (optionnel)</label>
+    <textarea name="expense_policy" id="expense_policy" rows="2"
+              placeholder="Ex. barème kilométrique, per diem, justificatifs requis…"></textarea>
+  </div>
+
+    <div class="divider"></div>
+
+  <!-- 13e mois (facultatif) — alimente le calcul des minima -->
+
+    <h4 class="mb-4">
+      Prime de 13ᵉ mois
+      <span class="help" title="En choisissant cet option, le 13ᵉ mois sera automatiquement pris en compte dans le calcul du salaire annuel.">i</span>
+    </h4>
+
+  <div class="fieldset" style="margin-top:14px">
+    <label class="inline">
+      <input type="checkbox" id="has_13th_month" name="has_13th_month" value="true">
+      <span>Prendre en compte la pime de 13ᵉ mois</span>
+    </label>
+
+    <div id="bonus13_fields" class="callout-muted" style="display:none; margin-top:8px">
+      <div class="grid2">
+        <div>
+          <label for="bonus13_when">Date de versement</label>
+          <select id="bonus13_when" name="bonus13_when">
+            <option value="" selected disabled>Choisir…</option>
+            <option value="50-50">50% en juin et 50% en décembre</option>
+            <option value="decembre">Avec le salaire de décembre</option>
+            <option value="janvier">Avec le salaire de janvier</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+        <div id="bonus13_when_free_wrap" style="display:none">
+          <label for="bonus13_when_free">Précisez quand la prime de 13ᵉ mois est versée et dans quelle proportion</label>
+          <input id="bonus13_when_free" name="bonus13_when_free" placeholder="Ex. en totalité en décembre">
+        </div>
+      </div>
+
+      <div class="grid2" style="margin-top:8px">
+        <div>
+          <label for="bonus13_base">Base de calcul</label>
+          <select id="bonus13_base" name="bonus13_base">
+            <option value="" selected disabled>Choisir…</option>
+            <option value="janvier">Salaire fixe de janvier</option>
+            <option value="decembre">Salaire fixe de décembre</option>
+            <option value="moyenne12">Moyenne des 12 derniers mois</option>
+            <option value="mois_le_plus_eleve">Mois le plus élevé de l’année civile</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+        <div id="bonus13_base_free_wrap" style="display:none">
+          <label for="bonus13_base_free">Précisez la base de calcul de la prime de 13ᵉ mois</label>
+          <input id="bonus13_base_free" name="bonus13_base_free" placeholder="Ex. moyenne des 6 premiers mois de l’année">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+    <div class="divider"></div>
+
+<!-- Pédagogie : minima conventionnels -->
+<details id="salary_more_minima"class="callout callout-ccn zoom-card" style="display:block" mt-24>
+  <summary>En savoir plus sur le respect des minima conventionnels</summary>
+  <div id="salary_more_minima_body"
+       data-slot="step6.more.minima"
+  </div>
+</details>
+
+<!-- Pédagogie : primes CCN -->
+<details id="salary_more_primes" class="callout callout-ccn zoom-card" style="display:block" mt-24>
+  <summary>Zoom sur les primes liées à la convention collective</summary>
+  <div id="salary_more_primes_body"
+       data-slot="step6.more.ccn_primes"
+  </div>
+</details>
+
+    <div class="divider"></div>
+
+  <div class="actions" style="margin-top:12px">
+    <button class="btn" data-prev>Précédent</button>
+    <button class="btn-primary" data-next>Suivant</button>
+  </div>
+</div>

@@ -1,0 +1,465 @@
+/* =========================
+   EDS THEME — GLOBAL
+   ========================= */
+:root{
+  /* --- Palette marque --- */
+  --brand:#0f4068;        /* Navy primaire */
+  --brand-ink:#2c5476;    /* Navy clair (liens, hover) */
+  --bg:#EEF3F7;           /* Fond doux */
+
+  /* --- Texte & lignes --- */
+  --ink:#273c6c;
+  --muted:#64748b;
+  --line:#dde6ee;         /* plus doux que #e2e8f0 */
+
+  /* --- États --- */
+  --ok:#E9F8F2;
+  --warn:#FDECEF;
+  --info:#ecfff7;
+
+  /* --- Ronds / espaces --- */
+  --radius:14px;
+  --space:14px;
+
+  /* --- Callouts dédiés --- */
+  --co-info-bg: #ebf3f3;   --co-info-bd:#29577d; --co-info-fg:#0B2A44;
+  --co-ccn-bg:  #ECF4FE;   --co-ccn-bd:#29577d; --co-ccn-fg:#0B2A44;
+  --co-warn-bg: #FDECEF;   --co-warn-bd:#29577d; --co-warn-fg:#0B2A44;
+  --co-ok-bg:   #8fb9bc;   --co-ok-bd:#29577d;  --co-ok-fg:#0B2A44;
+
+  /* --- Ombres discrètes --- */
+  --shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(11,42,68,.06);
+}
+
+/* Reset léger & base */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  color:var(--ink);
+  background:var(--bg);
+}
+a{ color:var(--brand-ink); text-decoration:underline; text-underline-offset:2px }
+a:hover{ opacity:.9 }
+
+/* Conteneur page */
+.container{max-width:1100px;margin:34px auto;padding:0 18px}
+
+/* Titres */
+h1,h2,h3{margin:0 0 10px;color:var(--brand)}
+h2{ font-size:1.45rem; letter-spacing:.2px }
+h3{ font-size:1.15rem; letter-spacing:.15px }
+p{margin:0 0 8px}
+small,.muted{color:var(--muted)}
+hr{border:0;border-top:1px solid var(--line);margin:18px 0}
+
+/* =========================
+   Toolbar & boutons
+   ========================= */
+.toolbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px}
+ button{appearance:none;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
+.btn{background:#f2f6fb;border:1px solid var(--line)} .btn:hover{background:#e9f1f8}
+.btn-ghost{background:#fff;border:1px solid var(--line);color:var(--brand)}
+.btn-ghost:hover{background:#f7fbff}
+.btn-primary{background:var(--brand);color:#fff;box-shadow:var(--shadow)}
+.btn-primary:hover{background:#114878}
+.btn[disabled]{ opacity:.55; cursor:not-allowed }
+
+/* Feedback override (déjà utilisé par ton JS) */
+.btn-ghost.is-on{ outline:2px solid var(--ok); box-shadow:0 0 0 4px rgba(22,163,74,.18) }
+.btn-ghost.is-on::after{ content:" ✓"; font-weight:700 }
+
+/* =========================
+   Grilles & cartes
+   ========================= */
+.formgrid{display:grid;grid-template-columns:1fr 280px;gap:24px}
+.maincol .card{border:1px solid var(--line);border-radius:var(--radius);padding:18px;background:#fff;box-shadow:var(--shadow)}
+.summary{position:sticky;top:24px;border:1px solid var(--line);border-radius:var(--radius);padding:16px;background:#fff}
+.summary h4{margin:0 0 10px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.align-top{align-items:flex-start}
+
+/* =========================
+   Progression & étapes
+   ========================= */
+.progress{height:8px;background:#dbe6f0;border-radius:999px;overflow:hidden;margin:8px 0 16px}
+.progress > i,
+.progress > i#progress{display:block;height:100%;width:0;background:var(--brand);transition:width .25s ease}
+
+.steps{list-style:none;margin:0;padding:0}
+.steps li{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;color:var(--muted)}
+/* Ton JS utilise .current/.done/.blocked */
+.summary .steps li.current{background:#e6eef7;color:var(--brand-ink);font-weight:600;border:1px solid #c9d7e6}
+.summary .steps li.done{opacity:.95}
+.summary .steps li.blocked{opacity:.5}
+
+.step{display:none}
+.step[aria-hidden="false"]{display:block}
+.step h3{font-size:1.15rem;margin-bottom:8px}
+
+/* =========================
+   Form controls
+   ========================= */
+label{display:block;font-size:.92rem;color:var(--muted);margin:6px 0 4px}
+input,select,textarea{
+  width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);
+  transition:border-color .15s ease, box-shadow .15s ease;
+}
+textarea{resize:vertical}
+input:focus,select:focus,textarea:focus{
+  outline:2px solid var(--brand-ink); outline-offset:1px; border-color:var(--brand-ink);
+}
+/* Aides & badges */
+.badge{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:4px 9px;font-size:.8rem;color:var(--muted)}
+.help{ display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; margin-left:6px;
+  border-radius:50%; border:1px solid #869dbf; font-size:11px; line-height:1; cursor:help; color:#566a7f }
+
+/* Erreurs (réutilise tes classes) */
+.error-msg{ color:#b91c1c; font-size:12px; margin-top:4px; display:none }
+.input-error{ border-color:#b91c1c !important; background-color:#fff5f5 }
+
+/* Radios/checkbox en pile */
+label.inline{ display:inline-flex; align-items:center; gap:8px; line-height:1.4 }
+.stack{display:flex;flex-direction:column;gap:8px}
+.radio-line,.check-line{display:flex;align-items:flex-start;gap:8px}
+.radio-line input,.check-line input{margin-top:2px}
+
+/* Listes radio verticales (classification) */
+.vlist{list-style:none;margin:6px 0 0;padding:0}
+.vlist .radio{display:grid;grid-template-columns:20px 1fr 16px;gap:10px;align-items:center;padding:6px 0}
+.vlist .radio input{margin:0}
+.vlist .label{line-height:1.35}
+.vlist .help{justify-self:end}
+@media (max-width:640px){ .vlist .radio{grid-template-columns:20px 1fr 16px} }
+
+/* Lignes "texte + case à droite" */
+.line-check-right{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:8px}
+.line-check-right .nowrap{white-space:nowrap}
+
+/* =========================
+   Callouts (encarts)
+   ========================= */
+.callout{
+  border:1px solid var(--co-ccn-bd);          /* fin et propre */
+  border-left:6px solid var(--co-ccn-bd);     /* sera surchargé par variantes */
+  background:var(--co-ccn-bg);
+  color:var(--co-ccn-fg);
+  border-radius:12px; padding:12px; margin:10px 0;
+}
+.callout .co-line{ margin-top:6px }
+.callout .co-line:first-child{ margin-top:2px }
+
+/* Variantes */
+.callout-info,
+.callout.info{
+  border-color:var(--co-info-bd);
+  border-left-color:var(--co-info-bd);
+  background:var(--co-info-bg);
+  color:var(--co-info-fg);
+}
+.callout-ccn{
+  border-color:var(--co-ccn-bd);
+  border-left-color:var(--co-ccn-bd);
+  background:var(--co-ccn-bg);
+  color:var(--co-ccn-fg);
+}
+.callout-warn,
+.callout.warn{
+  border-color:var(--co-warn-bd);
+  border-left-color:var(--co-warn-bd);
+  background:var(--co-warn-bg);
+  color:var(--co-warn-fg);
+}
+.callout-ok{
+  border-color:var(--co-ok-bd);
+  border-left-color:var(--co-ok-bd);
+  background:var(--co-ok-bg);
+  color:var(--co-ok-fg);
+}
+
+/* Puces “chip” alignées à la charte */
+.co-chip{
+  display:inline-block; font-size:11px; font-weight:700; line-height:1;
+  padding:3px 6px; border-radius:999px; letter-spacing:.02em; margin-right:6px;
+  background:#fff; border:1px solid currentColor;
+}
+.co-chip.info{ color:var(--co-info-bd) }
+.co-chip.warn{ color:var(--co-warn-bd) }
+.co-chip.ccn { color:var(--co-ccn-bd) }
+.co-chip.ok  { color:var(--co-ok-bd) }
+
+/* Zoom par catégorie (summary dépliant) */
+.zoom-card summary{
+  cursor:pointer; font-weight:700; color:var(--brand-ink);
+  list-style:none;
+}
+.zoom-card summary::marker{ content:'' }
+.zoom-card summary::before{
+  content:'+'; display:inline-block; width:1rem; margin-right:.25rem;
+}
+.zoom-card[open] summary::before{ content:'–' }
+.zoom-card .body{ margin-top:8px; font-size:14px }
+
+/* "hintbar" héritée => bleue par défaut */
+.hintbar{ padding:10px; border-left:4px solid var(--co-info-bd); background:var(--co-info-bg);
+  font-size:12px; color:var(--co-info-fg); border-radius:8px; margin-top:12px }
+
+/* =========================
+   Step 3 — CCN — visual hierarchy
+   ========================= */
+.label-hero{
+  display:block;
+  font-size:1.05rem;       /* a bit larger than default */
+  font-weight:700;
+  color:var(--brand-ink);
+  margin: 10px 0 6px;
+}
+
+.group-label{
+  display:block;
+  margin: 12px 0 6px;
+  font-size:.92rem;        /* matches your base <label> */
+  color:var(--muted);      /* same tone as other field labels */
+}
+
+/* =========================
+   Step 5 — Temps partiel (alignements)
+   ========================= */
+.step[data-step="5"] .pt-grid{
+  display:flex; flex-direction:column; gap:8px;
+}
+.step[data-step="5"] .pt-row{
+  display:grid;
+  grid-template-columns: 1fr 26px 140px; /* libellé | checkbox | heures */
+  align-items:center;
+  gap:10px;
+}
+.step[data-step="5"] .pt-daylabel{
+  margin:0; cursor:pointer;  /* cliquer sur le jour coche/décoche */
+}
+.step[data-step="5"] .pt-check{
+  margin:0; justify-self:start; /* colonne des cases bien alignée */
+}
+.step[data-step="5"] .pt-hours{
+  max-width:140px; justify-self:start;
+}
+.step[data-step="5"] .pt-total{
+  margin-top:6px; display:flex; gap:12px; align-items:center;
+}
+
+/* Responsive : empile heures sous la case si l’espace manque */
+@media (max-width:640px){
+  .step[data-step="5"] .pt-row{
+    grid-template-columns: 1fr 26px 1fr;
+  }
+}
+
+/* Sous‑titres discrets sous "Organisation souple" (Step 5) */
+.step[data-step="5"] .subtle-label{
+  margin: 8px 0 4px;          /* un peu d’air mais compact */
+  font-size: .95rem;          /* plus petit que la radio au‑dessus */
+  line-height: 1.45;
+  color: var(--muted);        /* gris discret, pas le navy principal */
+  font-weight: 600;           /* lisible mais moins "titre" */
+}
+
+/* Si un groupe de champs suit directement, on garde un rythme régulier */
+.step[data-step="5"] .subtle-label + .grid2,
+.step[data-step="5"] .subtle-label + .grid3{
+  margin-top: 6px;
+}
+
+/* =========================
+   Step 9 — Clauses additionnelles
+   ========================= */
+.clauses-list{display:flex;flex-direction:column;gap:12px}
+.clause-item{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;box-shadow:var(--shadow)}
+.clause-row{display:grid;grid-template-columns:20px 1fr;column-gap:12px;align-items:start}
+.clause-row > input[type="checkbox"]{margin-top:2px}
+.clause-title{grid-column:2;font-weight:600;color:#3d4f6a;line-height:1.25}
+.clause-synopsis{grid-column:2;color:#4b5563;font-size:13px;margin:4px 0 0}
+.clause-flags{grid-column:2;font-size:12px;color:#b45309;margin-top:4px}
+.clause-more{grid-column:2;margin-top:6px}
+.clause-more summary{cursor:pointer;font-size:13px;color:var(--brand-ink)}
+.clause-more .body{margin-top:6px;font-size:13px;color:#111827;background:#f9fafb;border:1px solid #eef2f7;border-radius:6px;padding:8px}
+
+/* Step 9 — Paramètres des clauses (apparait sous la ligne quand la case est cochée) */
+.clause-params{
+  grid-column: 1 / -1;
+  margin-top: 8px;
+  padding: 10px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.clause-params .param-field { margin-top:8px; }
+.clause-params .param-field:first-child { margin-top:0; }
+.clause-params .req { color:#b91c1c; margin-left:4px; }
+
+
+/* Custom clause */
+.warning-banner{background:#fff7ed;border:1px solid #fed7aa;color:#92400e;padding:8px;border-radius:6px;font-size:13px}
+.custom-clause{border:1px dashed #cbd5e1;border-radius:8px;padding:10px;margin-top:8px}
+.custom-clause .grid2{gap:8px}
+.custom-clause .align-right{display:flex;justify-content:flex-end;align-items:flex-end}
+.custom-clause .remove{margin-left:auto}
+
+/* =========================
+   Overlay d’aperçu
+   ========================= */
+.overlay{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;padding:24px}
+.overlay .panel{max-width:760px;width:100%;background:#fff;border-radius:16px;border:1px solid var(--line);padding:18px;max-height:80vh;overflow:auto;box-shadow:var(--shadow)}
+.overlay header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.overlay.show{display:flex}
+
+
+
+/* ====== ESPACEMENT (échelle 4px) ====== */
+.mt-0{margin-top:0} .mb-0{margin-bottom:0}
+.mt-4{margin-top:4px} .mb-4{margin-bottom:4px}
+.mt-8{margin-top:8px} .mb-8{margin-bottom:8px}
+.mt-12{margin-top:12px} .mb-12{margin-bottom:12px}
+.mt-16{margin-top:16px} .mb-16{margin-bottom:16px}
+.mt-24{margin-top:24px} .mb-24{margin-bottom:24px}
+.mt-32{margin-top:32px} .mb-32{margin-bottom:32px}
+.pt-8{padding-top:8px} .pb-8{padding-bottom:8px}
+.py-8{padding-top:8px;padding-bottom:8px}
+.py-12{padding-top:12px;padding-bottom:12px}
+.gap-8{gap:8px} .gap-12{gap:12px} .gap-16{gap:16px}
+
+/* Un “spacer” muet si tu préfères positionner un bloc vide */
+.spacer-8{height:8px} .spacer-16{height:16px} .spacer-24{height:24px}
+
+/* ====== SÉPARATEURS ====== */
+.divider{border:0;border-top:1px solid #e5e7eb;margin:12px 0}
+.divider-strong{border:0;border-top:2px solid #cbd5e1;margin:16px 0}
+.rule{height:1px;background:#e5e7eb;margin:12px 0;border-radius:1px}
+
+/* ====== TYPOGRAPHIE LOCALE ====== */
+.text-muted{color:#6b7280}
+.text-small{font-size:12px}
+.text-xs{font-size:11px}
+.lead{font-size:15px;font-weight:600;color:var(--eds-navy-2)}
+.emph{font-weight:700}
+.note{font-style:italic;color:#475569}
+.badge{display:inline-block;padding:2px 8px;border:1px solid #cbd5e1;border-radius:999px;font-size:12px}
+
+/* ====== ALIGNEMENT & LAYOUT ====== */
+.align-right{text-align:right}
+.align-center{text-align:center}
+.stack{display:flex;flex-direction:column}
+.row{display:flex;align-items:center}
+.row-between{display:flex;align-items:center;justify-content:space-between}
+
+/* À coller en bas de ton CSS (utilitaires “flow”) */
+.flow-8  > * + * { margin-top: 8px; }
+.flow-12 > * + * { margin-top:12px; }
+.flow-16 > * + * { margin-top:16px; }
+.flow-24 > * + * { margin-top:24px; }
+
+/* Évite l'effet "encart dans encart" dans les zooms */
+.zoom-card .body .callout{
+  border:0; background:transparent; padding:0; margin:0;
+}
+
+
+/* Évite l'effet "encart dans encart" pour les zooms */
+.zoom-card .body.callout,
+.zoom-card .body .callout {  /* garde ce second sélecteur au cas où du contenu imbriqué apparaîtrait plus tard */
+  border: 0;
+  border-left: 0;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+}
+
+/* Optionnel : garde un léger rythme entre les lignes d'info */
+.zoom-card .body .co-line { margin-top: 6px; }
+.zoom-card .body .co-line:first-child { margin-top: 2px; }
+
+
+/* Ne pas forcer les styles "champ texte" sur les cases à cocher / radios */
+input[type="checkbox"],
+input[type="radio"]{
+  width: auto;               /* au lieu de 100% */
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 3px;        /* optionnel */
+  accent-color: var(--brand);/* couleur du coche = charte */
+}
+
+/* Neutralise la règle générique d'outline au focus pour ces contrôles */
+input[type="checkbox"]:focus,
+input[type="radio"]:focus{
+  outline: none;
+}
+
+/* Garde un focus accessible, mais compact */
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible{
+  outline: 2px solid var(--brand-ink);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* Évite l’effet “double encart” quand un slot est rendu dans un <details class="callout"> */
+details.callout > .callout {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+/* (optionnel) si tu veux garder un petit espacement interne cohérent */
+details.callout > .callout > *:first-child { margin-top: 0; }
+details.callout > .callout > *:last-child  { margin-bottom: 0; }
+
+/* === Actions (nav de bas de carte) – reprise de l'ancien thème === */
+.actions{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  margin-top:12px;
+}
+
+/* Confort mobile : les boutons s'enroulent proprement */
+@media (max-width: 520px){
+  .actions{ flex-wrap: wrap; row-gap:8px }
+  /* Si un seul bouton "Suivant" sans <span>, on le pousse à droite */
+  .actions .btn-primary{ margin-left:auto }
+}
+
+/* === Compat : anciens sélecteurs d'état des étapes (au cas où) === */
+.summary .steps li[data-current="true"]{
+  background:#e6eef7;
+  color:var(--brand-ink);
+  font-weight:600;
+  border:1px solid #c9d7e6;
+}
+.summary .steps li[data-done="true"]{
+  opacity:.95;
+}
+
+
+
+/* Aligner proprement les erreurs + actions (toutes étapes) */
+.error-msg > span{
+  display:block;           /* force la phrase rouge sur sa propre ligne */
+  margin-bottom:6px;
+}
+
+/* Les deux boutons "Ramener à…" et "Continuer…" sur la ligne d'en-dessous */
+.error-msg .btn,
+.error-msg .btn-ghost{
+  display:inline-block;    /* s’alignent l’un à côté de l’autre */
+  margin-right:8px;
+  margin-top:0;            /* au cas où un style global ajouterait un écart vertical */
+}
+
+/* Optionnel : un peu plus d’air sous l’input pour la step 6 */
+.step[data-step="6"] .error-msg{ margin-top:6px; }

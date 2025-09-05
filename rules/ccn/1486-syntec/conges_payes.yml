@@ -1,0 +1,14 @@
+meta:
+  source:
+    label: "Syntec — Congés annuels (Art. 5.1)"
+    note: "Jours supplémentaires pour ancienneté (jours ouvrés)."
+
+rules:
+  - key: "anciennete_bonus_ouvres"
+    unit: "ouvres"
+    bonus_schedule:
+      # Ancienneté en années entières -> jours OUVRÉS supplémentaires
+      5: 1
+      10: 2
+      15: 3
+      20: 4

@@ -1,0 +1,10 @@
+{% extends "layout.html.j2" %}
+{% block content %}
+  <script>window.EDS_DOC = "convocation_ep";</script>
+  <h2>Convocation à entretien préalable — Création</h2>
+  <div class="callout" style="margin:10px 0">
+    Formulaire en préparation. Il contrôlera les délais légaux, les mentions obligatoires et générera la lettre PDF.
+  </div>
+  <p><a class="btn" href="{{ url_for('document_form', dockey='cdi') }}">Revenir au CDI</a>
+     <a class="btn-primary" href="{{ url_for('documents_list') }}">Tous les documents</a></p>
+{% endblock %}

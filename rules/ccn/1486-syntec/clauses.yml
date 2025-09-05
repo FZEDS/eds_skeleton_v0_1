@@ -1,0 +1,14 @@
+# rules/ccn/1486-syntec/clauses.yml
+
+meta:
+  label: "Clauses — CCN Syntec (IDCC 1486)"
+
+clauses:
+  - key: forfait_jours
+    label: "Convention individuelle de forfait annuelle en jours (Syntec)"
+    synopsis: "Forfait‑jours calé sur la CCN Syntec."
+    source_ref: "Syntec — Art. 4.4 (forfait‑jours)"
+    learn_more_html: |
+      <p>Le forfait‑jours Syntec renvoie à un plafond usuel de 218 jours/an (voir bornes de la Step 5).</p>
+    text_html: |
+      <p><strong>Convention de forfait en jours — Syntec.</strong> Le Salarié est soumis à une convention individuelle de forfait en jours sur l’année, conformément à la CCN Syntec et à l’accord collectif habilitant. Le nombre de jours travaillés est fixé à <em>[218]</em> jours, sous réserve des dispositions conventionnelles applicables. Un entretien annuel spécifique est organisé ; l’Employeur veille à la charge de travail et au respect des temps de repos.</p>

@@ -1,0 +1,35 @@
+meta:
+  theme: "preavis"
+  source:
+    label: "Code du travail — L1234‑1 à L1234‑3 (licenciement) ; démission : CCN / usages"
+
+rules:
+  # < 6 mois d'ancienneté : le Code ne fixe pas de durée -> renvoi à CCN/usage/contrat
+  - key: "licenciement_moins_6m"
+    effective: { from: "1900-01-01" }
+    scope: { categorie: null }
+    anciennete_months: { min: 0, max: 6 }
+    notice_months:
+      demission: null
+      licenciement: null
+    source_ref: "L1234‑1"
+
+  # 6 à < 24 mois : 1 mois (licenciement)
+  - key: "licenciement_6_24m"
+    effective: { from: "1900-01-01" }
+    scope: { categorie: null }
+    anciennete_months: { min: 6, max: 24 }
+    notice_months:
+      demission: null
+      licenciement: 1
+    source_ref: "L1234‑1"
+
+  # ≥ 24 mois : 2 mois (licenciement)
+  - key: "licenciement_24m_plus"
+    effective: { from: "1900-01-01" }
+    scope: { categorie: null }
+    anciennete_months: { min: 24 }
+    notice_months:
+      demission: null
+      licenciement: 2
+    source_ref: "L1234‑1 et L1234‑3"

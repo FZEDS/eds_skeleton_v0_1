@@ -1,0 +1,37 @@
+meta:
+  theme: "temps_travail"
+  source:
+    label: "Code du travail — Temps de travail"
+
+rules:
+  - key: "standard_hebdo"
+    effective: { from: "1900-01-01" }
+    scope: { work_time_mode: "standard" }
+    constraint:
+      weekly_hours_min: 35
+      weekly_hours_max: 48    # plafond absolu hebdo (repère)
+      source_ref: "C. trav., L3121‑27 (35 h) ; L3121‑20 et L3121‑22 (48 h max hebdo)"
+
+  - key: "temps_partiel"
+    effective: { from: "1900-01-01" }
+    scope: { work_time_mode: "part_time" }
+    constraint:
+      weekly_hours_min: 24
+      weekly_hours_max: 34.9  # < 35h
+    notes: "Exceptions possibles : étudiants, multi‑employeurs, etc."
+    source_ref: "C. trav., L3123‑27 à L3123‑34 (temps partiel)"
+
+  - key: "forfait_jours_plafond"
+    effective: { from: "1900-01-01" }
+    scope: { work_time_mode: "forfait_days" }
+    constraint:
+      days_per_year_max: 218
+    source_ref: "Forfait‑jours — plafond usuel 218 j/an"
+
+  - key: "forfait_heures"
+    scope: { work_time_mode: "forfait_hours" }
+    constraint:
+      weekly_hours_min: 35
+      weekly_hours_max: 48
+      average_12_weeks_max: 44
+    source_ref: "C. trav., L3121-20 s. (48h/sem max ; moy. 44h/12 sem)"

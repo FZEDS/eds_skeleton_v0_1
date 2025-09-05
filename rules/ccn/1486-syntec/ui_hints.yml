@@ -1,0 +1,167 @@
+meta:
+  ccn: "Syntec (IDCC 1486)"
+  last_checked: "2025-08-21"
+
+hints:
+  # --- Step 4 : Poste & classification ---
+  - theme: "classification"
+    slot: step4.header
+    kind: ccn
+    when: { theme: "classification" }
+    text: "Syntec : 2 catégories principales — ETAM et IC (Ingénieurs & Cadres). Choisissez la catégorie et le coefficient correspondant."
+    ref: "Syntec 2021 — Titre III"
+
+  # --- Step 5 : Temps de travail ---
+
+  - theme: "temps_travail"
+    slot: step5.block.fd
+    kind: guard
+    when: { theme: "temps_travail", work_time_mode: "forfait_days", category: "ETAM" }
+    text: "Forfait-jours indisponible pour ETAM en l’absence d’un accord d’entreprise ouvrant l’accès."
+    ref: "Syntec — Art. 4.4"
+
+  - theme: temps_travail
+    slot: step5.zoom.category
+    kind: ccn
+    when: { category: "IC" }
+    text: >
+      Cadres (IC) — 
+      La CCN ouvre le forfait-jours sous réserves d’autonomie et de garanties (entretien, suivi de charge, repos).
+      La "Modalité 2" (réalisation de missions) fixe un plafond hebdomadaire et peut coexister avec un plafond annuel en jours.
+    ref: { label: "Syntec 2021 — Titre III", url: null }
+
+  - theme: temps_travail
+    slot: step5.zoom.category
+    kind: ccn
+    when: { category: "ETAM" }
+    text: >
+      ETAM — 
+      Le forfait-jours ne s’applique pas ; le forfait-heures et les régimes d’heures supplémentaires sont usuels.
+      Vérifier la classification et les minima en lien avec la durée retenue.
+
+  # --- Forfait heures ---
+    # Paiement des heures supplémentaires
+  - theme: temps_travail
+    slot: step5.block.fh
+    kind: ccn
+    when: { work_time_mode: "forfait_hours", fh_variant: "pay" }
+    text: >
+      Forfait-heures : prévoir une valeur hebdomadaire de référence (ex. 37,5h/39h).
+      Respecter les limites hebdomadaires et les contreparties (paiement ou repos équivalent).
+      💡 Pour la convention collective Bureaux d’études techniques, le contingent maximal d’heures supplémentaires par an par salarié est de : 
+      - 220 heures par an pour les cadres, ce qui correspond à un forfait de 39h/semaine
+      - 130 heures par an pour les non cadres, ce qui correspond à un forfait de 37,5h/semaine
+      Le nombre d’heures supplémentaires inclus dans le forfait heures du salarié doit respecter ce plafond. Au-delà, l’entreprise devra octroyer une contrepartie obligatoire en repos. 
+      Néanmoins, ce contingent peut être aménagé (à la hausse ou à la baisse) par accord d’entreprise.
+    ref: { label: "C. trav., L3121‑28 ; CCN Syntec", url: null }
+
+    # Compensation en repos équivalent (RCR)
+  - theme: "temps_travail"
+    slot: step5.block.fh
+    kind: ccn
+    when: { work_time_mode: "forfait_hours", fh_variant: "repos" }
+    text: >
+      Le remplacement du paiement des heures supplémentaires par un repos équivalent (incluant les majorations) est prévu par la convention des Bureaux d'Etudes Techniques.
+      Il peut être mis en place après consultation du CSE (s'il existe) et avec l'accord du salarié (clause du contrat de travail)
+      Le repos doit être pris par 1/2 journée ou journée entière dans un délai maximum de 2 mois après l'ouverture du droit.
+    ref: { label: "C. trav., L3121‑28 ; fiche Min. travail", url: null }
+
+  # --- Forfait jours (info, distinct des "guards") ---
+  - theme: temps_travail
+    slot: step5.block.fd.info
+    kind: ccn
+    text: >
+      💡 Pour bénéficier d'un forfait jours, la convention collective des Bureaux d'études techniques (SYNTEC) précise que le salarié doit être autonome dans la gestion de son emploi du temps et répondre aux conditions suivantes:
+      - soit relever du statut Cadre Position 3 et bénéficier de 120% du minimum conventionnel applicable à sa classification;
+      - soit relever du statut Cadre Position 2.3 et percevoir 122% du minimum conventionnel correspondant;
+      - soit percevoir un salaire minimal de 2 PASS pour les autres salariés.
+      La durée du forfait jours est limitée à 218 jours par an en application de la convention collective.
+      Conditions : autonomie du salarié, suivi de la charge, entretien annuel, repos quotidien/hebdomadaire effectif.
+
+      👉 Pour les autres salariés, l'entreprise doit envisager de mettre en place votre propre accord forfait-jours. En concluant un accord d'entreprise, elle peut élargir les catégories de salariés bénéficiaires du forfait jours à condition de l'appliquer uniquement à ceux qui bénéficient d'une réelle autonomie dans la gestion de leur emploi du temps.
+    ref: { label: "Syntec — dispositions forfait-jours", url: null }
+
+  # --- Modalité 2 ---
+  - theme: temps_travail
+    slot: step5.block.m2
+    kind: ccn
+    text: >
+      Modalité 2 (réalisation de missions) : plafond hebdomadaire usuel ~38h30 et plafond annuel en jours lorsque prévu.
+      💡 Cette modalité est spécifique à la convention collective des Bureaux d'études techniques. Elle est réservée aux salariés de statut cadre percevant a minima un salaire annuel équivalent à 115% du minima conventionnel, sans pourvoir être inférieur au montant du PASS. Elle est ouverte aux non cadres uniquement si un accord d'entreprise le prévoit.
+        Elle s'applique au salarié qui réalise des missions spécifiques sans pouvoir suivre strictement un horaire prédéfini, mais sans pour autant bénéficier d’une autonomie totale dans la gestion de son temps de travail.
+        Il bénéficie d’une durée de travail organisée qui s'articule autour :
+        - d'un forfait de 220 jours de travail effectif, journée de solidarité incluse, pour une année complète de travail et 
+        - d'une durée hebdomadaire de travail jusqu’à 38 heures 30 minutes.
+    ref: { label: "Syntec — Modalité 2", url: null }
+
+  - theme: temps_travail
+    slot: step5.part_time.header
+    kind: ccn
+    text: >
+      Temps partiel — Rappels de la convention : seuils minimaux, coupures, prévenance. Vérifier aussi les accords d’entreprise.
+
+
+  # --- Step 6 : Rémunération ---
+  - theme: "remuneration"
+    slot: step6.footer
+    kind: ccn
+    when: { theme: "remuneration" }
+    text: "Le plancher est le maximum entre SMIC proratisé et minima Syntec (grille + multiplicateurs forfait-jours / Modalité 2)."
+    ref: "SMIC ; Syntec — grilles"
+
+    # --- Step 6 : Rémunération (panneaux "More") ---
+
+  - theme: "remuneration"
+    slot: step6.more.minima
+    kind: ccn
+    when: { theme: "remuneration" }
+    text: >
+      Le plancher conventionnel appliqué est déterminé par le maximum entre : <br>
+      (1) le SMIC proratisé selon la durée du travail, et<br> (2) le minimum Syntec
+      issu de la grille (coefficient) ajustée selon le mode de temps de travail
+      (forfait-jours, Modalité 2…) et la politique mensuelle (ex. prise en compte
+      d’un 13e mois). <br>En cas de conflit, la norme la plus favorable s’applique.
+    ref: "SMIC ; Syntec — grilles et politique de plancher"
+
+  - theme: "remuneration"
+    slot: step6.more.ccn_primes
+    kind: ccn
+    when: { theme: "remuneration", category: ["ETAM","IC"] }
+    text: >
+      La convention collective des Bureaux d’études techniques impose le versement d’une prime de vacances aux salariés.
+      Le montant global de cette prime doit être au moins égal à <strong>10&nbsp;%</strong> de la masse globale des indemnités de congés payés constatés au 31&nbsp;mai.
+      💡 Elle peut être compensée par certaines primes (non contractuelles ou garanties) versées collectivement aux salariés, à condition qu’une partie soit versée entre le <strong>1<sup>er</sup>&nbsp;mai</strong> et le <strong>31&nbsp;octobre</strong>.
+      Syntec : la prime de vacances est due selon la convention. Certaines pratiques (ex. 13e mois) peuvent satisfaire l’obligation à condition que le total alloué soit au moins équivalent au minimum conventionnel.
+      Vérifier votre accord d’entreprise/usage éventuel.
+    ref: "Syntec — prime de vacances (CCN) ; accords d’entreprise"
+
+
+  # --- Step 7 : Période d’essai ---
+  - theme: "periode_essai"
+    slot: step7.card
+    kind: ccn
+    when: { theme: "periode_essai" }
+    text: "En articulant les dispositions issues de la loi et celles de la convention collective des Bureaux d’études techniques, la durée maximale de la période d’essai initiale est de :
+        •	2 mois pour les Employés (Positions 1 non cadre coef 240 à 250) 	      
+        •	3 mois pour les Agents de maîtrise / techniciens (Positions 2 et 3 non cadre coef 275 à 500)	      
+        •	4 mois pour les Ingénieurs et cadres (Positions 1.1 à 3.3)
+        Le contrat de travail peut prévoir une durée de période d’essai plus courte (mais pas plus longue).
+        💡 La période d'essai peut être renouvelée pour une durée équivalente à la durée initiale avec l'accord du salarié."
+    ref: "C. trav., L1221-19 s. ; Syntec — dispositions spécifiques"
+
+  - theme: "periode_essai"
+    slot: "step7.renewal"
+    kind: "ccn"
+    text: "Syntec : le renouvellement de la période d’essai n’est possible que dans les cas prévus par la branche et doit faire l’objet d’un avenant écrit signé durant l’essai initial."
+    ref: { label: "Syntec — Titre II (ex.)", url: "https://..." }
+
+  # --- Step 8 : Préavis ---
+
+
+  # --- Step 8 : Congés payés ---
+  - theme: "conges_payes"
+    slot: step8.conges
+    kind: ccn
+    when: { theme: "conges_payes" }
+    text: "Base légale : 25 jours ouvrés (30 ouvrables). La CCN peut prévoir des jours supplémentaires d’ancienneté."
+    ref: "C. trav., L3141-3 ; Syntec — art. 5.1"

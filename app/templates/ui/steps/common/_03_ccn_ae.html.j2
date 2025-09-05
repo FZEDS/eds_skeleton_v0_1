@@ -1,0 +1,100 @@
+{# Étape 3 — CCN & Accords d'entreprise (commun) #}
+
+<div class="step card" data-step="3" aria-hidden="true">
+  <h3>03. Convention collective</h3>
+
+  <h4>Convention collective</h4>
+
+  <label class="label-hero" for="ccn_search">🔎 Rechercher par nom ou numéro IDCC</label>
+  <input id="ccn_search" list="ccn-list" placeholder="ex. HCR ou 1979">
+  <datalist id="ccn-list"></datalist>
+  <input type="hidden" name="idcc" id="idcc">
+
+  <div class="hintbar" style="margin-top:25px">
+    La convention collective détermine certaines règles au‑delà du Code du travail.
+    <br><strong>👉 L’intitulé figure sur le bulletin de paie.</strong><br>
+  </div>
+
+  <!-- Pas de CCN -->
+  <label class="line-check-right group-label mt-16" for="no_ccn">
+    <span class="nowrap">L’entreprise n’applique pas de convention collective.</span>
+    <input type="checkbox" id="no_ccn" aria-describedby="no_ccn_banner">
+  </label>
+  <div class="callout callout-info mt-12" id="no_ccn_banner" style="display:none">
+    L'entreprise n'applique pas de convention collective à ses salariés. Le contrat de travail sera donc rédigé sur la seule base du Code du travail.
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Adhésion syndicat employeur -->
+  <label class="group-label">L’entreprise a‑t‑elle adhéré à un syndicat employeur signataire&nbsp;?</label>
+  <div class="vlist mt-12">
+    <div class="radio">
+      <input type="radio" name="adhesion_syndicat" value="oui" id="adh_oui">
+      <label class="label" for="adh_oui">Oui</label>
+      <span></span>
+    </div>
+    <div class="radio">
+      <input type="radio" name="adhesion_syndicat" value="non" id="adh_non" checked>
+      <label class="label" for="adh_non">Non</label>
+      <span></span>
+    </div>
+  </div>
+
+  <div class="callout" id="ccn_note" style="display:none;margin-top:10px"></div>
+
+  <div class="divider"></div>
+
+  <!-- Documents internes -->
+  <h4>Accord d’entreprise</h4>
+
+  <!-- Accords d’entreprise (optionnel) -->
+  <div class="fieldset" style="margin-top:20px">
+    <label class="inline">
+      <span>J’indique qu’il existe un ou plusieurs accords d’entreprise susceptibles d’impacter le contrat.</span>
+      <input type="checkbox" id="ae_exists" name="ae_exists">
+    </label>
+
+    <div id="ae_fields" style="display:none; margin-top:10px">
+      <div class="grid2 align-top">
+        <div>
+          <label>Nombre d’accord(s) conclus</label>
+          <select id="ae_count" name="ae_count">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+          </select>
+          <small class="muted">Indiquez le nombre et complétez les champs ci‑dessous.</small>
+        </div>
+        <div></div>
+      </div>
+
+      <div id="ae_list" style="margin-top:8px"></div>
+
+      <!-- JSON sérialisé pour le backend -->
+      <input type="hidden" id="ae_json" name="ae_json">
+    </div>
+  </div>
+
+  <div class="hintbar" style="margin-top:20px">
+    💡 Un engagement pris au sein de l'entreprise peut avoir un impact sur la rédaction du contrat. Ce serait notamment le cas d'un accord :
+    <ul style="margin:6px 0 0 18px">
+      <li>sur l'organisation du temps de travail (forfait‑jours, temps partiel spécifique…)</li>
+      <li>sur la période d'essai (durées aménagées)</li>
+      <li>sur la rémunération (minima spécifiques, modalités)</li>
+    </ul>
+  </div>
+
+  <div class="hintbar" style="margin-top:25px">
+    Le salarié doit être informé des conventions et accords collectifs applicables dans l'entreprise ou l'établissement dans les conditions prévues par les articles
+    <a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000048288642" target="_blank" rel="noopener">R. 1221‑34</a> et
+    <a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000048288642" target="_blank" rel="noopener">R. 1221‑35</a>.
+  </div>
+
+  <div class="actions">
+    <button class="btn" data-prev>Précédent</button>
+    <button class="btn-primary" data-next>Suivant</button>
+  </div>
+</div>

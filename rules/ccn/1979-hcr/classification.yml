@@ -1,0 +1,40 @@
+# rules/ccn/1979-hcr/classification.yml
+meta:
+  label: "HCR — Niveaux & échelons"
+  mapping:
+    # map vers backend (cadre / non-cadre)
+    categorie_to_backend:
+      employe: "non-cadre"
+      agent_maitrise: "non-cadre"
+      cadre: "cadre"
+    # rendu texte quand l'UI compose la chaîne
+    classification_format: "HCR {cat} {pos} — Coef {coeff}"
+categories:
+  - key: "employe"
+    cat_code: "Niv. I–III"
+    label: "Employés (Niveaux I à III)"
+    positions:
+      - { pos: "I.1", coeff: 111, label: "Niveau I — Éch. 1 (coef 111)", tooltip: "Aptitude : Tâches d’exécution simples ; connaissances de base pour s’adapter aux situations courantes. Formation : Aucune requise ; adapté à l’apprenti·e 1ʳᵉ année. Autonomie : Travail sous consignes détaillées avec contrôle permanent. Management : Aucun. Évolution : Passage vers I.2 après 1 an d’ancienneté."}
+      - { pos: "I.2", coeff: 112, label: "Niveau I — Éch. 2 (coef 112)", tooltip: "Aptitude : Exécution simple maîtrisée ; premiers repères professionnels. Formation : Compétences validées par la hiérarchie ; apprenti·e 2ᵉ année. Autonomie : Sous instructions définies ; contrôle régulier. Management : Aucun. Évolution : Accès après 1 an à l’échelon I.1 (passage automatique)."}
+      - { pos: "I.3", coeff: 113, label: "Niveau I — Éch. 3 (coef 113)", tooltip: "Aptitude : Exécution simple avec aisance ; adaptation aux aléas fréquents. Formation : Compétences validées ; apprenti·e 3ᵉ année. Autonomie : Consignes claires ; contrôle régulier. Management : Aucun."}
+      - { pos: "II.1", coeff: 121, label: "Niveau II — Éch. 1 (coef 121)", tooltip: "Aptitude : Polyvalence opérationnelle ; activités variées avec tâches complémentaires nécessitant des connaissances métier. Formation : CAP, Brevet pro, Bac pro/techno STHR ou expérience équivalente. Autonomie : Prend des initiatives dans un cadre borné ; contrôle ponctuel. Management : Transmet les modes opératoires ; pas de responsabilité hiérarchique."}
+      - { pos: "II.2", coeff: 122, label: "Niveau II — Éch. 2 (coef 122)", tooltip: "Aptitude : Polyvalence confirmée ; prise en charge de tâches additionnelles plus techniques/relatives à la relation client. Formation : CAP, Brevet pro, Bac pro/techno STHR ou expérience équivalente. Autonomie : Ajuste l’organisation dans les limites fixées ; contrôle ponctuel. Management : Tutorat/explications possibles ; pas de management d’équipe."}
+      - { pos: "II.3", coeff: 123, label: "Niveau II — Éch. 3 (coef 123)", tooltip: "Aptitude : Polyvalence avancée ; contribution technique marquée et interventions sur opérations plus complexes. Formation : Brevet pro ou Bac pro/techno STHR, BTS, ou expérience équivalente. Autonomie : Initiatives dans un cadre défini ; contrôle ponctuel. Management : Transmission et accompagnement ; pas de responsabilité hiérarchique."}
+      - { pos: "III.1", coeff: 131, label: "Niveau III — Éch. 1 (coef 131)", tooltip: "Aptitude : Bonne maîtrise du métier ; savoir-faire et savoir-être reconnus. Formation : Brevet pro, Bac pro/techno STHR, BTS ou expérience équivalente. Autonomie : Initiatives possibles ; contrôle discontinu ; relations avec tiers et propositions d’amélioration. Management : Peut piloter des opérations complexes sous supervision et/ou coordonner le travail d’une ou plusieurs personnes."}
+      - { pos: "III.2", coeff: 132, label: "Niveau III — Éch. 2 (coef 132)", tooltip: "Aptitude : Maîtrise confirmée ; rôle de relais/référent sur certaines opérations. Formation : Bac+2 (DEUG, BTS) ou expérience équivalente. Autonomie : Latitude d’initiative élargie ; contrôle a posteriori ; recommandations formalisées. Management : Encadrement ponctuel d’une petite équipe et conduite d’opérations complexes sous contrôle."}
+      - { pos: "III.3", coeff: 133, label: "Niveau III — Éch. 3 (coef 133)", tooltip: "Aptitude : Très bonne maîtrise ; prise en charge de processus complets et appui méthodologique. Formation : Bac+2 (DEUG, BTS) ou expérience équivalente. Autonomie : Fonctionne en autonomie sur son périmètre ; contrôle principalement sur résultats ; force de proposition. Management : Coordonne/forme des pairs ; peut encadrer le travail d’une ou plusieurs personnes selon délégation."}
+  - key: "agent_maitrise"
+    cat_code: "Niv. IV"
+    label: "Agents de maîtrise (Niveau IV)"
+    positions:
+      - { pos: "IV.1", coeff: 141, label: "Niveau IV — Éch. 1 (coef 141)", tooltip: "Aptitude : Maîtrise solide de l’organisation d’un service sur un périmètre défini (procédures, planning, qualité). Formation : Bac+2 (BTS, DEUG) ou expérience équivalente. Autonomie : Prend régulièrement des initiatives dans un cadre fixé ; priorise et alerte en cas d’écart. Management : Pilote un processus complet sans management direct ; peut coordonner ponctuellement collègues ou prestataires."}
+      - { pos: "IV.2", coeff: 142, label: "Niveau IV — Éch. 2 (coef 142)", tooltip: "Aptitude : Maîtrise confirmée avec capacité à articuler plusieurs domaines (ex. accueil, F&B, étages) et à assurer la continuité opérationnelle. Formation : Bac+2 (BTS, DEUG) ou expérience équivalente. Autonomie : Adapte l’organisation au quotidien, propose des améliorations, contrôle l’exécution et corrige les écarts. Management : Coordonne plusieurs expertises en parallèle ; anime la coopération sans équipe hiérarchique dédiée."}
+      - { pos: "IV.3", coeff: 143, label: "Niveau IV — Éch. 3 (coef 143)", tooltip: "Aptitude : Maîtrise experte ; rôle de référent·e méthode et qualité, structuration des process et capitalisation des bonnes pratiques. Formation : Bac+2 (BTS, DEUG) ou expérience équivalente. Autonomie : Initie des optimisations, met en place des outils de suivi, arbitre dans le cadre de la délégation reçue. Management : Conduit des chantiers transverses, forme/mentore les pairs, pilote la coordination inter-services sans management direct nécessaire."}
+  - key: "cadre"
+    cat_code: "Niv. V"
+    label: "Cadres (Niveau V)"
+    positions:
+      - { pos: "V.1", coeff: 151, label: "Niveau V — Éch. 1 (coef 151)", tooltip: " Aptitude : Pilotage complet d’un service : organisation, qualité, suivi des indicateurs. Autonomie : Décide dans son périmètre pour atteindre les objectifs fixés. Management : Encadre une équipe sur un site ; peut participer au recrutement et aux évaluations."}
+      - { pos: "V.2", coeff: 152, label: "Niveau V — Éch. 2 (coef 152)", tooltip: "Aptitude : Maîtrise globale avec coordination de plusieurs services et conduite de projets. Autonomie : Large marge d’arbitrage pour décliner la stratégie opérationnelle. Management : Manage des responsables de service, éventuellement sur plusieurs sites."}
+      - { pos: "V.3", coeff: 153, label: "Niveau V — Éch. 3 (coef 153)", tooltip: "Aptitude : Pilotage étendu : cohérence d’ensemble, performance et amélioration continue multi-sites. Autonomie : Fixe les priorités, alloue les moyens et valide les plans d’action. Management : Anime des managers, arbitre les recrutements clés, garantit le fonctionnement global."}
+

@@ -1,0 +1,356 @@
+{# app/templates/ui/steps/_05_temps_travail.html.j2 #}
+
+<div class="step card flow-16" data-step="5" aria-hidden="true">
+  <h3>05. Durée du travail</h3>
+
+  <!-- Slots “pédagogie” injectés par l’API (explain[]) -->
+  <div id="slot_step5_block"  class="callout" data-slot="step5.block"  style="display:none"></div>
+
+  <!-- Régime -->
+  <div class="fieldset flow-12">
+    <div class="label-inline">
+      <span><strong>Mode de durée du travail choisi pour la salarié</strong></span>
+    </div>
+
+    <div class="vlist" style="gap:10px">
+      <div class="radio">
+        <input type="radio" name="work_time_regime" id="reg_full" value="temps_complet" data-required="true">
+        <label class="label" for="reg_full">
+          Temps complet
+          <span class="help" title="Le contrat de travail à temps complet désigne le contrat pour lequel le salarié travaille un nombre d’heures correspondant à la durée légale du travail en vigueur, ou le cas échéant, à la durée conventionnelle de travail applicable dans l’entreprise, déterminée par une convention ou un accord collectif.">i</span>
+        </label>
+        <span></span>
+      </div>
+
+      <div class="radio">
+        <input type="radio" name="work_time_regime" id="reg_part" value="temps_partiel">
+        <label class="label" for="reg_part">
+          Temps partiel
+          <span class="help" title="Durée contractuelle &lt; 35h/semaine. Minimum légal usuel : 24h sauf dérogations prévues par la loi/CCN.">i</span>
+        </label>
+        <span></span>
+      </div>
+    </div>
+
+    <div id="regime_hint" class="note"></div>
+  </div>
+
+    <!-- Bandeau de conformité par régime (TC/TP) -->
+  <div id="regime_conformity_card" class="callout mt-12" style="display:none"></div>
+
+
+  <hr class="divider">
+
+  <!-- Modalités (affiché uniquement si temps complet) -->
+  <div id="wt_modalities" class="fieldset flow-12" style="display:none">
+    <div class="label-inline">
+      <span><strong>Durée de travail envisagée</strong></span>
+    </div>
+
+    <div class="vlist" style="gap:10px">
+      <div class="radio">
+        <input type="radio" name="work_time_mode" id="wt_35" value="standard_35h" data-required="true">
+        <label class="label" for="wt_35">35 heures par semaine</label>
+        <span></span>
+      </div>
+
+      <div class="radio">
+        <input type="radio" name="work_time_mode" id="wt_fh_pay" value="forfait_hours">
+        <label class="label" for="wt_fh_pay">
+          Forfait heures avec paiement des heures supplémentaires
+          <span class="help" title="Les heures au‑delà de la valeur hebdomadaire de référence sont payées avec les majorations applicables.">i</span>
+        </label>
+        <span></span>
+      </div>
+
+      <div class="radio">
+        <input type="radio" name="work_time_mode" id="wt_fh_repos" value="forfait_hours">
+        <label class="label" for="wt_fh_repos">
+          Forfait heures avec compensation en repos équivalent
+          <span class="help" title="Les heures supplémentaires sont compensées par un repos d’égale durée, le cas échéant majoré.">i</span>
+        </label>
+        <span></span>
+      </div>
+
+      <div class="radio">
+        <input type="radio" name="work_time_mode" id="wt_fd" value="forfait_days">
+        <label class="label" for="wt_fd">
+          Forfait jours
+          <span class="help" title="Plafond annuel en jours (ex. 218). Réservé à certains profils et/ou ouvert par accord.">i</span>
+        </label>
+        <span></span>
+      </div>
+
+      <div class="radio">
+        <input type="radio" name="work_time_mode" id="wt_m2" value="modalite_2">
+        <label class="label" for="wt_m2">
+          Forfait heures sur la semaine avec plafond annuel jours (modalité 2 – Réalisation de mission)
+          <span class="help" title="Spécifique Syntec : plafond en jours + plafond hebdomadaire (ex. 38h30).">i</span>
+        </label>
+        <span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sous‑blocs par modalité -->
+  <div id="blk_standard" class="fieldset flow-12" style="display:none">
+    <div class="row">
+      <div>
+        <label>
+          Heures / <span id="std_hours_unit">semaine</span>
+          <span class="help" title="35h fixes à temps complet. À temps partiel : champ éditable avec bornes légales.">i</span>
+        </label>
+        <input type="number" step="0.1" min="1" max="80" name="weekly_hours" id="weekly_hours_std" value="35" readonly>
+        <input type="hidden" id="weekly_hours_hidden" name="weekly_hours_hidden">
+        <small id="std_err" class="error-msg" aria-live="polite"></small>
+      </div>
+    </div>
+    <div id="std_card" class="callout mt-12" data-slot="step5.block.std" style="display:none"></div>
+    <div id="slot_step5_header" class="callout" data-slot="step5.header" style="display:none"></div>
+  </div>
+
+  <div id="blk_forfait_hours" class="fieldset flow-12" style="display:none">
+    <div class="row">
+      <div>
+        <label>
+          Quelle est la durée hebdomadaire de travail ?
+          <span class="help" title="Valeur de référence de ton forfait heures (ex. 37,5h, 39h…).">i</span>
+        </label>
+        <input type="number" step="0.1" min="35" name="weekly_hours" id="weekly_hours_fh" placeholder="Ex. 37.5">
+        <small id="fh_err" class="error-msg" aria-live="polite"></small>
+      </div>
+    </div>
+    <div id="fh_card" class="callout mt-12" data-slot="step5.block.fh" style="display:none"></div>
+  </div>
+
+  <div id="blk_forfait_days" class="fieldset flow-12" style="display:none">
+    <div id="fd_guard" class="callout mt-12" data-slot="step5.block.fd" style="display:none"></div>
+
+    <div class="row">
+      <div>
+        <label>
+          Nombre de jours (an)
+          <span class="help" title="Plafond annuel en jours. À défaut, 218 est la pratique la plus répandue sous réserve des garanties d’autonomie.">i</span>
+        </label>
+        <input type="number" min="1" max="230" name="forfait_days_per_year" id="forfait_days_per_year" placeholder="218 par défaut">
+        <small id="fd_err" class="error-msg" aria-live="polite"></small>
+      </div>
+    </div>
+
+    <div id="fd_info" class="callout mt-12" data-slot="step5.block.fd.info" style="display:none"></div>
+  </div>
+
+  <div id="blk_modalite_2" class="fieldset flow-12" style="display:none">
+    <div class="row">
+      <div>
+        <label>
+          Heures / semaine (max 38,5h)
+          <span class="help" title="Syntec : plafond usuel 38h30 (selon CCN/accord).">i</span>
+        </label>
+        <input type="number" step="0.1" min="35" max="38.5" id="weekly_hours_m2" name="weekly_hours" placeholder="jusqu’à 38.5">
+        <small id="m2_err" class="error-msg" aria-live="polite"></small>
+      </div>
+      <div>
+        <label>Plafond annuel en jours (si applicable)</label>
+        <input type="number" min="1" max="230" id="m2_days_cap" placeholder="selon CCN/accord" readonly>
+      </div>
+    </div>
+    <div id="m2_card" class="callout mt-12" data-slot="step5.block.m2" style="display:none"></div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- TEMPS PARTIEL (affiché quand "Temps partiel" est coché) -->
+  <div id="blk_part_time" class="fieldset flow-12" style="display:none">
+    <div id="pt_header" class="callout mb-16" data-slot="step5.part_time.header" style="display:none"></div>
+
+    <h4 class="mb-4">
+      Organisation du temps partiel
+      <span class="help" title="Choisissez un mode d'organisation horaire du temps de travail du salarié.">i</span>
+    </h4>
+
+    <div class="vlist" style="gap:10px">
+      <div class="radio">
+        <input type="radio" name="pt_org" id="pt_org_fixed" value="fixed">
+        <label class="label" for="pt_org_fixed">
+          Répartition hebdomadaire <strong>déterminée</strong> par jour
+        </label>
+        <span class="help" title="Vous définissez précisément les jours travaillés (ex. Lundi 6h, Mardi 6h…). Le total hebdomadaire doit rester conforme à la loi/CCN.">i</span>
+      </div>
+      <div class="radio">
+        <input type="radio" name="pt_org" id="pt_org_month" value="monthly">
+        <label class="label" for="pt_org_month">
+          Répartition <strong>mensuelle</strong> par semaine
+        </label>
+        <span class="help" title="Vous définissez, pour chaque semaine (1 à 4), un volume d'heures. La moyenne hebdomadaire alimentera « Heures/semaine ».">i</span>
+      </div>
+    </div>
+
+    <!-- A. Répartition déterminée -->
+    <div id="pt_fixed_box" class="flow-12" style="display:none">
+      <p class="subtle-label">Préciser les jours travaillés et la durée journalière.</p>
+
+      <div class="pt-grid">
+        {% set days = [
+          ('mon','Lundi'),('tue','Mardi'),('wed','Mercredi'),
+          ('thu','Jeudi'),('fri','Vendredi'),('sat','Samedi'),('sun','Dimanche')
+        ] %}
+        {% for key,label in days %}
+        <div class="pt-row">
+          <label class="pt-daylabel" for="pt_{{key}}_on">{{ label }}</label>
+          <input type="checkbox" id="pt_{{key}}_on" class="pt-check">
+          <input type="number" step="0.1" min="0" max="12" id="pt_{{key}}_hours" class="pt-hours" placeholder="heures" disabled>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="pt-total">
+        <small>Total hebdomadaire calculé : <strong id="pt_total_hours">0.0</strong> h</small>
+        <small class="muted">→ ce total alimente « Heures/semaine » ci‑dessus.</small>
+      </div>
+
+      <!-- Slot optionnel si l’API veut compléter -->
+      <div id="pt_fixed_card" class="callout" data-slot="step5.part_time.fixed" style="display:none"></div>
+
+      <details class="callout callout-info zoom-card mt-24">
+        <summary>Rappel sur l’organisation déterminée par jour</summary>
+        <div class="body">
+          Placeholder.
+        </div>
+      </details>
+
+    </div>
+
+    <!-- B. Répartition mensuelle par semaine -->
+    <div id="pt_monthly_box" class="flow-12" style="display:none">
+      <p class="subtle-label">Préciser, pour chaque semaine du mois, le nombre d’heures travaillées.</p>
+
+      <div class="pt-grid">
+        {% for i in [1,2,3,4] %}
+        <div class="pt-row">
+          <label class="pt-daylabel" for="pt_w{{i}}_on">Semaine {{ i }}</label>
+          <input type="checkbox" id="pt_w{{i}}_on" class="pt-check">
+          <input type="number" step="0.1" min="0" max="60" id="pt_w{{i}}_hours" class="pt-hours" placeholder="heures" disabled>
+        </div>
+        {% endfor %}
+      </div>
+
+      <div class="pt-total">
+        <small>Total mensuel calculé : <strong id="pt_total_hours_month">0.0</strong> h</small>
+        <small class="muted">→ la <b>moyenne hebdomadaire</b> (total/4) alimente « Heures/semaine » ci‑dessus.</small>
+      </div>
+    </div>
+
+
+    <!-- C. Règles communes (coupures journalières / cadre / slots API) -->
+    <div id="pt_common_box" class="flow-12" style="display:none">
+      <p class="subtle-label mt-12">
+        Coupures journalières : fixer un plafond (nombre/durée) et les contreparties éventuelles prévues par l’accord.
+      </p>
+
+      <div class="grid2">
+        <div>
+          <label>Cadre choisi</label>
+          <select id="pt_flex_frame">
+            <option value="code">À défaut d’accord (cadre légal par défaut)</option>
+            <option value="ccn_ae">Selon convention/accord (branche ou entreprise)</option>
+          </select>
+        </div>
+        <div>
+          <label>Repos quotidien (rappel)</label>
+          <input id="pt_flex_rest" value="11 heures consécutives (rappel légal)" readonly>
+        </div>
+      </div>
+
+      <div class="grid3">
+        <div>
+          <label>Nb max de coupures / jour</label>
+          <input type="number" id="pt_breaks_max" min="0" max="5" placeholder="1">
+        </div>
+        <div>
+          <label>Durée max coupure (heures)</label>
+          <input type="number" step="0.1" id="pt_break_max_hours" min="0" max="6" placeholder="2">
+        </div>
+        <div>
+          <label>Contreparties (si prévues)</label>
+          <input id="pt_break_counterparties" placeholder="ex. prime, repos…">
+        </div>
+      </div>
+
+      <!-- Slots optionnels API -->
+      <div id="pt_flex_card" class="callout" data-slot="step5.part_time.flex" style="display:none"></div>
+      <div id="pt_coupures_card" class="callout" data-slot="step5.part_time.coupures" style="display:none"></div>
+
+      <details class="callout callout-info zoom-card mt-24">
+        <summary>Rappel sur l’organisation souple via accord</summary>
+        <div class="body">
+          La date des jours de travail, ainsi que les heures d’arrivée et de sortie et la durée journalière de travail,
+          dans le respect du repos obligatoire de 11 heures, sont fixées librement, en tenant compte des besoins de
+          l’entreprise et des missions du salarié.
+        </div>
+      </details>
+
+    </div>
+
+    <hr class="divider">
+
+    <!-- C. Modification de la répartition -->
+    <div class="flow-12">
+      <h4 class="mb-4">
+        Modification de la répartition
+        <span class="help" title="placeholder.">i</span>
+      </h4>
+
+      <p class="subtle-label">Lister les cas permettant le changement et indiquer le délai de prévenance.</p>
+
+      <div class="grid2">
+        <div>
+          <label>Motifs possibles (liste)</label>
+          <textarea id="pt_modif_reasons" rows="3" placeholder="ex. renforcement de l’équipe, variation de la clientèle, changement d’horaires d’ouverture…"></textarea>
+        </div>
+        <div>
+          <label>Délai de prévenance</label>
+          <div class="grid2">
+            <input type="number" id="pt_modif_notice_days" min="0" placeholder="7">
+            <select id="pt_modif_notice_unit">
+              <option value="jours">jours</option>
+              <option value="jours_ouvres">jours ouvrés</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="pt_modif_card" class="callout" data-slot="step5.part_time.modif" style="display:none"></div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- D. Priorité d’affectation -->
+    <div class="flow-12">
+      <h4 class="mb-4">
+        Priorité d’affectation
+        <span class="help" title="placeholder.">i</span>
+      </h4>
+
+      <label>Délai maximal de réponse aux candidatures internes</label>
+      <input type="number" id="pt_priority_reply_days" min="1" placeholder="15">
+      <small class="muted">Utilisé dans la clause automatique « Priorité d’affectation ».</small>
+    </div>
+
+    <!-- JSON sérialisé pour le backend -->
+    <input type="hidden" id="part_time_payload" name="part_time_payload">
+  </div>
+
+  <hr class="divider">
+
+  <!-- Zoom pédagogique par catégorie -->
+  <details id="zoom_by_cat" class="callout callout-info zoom-card" style="display:block" mt-24>
+    <summary id="zoom_cat_summary">Zoom sur la durée de travail</summary>
+    <div class="body" id="zoom_cat_body"></div>
+  </details>
+
+  <div class="actions mt-16">
+    <button class="btn" data-prev>Précédent</button>
+    <button class="btn-primary" data-next>Suivant</button>
+  </div>
+</div>

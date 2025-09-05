@@ -1,0 +1,571 @@
+# rules/clauses/common.yml
+
+meta:
+  label: "Clauses génériques"
+
+clauses:
+  - key: pdp
+    label: "Protection des données personnelles"
+    synopsis: "Information succincte RGPD + engagements réciproques de confidentialité."
+    learn_more_html: |
+      <ul>
+        <li>Base juridique : obligations d’information (RGPD, art. 13/14).</li>
+        <li>Rappels sur confidentialité & sécurité.</li>
+        <li>Renvoi aux politiques internes (charte IT, etc.).</li>
+      </ul>
+    source_ref: "RGPD (UE) 2016/679 ; Loi n°78-17 du 6 janvier 1978"
+    text_html: |
+      <p><strong>Protection des données personnelles.</strong> Le Salarié est informé que l’Employeur met en œuvre un traitement de données à caractère personnel le concernant pour la gestion du personnel et le respect de ses obligations légales et conventionnelles. Ces traitements s’effectuent conformément au Règlement (UE) 2016/679 et à la loi n°78‑17. Le Salarié dispose d’un droit d’accès, de rectification, d’effacement, d’opposition, de limitation et de portabilité, qu’il peut exercer auprès du service RH. Les données sont conservées pour les durées nécessaires aux finalités susvisées. Le Salarié s’engage par ailleurs à respecter la confidentialité des données auxquelles il a accès dans l’exercice de ses fonctions.</p>
+
+  - key: lre
+    label: "Lettres recommandées électroniques"
+    synopsis: "Acceptation des notifications par lettre recommandée électronique (LRE)."
+    learn_more_html: |
+      <p>Permet d’utiliser la LRE (art. L.100 et s. CPCE) pour les notifications susceptibles d’être faites en recommandé papier.</p>
+    text_html: |
+      <p><strong>Lettres recommandées électroniques.</strong> Les Parties conviennent que les notifications pouvant être effectuées par lettre recommandée avec avis de réception pourront l’être par lettre recommandée électronique, conformément aux dispositions en vigueur, avec les mêmes effets et garanties.</p>
+
+  - key: confidentialite
+    label: "Clause de confidentialité"
+    synopsis: "Obligation générale de confidentialité pendant et après le contrat."
+    learn_more_html: |
+      <p>Précise l’étendue des informations protégées et la durée post‑contrat.</p>
+    text_html: |
+      <p><strong>Confidentialité.</strong> Le Salarié s’engage à garder strictement confidentielles les informations, documents, procédés, données clients et, plus généralement, tout élément non public dont il aurait connaissance dans le cadre de ses fonctions. Cette obligation perdure après la rupture du contrat, quelle qu’en soit la cause.</p>
+
+
+    # --- Clause de mobilité ---
+
+  - key: mobilite
+    label: "Clause de mobilité"
+    synopsis: "Possibilité d’affectation dans un périmètre géographique prédéfini."
+    learn_more_html: |
+      <ul>
+        <li>Périmètre raisonnable, objectivement défini.</li>
+        <li>Préavis d’application et prise en compte de la vie personnelle.</li>
+      </ul>
+    flags: { needs_parameters: true }
+    params:
+      - key: perimetre
+        label: "Périmètre/zone"
+        type: text
+        required: true
+        placeholder: "ex. Île‑de‑France, périmètre agences…"
+      - key: preavis_jours
+        label: "Préavis d’application (jours)"
+        type: number
+        min: 0
+        step: 1
+        placeholder: "ex. 15"
+    text_html: |
+      <p><strong>Mobilité.</strong> En raison des nécessités du service, le Salarié pourra être affecté dans tout établissement
+      ou site de l’Entreprise situé dans le périmètre suivant : <em>{{ perimetre }}</em>. La mise en œuvre de la mobilité
+      interviendra avec un préavis de <em>{{ preavis_jours }}</em> jours et dans le respect de la vie personnelle et familiale
+      du Salarié.</p>
+
+
+    # --- Clause d'exclusivité ---
+
+  - key: exclusivite
+    label: "Clause d’exclusivité"
+    synopsis: "Interdiction d’exercice d’une autre activité pendant l’exécution du contrat."
+    learn_more_html: |
+      <ul>
+        <li>Nécessité d’intérêt légitime & proportionnalité.</li>
+        <li>Compatibilité avec cumul d’emplois restreinte.</li>
+      </ul>
+    flags: { sensitive: true }
+    text_html: |
+      <p><strong>Exclusivité.</strong> Compte tenu des fonctions confiées, de l’accès du Salarié à des informations sensibles, à la clientèle et à l’organisation interne de l’Entreprise, les Parties conviennent que, pendant toute la durée d’exécution du présent contrat, le Salarié consacrera l’exclusivité de son activité professionnelle à l’Entreprise.</p>
+
+      <p>En conséquence, le Salarié s’interdit, directement ou par personne interposée, d’exercer toute autre activité professionnelle, salariée ou indépendante, rémunérée ou non, notamment de nature à : (i) porter atteinte aux intérêts légitimes de l’Entreprise ou à l’obligation de loyauté, (ii) entrer, même partiellement, en concurrence avec les activités de l’Entreprise, (iii) compromettre sa disponibilité, son efficacité ou le respect des règles relatives à la durée du travail et aux temps de repos.</p>
+
+      <p><strong>Dérogations et autorisations.</strong> Par exception, demeurent compatibles avec la présente clause, sous réserve qu’elles ne nuisent pas aux intérêts de l’Entreprise, n’entrent pas en concurrence et respectent la réglementation applicable : (a) l’exercice de mandats électifs et d’activités bénévoles ou associatives ; (b) la création d’œuvres de l’esprit et contributions scientifiques ; (c) des interventions d’enseignement ou de formation ponctuelles. Toute autre activité externe non visée ci‑dessus doit faire l’objet d’une <em>information préalable</em> et, le cas échéant, d’une <em>autorisation écrite</em> de l’Employeur, délivrée dans un délai raisonnable. L’Employeur peut assortir son autorisation de conditions et la retirer en cas d’atteinte avérée aux intérêts légitimes de l’Entreprise.</p>
+
+      <p><strong>Portée et proportion.</strong> La présente clause est strictement limitée : (i) dans le temps, à la seule durée du contrat ; (ii) dans l’objet, aux activités susceptibles de porter atteinte aux intérêts légitimes de l’Entreprise au regard des fonctions exercées ; (iii) dans l’espace, au périmètre d’activité de l’Entreprise. Elle est indépendante de toute clause de non‑concurrence applicable <em>après</em> la rupture du contrat, le cas échéant.</p>
+
+      <p><strong>Rappel spécifique au temps partiel.</strong> Lorsque le contrat est conclu à temps partiel, la présente clause ne s’applique que dans la mesure strictement nécessaire à la protection des intérêts légitimes de l’Entreprise et sous réserve des dispositions spécifiques relatives au cumul d’emplois.</p>
+
+      <p><strong>Sanctions.</strong> Le non‑respect de la présente clause est susceptible de constituer une faute disciplinaire et d’engager la responsabilité du Salarié, sans préjudice de toute action en cessation de l’activité litigieuse et en réparation du préjudice subi.</p>
+
+
+    # --- Clause de non-concurrence ---
+
+  - key: non_concurrence
+    label: "Clause de non‑concurrence"
+    synopsis: "Interdiction post‑contrat limitée et proportionnée, assortie d’une contrepartie financière."
+    learn_more_html: |
+      <ul>
+        <li><strong>Conditions de validité</strong> : protection d’un intérêt légitime, proportionnalité, limitations en <em>temps / espace / activités</em>, <strong>contrepartie financière</strong> distincte et non nulle.</li>
+        <li><strong>Contrepartie</strong> : souvent un % de la rémunération moyenne (ex. 30–50 %), versée pendant la durée de l’interdiction.</li>
+        <li><strong>Levée</strong> : l’employeur peut renoncer dans un délai contractuel à compter de la notification de la rupture ; alors l’obligation et la contrepartie cessent.</li>
+        <li><strong>Sanctions</strong> : injonction de cessation et dommages‑intérêts ; une pénalité contractuelle peut être prévue mais demeure modulable par le juge.</li>
+      </ul>
+    flags: { sensitive: true, needs_parameters: true }
+    params:
+      - key: fonctions
+        label: "Fonctions / intérêt légitime"
+        type: textarea
+        required: true
+        placeholder: "ex. accès à informations stratégiques, secret de fabrication, clientèle, etc."
+        help: "Justifie la nécessité et la proportion de la clause (éléments concrets liés au poste)."
+
+      - key: activites_visees
+        label: "Activités interdites"
+        type: text
+        required: true
+        placeholder: "ex. exercer une activité de … / démarcher la clientèle …"
+
+      - key: zone_geo
+        label: "Périmètre géographique"
+        type: text
+        required: true
+        placeholder: "ex. départements 75/92/93/94 ; Île‑de‑France ; France ; UE…"
+
+      - key: duree_mois
+        label: "Durée de l’interdiction (mois)"
+        type: number
+        required: true
+        min: 1
+        max: 24
+        step: 1
+        help: "12 mois recommandé ; 24 mois = plafond usuel admis selon contexte."
+
+      - key: indem_pct
+        label: "Contrepartie financière (% de la moyenne brute)"
+        type: percent
+        required: true
+        min: 0.01
+        step: 0.5
+        placeholder: "ex. 33.00"
+        help: "La contrepartie doit être réelle et non nulle (souvent 30–50 %)."
+
+      - key: indem_base_mois
+        label: "Base de calcul (nombre de mois de référence)"
+        type: number
+        required: true
+        min: 1
+        max: 24
+        step: 1
+        default: 12
+        help: "Moyenne des rémunérations brutes des [[indem_base_mois]] derniers mois de présence."
+
+      - key: indem_periodicite
+        label: "Périodicité de versement de la contrepartie"
+        type: enum
+        required: true
+        options:
+          - { value: "mensuelle",     label: "mensuelle" }
+          - { value: "trimestrielle", label: "trimestrielle" }
+          - { value: "unique",        label: "unique (déconseillé)" }
+        default: "mensuelle"
+
+      - key: levee_faculte
+        label: "Faculté de levée par l’employeur"
+        type: boolean
+        default: true
+        help: "Permet à l’employeur de renoncer à la clause dans un délai fixé après la notification de la rupture."
+
+      - key: levee_delai_jours
+        label: "Délai (jours) pour lever la clause"
+        type: number
+        min: 0
+        step: 1
+        placeholder: "ex. 15"
+        help: "À compter de la notification de la rupture (préavis non compris le cas échéant)."
+
+      - key: exclusions_motifs
+        label: "Exceptions d’application (optionnel)"
+        type: text
+        placeholder: "ex. rupture pendant la période d’essai ; licenciement économique ; inaptitude…"
+
+      - key: concurrents_nommes
+        label: "Concurrents nommément visés (optionnel)"
+        type: textarea
+        placeholder: "ex. Société A ; Groupe B ; …"
+
+      - key: penalite_eur
+        label: "Pénalité forfaitaire (optionnel)"
+        type: money
+        min: 0
+        step: 100
+        placeholder: "ex. 10 000"
+        help: "Peut être modulée par le juge (art. 1231‑5 C. civ.)."
+
+      - key: penalite_conv_ref
+        label: "Réf. pénalité conventionnelle (optionnel)"
+        type: text
+        placeholder: "ex. article X de la CCN du …"
+
+    text_html: |
+      <p><strong>Non‑concurrence.</strong> Compte tenu des attributions confiées au Salarié et de l’intérêt légitime de l’Employeur à protéger ses intérêts (notamment au regard des éléments suivants : [[fonctions]]), les Parties conviennent que, <em>postérieurement à la cessation du contrat</em>, le Salarié s’interdit, pendant une durée de <strong>[[duree_mois]] mois</strong>, d’exercer, directement ou par personne interposée, toute activité <strong>[[activites_visees]]</strong> au sein du périmètre géographique suivant : <strong>[[zone_geo]]</strong>.</p>
+
+      <p>Cette interdiction est strictement limitée et proportionnée : (i) quant au <em>temps</em> : [[duree_mois]] mois ; (ii) quant à <em>l’espace</em> : [[zone_geo]] ; (iii) quant aux <em>activités visées</em> : [[activites_visees]]. Elle ne saurait avoir pour effet d’empêcher le Salarié d’exercer une activité conforme à sa formation et à son expérience hors de ce périmètre, ni d’entraver de manière excessive sa liberté du travail.</p>
+
+      <p><strong>Contrepartie financière.</strong> En contrepartie de cette obligation, l’Employeur versera au Salarié une indemnité égale à <strong>[[indem_pct]] %</strong> de la moyenne des rémunérations brutes perçues au cours des <strong>[[indem_base_mois]]</strong> derniers mois de présence, versée selon une périodicité <strong>[[indem_periodicite__label]]</strong> pendant toute la durée de l’interdiction. Cette indemnité, distincte de toute rémunération d’activité, est due à compter de la prise d’effet de l’obligation de non‑concurrence et jusqu’à son terme ou sa levée.</p>
+
+      <p><strong>Levée de la clause.</strong> Le cas échéant, l’Employeur peut renoncer à la présente clause par notification écrite adressée au Salarié dans un délai maximum de <strong>[[levee_delai_jours]]</strong> jours à compter de la notification de la rupture du contrat. La levée produit effet à sa date ; elle libère chacune des Parties de l’obligation corrélative et met fin, pour l’avenir, au versement de la contrepartie financière.</p>
+
+      <p><strong>Champ d’application.</strong> Sauf stipulation contraire ci‑après, la présente clause s’applique quelle que soit la nature et le motif de la rupture du contrat. Le cas échéant, les cas d’exclusion suivants sont convenus : [[exclusions_motifs]]. Le cas échéant, la clause vise notamment les entreprises suivantes : [[concurrents_nommes]].</p>
+
+      <p><strong>Inexécution — Mesures et sanctions.</strong> En cas de violation de l’obligation de non‑concurrence, l’Employeur pourra solliciter la cessation immédiate des agissements litigieux et la réparation du préjudice subi. Le cas échéant, une pénalité forfaitaire d’un montant de <strong>[[penalite_eur]] €</strong> et/ou celle prévue par <strong>[[penalite_conv_ref]]</strong> sera due, sans préjudice de tous dommages‑intérêts complémentaires ni du pouvoir de modération du juge. Les Parties reconnaissent que toute somme versée au titre de la contrepartie financière restera acquise au Salarié pour la période antérieure à la violation, sous réserve des dispositions légales et judiciaires applicables.</p>
+
+      <p><em>La présente clause est indépendante de toute clause d’exclusivité applicable pendant l’exécution du contrat et ne fait pas obstacle aux obligations de loyauté et de confidentialité.</em></p>
+
+
+    # --- Clause dédit formation ---
+
+  - key: debit_formation
+    label: "Clause de dédit‑formation"
+    synopsis: "Engagement de stabilité assorti d’un remboursement dégressif et plafonné, en cas de départ imputable au salarié."
+    learn_more_html: |
+      <ul>
+        <li><strong>Validité</strong> : (i) investissement spécifique réel supporté par l’employeur, au‑delà de ses obligations légales ; (ii) clause conclue <em>avant</em> l’entrée en formation ; (iii) montant plafonné au <em>coût réel</em> et <strong>dégrOssant</strong> dans le temps ; (iv) durée raisonnable et proportionnée ; (v) absence d’atteinte excessive à la liberté du travail.</li>
+        <li><strong>Déclenchement</strong> : recommandé de le limiter aux ruptures <em>imputables au salarié</em> (démission, faute grave/lourde). Aucune restitution en cas de rupture non imputable (licenciement hors faute grave, inaptitude non fautive, motif éco, RC… sauf choix contraire assumé).</li>
+        <li><strong>Proportion</strong> : l’assiette ne peut excéder le coût net effectivement supporté (après aides/prises en charge), avec une <em>dégressivité pro rata temporis</em> par défaut.</li>
+        <li><strong>Références</strong> : principe d’adaptation (C. trav., L. 6321‑1) ; construction prétorienne sur le dédit‑formation.</li>
+      </ul>
+    flags: { sensitive: true, needs_parameters: true }
+
+    params:
+      - key: formation_intitule
+        label: "Intitulé de la formation"
+        type: text
+        required: true
+        placeholder: "ex. Certification X – parcours Y"
+
+      - key: formation_objet
+        label: "Objet / finalité"
+        type: textarea
+        required: true
+        placeholder: "ex. montée en compétences… ; certification…"
+
+      - key: organisme_nom
+        label: "Organisme formateur — nom"
+        type: text
+        required: true
+        placeholder: "ex. Institut Z"
+
+      - key: organisme_adresse
+        label: "Organisme formateur — adresse"
+        type: text
+        required: true
+        placeholder: "Adresse complète"
+
+      - key: date_debut
+        label: "Date de début"
+        type: text
+        required: true
+        placeholder: "JJ/MM/AAAA"
+
+      - key: date_fin
+        label: "Date de fin"
+        type: text
+        required: true
+        placeholder: "JJ/MM/AAAA"
+
+      - key: cout_ht_eur
+        label: "Coût HT pris en charge (en €)"
+        type: money
+        required: true
+        step: 1
+        placeholder: "ex. 3 500"
+
+      - key: aides_deductibles_eur
+        label: "Aides / prises en charge déductibles (en €)"
+        type: money
+        step: 1
+        default: 0
+        help: "OPCO, subventions, etc. — à déduire pour déterminer le coût net."
+
+      - key: cout_net_estime_eur
+        label: "Coût net estimé supporté par l’employeur (en €)"
+        type: money
+        step: 1
+        placeholder: "ex. 2 800"
+
+      - key: qualification_juridique
+        label: "Qualification juridique de l'action"
+        type: enum
+        required: true
+        options:
+          - { value: "hors_pdc_hors_obligation", label: "n’entre pas dans le plan de développement des compétences et ne relève pas de l’obligation d’adaptation (L. 6321‑1 C. trav.)" }
+          - { value: "hors_pdc",                 label: "n’entre pas dans le plan de développement des compétences" }
+          - { value: "pdc",                      label: "est incluse dans le plan de développement des compétences" }
+        default: "hors_pdc_hors_obligation"
+
+      - key: remuneration_maintien
+        label: "Modalités de rémunération pendant la formation"
+        type: text
+        placeholder: "ex. intégralement maintenue ; X % ; selon art. … du contrat"
+
+      - key: frais_modalites
+        label: "Frais (déplacement/repas/hébergement) — modalités"
+        type: text
+        placeholder: "ex. remboursés selon la politique frais / art. … du contrat"
+
+      - key: engagement_duree_mois
+        label: "Durée d’engagement (mois)"
+        type: number
+        required: true
+        min: 1
+        max: 36
+        step: 1
+        help: "12–24 mois fréquent selon coût/longueur ; rester proportionné."
+
+      - key: point_depart
+        label: "Point de départ de la durée"
+        type: enum
+        required: true
+        options:
+          - { value: "fin_formation",     label: "à compter de l’achèvement de la formation" }
+          - { value: "reprise_poste",     label: "à compter de la reprise effective du poste" }
+          - { value: "obtention_titre",   label: "à compter de l’obtention de l’attestation/certification" }
+        default: "fin_formation"
+
+      - key: triggers
+        label: "Cas d’exigibilité (recommandé : imputable au salarié)"
+        type: enum
+        required: true
+        options:
+          - { value: "demission",           label: "démission du Salarié" }
+          - { value: "demission_faute",     label: "démission ou licenciement pour faute grave/lourde" }
+          - { value: "large",               label: "toute rupture, y compris rupture conventionnelle (non recommandé)" }
+        default: "demission_faute"
+
+      - key: exclusions_std
+        label: "Insérer les exclusions usuelles"
+        type: boolean
+        default: true
+        help: "Licenciement hors faute grave, rupture conventionnelle, inaptitude non fautive, motif économique, force majeure…"
+
+      - key: exclusions_compl
+        label: "Exclusions complémentaires (optionnel)"
+        type: text
+        placeholder: "ex. modification substantielle imposée, mobilité géographique refusée hors clause…"
+
+      - key: mode_calcul
+        label: "Mode de calcul"
+        type: enum
+        required: true
+        options:
+          - { value: "prorata",   label: "dégressivité pro rata temporis (par défaut)" }
+          - { value: "forfait",   label: "montant forfaitaire (déconseillé si élevé)" }
+          - { value: "grille",    label: "grille d’échéancier spécifique" }
+        default: "prorata"
+
+      - key: montant_forfait_eur
+        label: "Montant forfaitaire (si choisi)"
+        type: money
+        step: 1
+        placeholder: "ex. 1 500"
+
+      - key: echeancier_desc
+        label: "Grille/échéancier (si spécifique)"
+        type: textarea
+        placeholder: "ex. 100 % si départ < 3 mois ; 60 % si 3–6 mois ; 30 % si 6–12 mois ; 0 % au‑delà…"
+
+    text_html: |
+      <p><strong>Convention de dédit‑formation.</strong> Le Salarié suivra du <strong>[[date_debut]]</strong> au <strong>[[date_fin]]</strong> la formation <strong>« [[formation_intitule]] »</strong>, destinée à [[formation_objet]], dispensée par [[organisme_nom]] ([[organisme_adresse]]). La présente convention est conclue <em>antérieurement</em> au début de la formation.</p>
+
+      <p><strong>Coûts et prises en charge.</strong> Le coût de la formation, pris en charge par l’Employeur, s’élève à <strong>[[cout_ht_eur]] € HT</strong>. Les aides/prises en charge déductibles s’élèvent à <strong>[[aides_deductibles_eur]] €</strong>, de sorte que le coût net estimé supporté par l’Employeur est de <strong>[[cout_net_estime_eur]] €</strong> (à ce jour). Le Salarié recevra copie de la facture acquittée à l’issue de la formation.</p>
+
+      <p><strong>Qualification juridique.</strong> L’action de formation [[qualification_juridique__label]].</p>
+
+      <p><strong>Rémunération et frais.</strong> Pendant la formation, la rémunération est [[remuneration_maintien]] ; les frais (déplacements/repas/hébergement) sont [[frais_modalites]].</p>
+
+      <p><strong>Engagement de stabilité.</strong> En contrepartie de cet investissement spécifique, le Salarié s’engage à demeurer au service de l’Employeur pendant une durée de <strong>[[engagement_duree_mois]] mois</strong>, courant [[point_depart__label]]. Cet engagement est raisonnable et proportionné, et ne fait pas obstacle à la liberté de démissionner.</p>
+
+      <p><strong>Restitution en cas de départ anticipé.</strong> Si la rupture du contrat intervient avant l’expiration de cette durée, dans l’un des cas suivants : <strong>[[triggers__label]]</strong>, le Salarié versera à l’Employeur une indemnité de restitution plafonnée au <strong>coût net effectivement supporté</strong> par ce dernier et <em>dégressive dans le temps</em>. À défaut d’échéancier spécifique ci‑après, la restitution est calculée <em>pro rata temporis</em> du temps d’engagement restant à courir à la date de la notification de la rupture.</p>
+
+      <p><em>Le cas échéant</em> : lorsque les Parties conviennent d’un mode alternatif — <strong>montant forfaitaire</strong> de <strong>[[montant_forfait_eur]] €</strong> ou <strong>grille spécifique</strong> ci‑après — ce mécanisme ne peut conduire à un montant supérieur au coût net effectivement exposé ni à une sanction disproportionnée. Échéancier : [[echeancier_desc]].</p>
+
+      <p><strong>Exclusions/limites.</strong> Aucune restitution n’est due en cas de rupture non imputable au Salarié (notamment licenciement hors faute grave, inaptitude non fautive, motif économique, force majeure), ni lorsque l’Employeur est à l’initiative de la rupture, sauf stipulation contraire expressément convenue et juridiquement admissible. [[exclusions_compl]]</p>
+
+      <p><strong>Information et preuve.</strong> Le Salarié reconnaît avoir été informé, préalablement à l’entrée en formation, de la nature, des dates, des coûts et des conséquences du présent engagement, et accepte la présente clause en connaissance de cause.</p>
+
+      <p><em>La présente convention n’emporte ni pénalité disciplinaire ni renonciation aux droits légaux du Salarié ; toute somme due est strictement limitée au coût net effectivement supporté et diminue avec le temps.</em></p>
+
+
+    # --- Clause véhicule de fonction ---
+
+  - key: vehicule_fonction
+    label: "Mise à disposition d’un véhicule de fonction"
+    synopsis: "Conditions d’usage d’un véhicule de fonction."
+    flags: { needs_parameters: true }
+    params:
+      - key: categorie
+        label: "Catégorie du véhicule"
+        type: enum
+        options:
+          - { value: "citadine",  label: "Citadine" }
+          - { value: "compacte",  label: "Compacte" }
+          - { value: "familiale", label: "Familiale" }
+          - { value: "suv",       label: "SUV" }
+          - { value: "electrique",label: "Électrique" }
+        required: true
+      - key: usage
+        label: "Usage autorisé"
+        type: enum
+        options:
+          - { value: "pro",       label: "Professionnel uniquement" }
+          - { value: "pro_prive", label: "Professionnel et à titre privé" }
+        required: true
+      - key: franchise_eur
+        label: "Franchise (si applicable)"
+        type: money
+        step: 0.01
+      - key: restitution
+        label: "Modalités de restitution"
+        type: textarea
+        placeholder: "État des lieux, plein, accessoires…"
+    text_html: |
+      <p><strong>Véhicule de fonction.</strong> Catégorie : <em>{{categorie}}</em>, usage : <em>{{usage}}</em>.
+      Franchise éventuelle : <em>{{franchise_eur}}</em> €. Restitution : <em>{{restitution}}</em>.</p>
+      old:
+      <p><strong>Véhicule de fonction.</strong> L’Employeur met à la disposition du Salarié un véhicule de fonction pour les besoins de son activité, utilisable <em>[professionnellement / professionnellement et à titre privé]</em>, selon la politique interne en vigueur. Le Salarié s’engage à en faire un usage prudent et à respecter les obligations d’assurance et d’entretien. Le véhicule sera restitué à la fin du contrat ou en cas de retrait.</p>
+
+    # --- Clause d'astreinte ---
+
+  - key: astreinte
+    label: "Astreintes"
+    synopsis: "Organisation, programmation et compensation des périodes d’astreinte ; interventions décomptées en temps de travail effectif."
+    learn_more_html: |
+      <ul>
+        <li><strong>Définition</strong> : période durant laquelle le salarié, sans être à la disposition permanente et immédiate de l’employeur, doit être en mesure d’intervenir pour accomplir un travail au service de l’entreprise (lieu librement choisi, obligation d’être joignable et d’intervenir dans un délai fixé).</li>
+        <li><strong>Mise en place</strong> : par <em>accord collectif</em> ou, à défaut, par <em>décision unilatérale</em> après consultation du CSE et information des salariés (modalités et compensation précisées).</li>
+        <li><strong>Programmation</strong> : planning communiqué au salarié dans un délai raisonnable (référence usuelle : 15 jours, sauf urgence dûment justifiée).</li>
+        <li><strong>Compensation</strong> : financière ou en repos, distincte du temps d’intervention.</li>
+        <li><strong>Interventions</strong> : comptabilisées en <em>temps de travail effectif</em> (déplacements inclus), ouvrant droit aux majorations/RTT/HS selon le droit applicable ; respect du repos quotidien/hebdomadaire.</li>
+        <li><strong>Références</strong> : C. trav., L3121‑9 à L3121‑12 ; dispositions réglementaires sur la décompte/traçabilité.</li>
+      </ul>
+    flags: { needs_parameters: true, sensitive: false }
+
+    params:
+      - key: base_juridique
+        label: "Base juridique"
+        type: enum
+        required: true
+        options:
+          - { value: "accord_collectif", label: "accord collectif applicable (référence précisée ci‑dessous)" }
+          - { value: "decision_unilaterale", label: "décision unilatérale après consultation du CSE (date précisée ci‑dessous)" }
+        default: "accord_collectif"
+
+      - key: base_reference
+        label: "Référence (accord/décision)"
+        type: text
+        required: true
+        placeholder: "ex. Accord du 12/06/2024, article 5 ; DU 15/09/2024 après consultation CSE du 05/09/2024"
+
+      - key: domaine_intervention
+        label: "Domaine d’intervention concerné"
+        type: text
+        required: true
+        placeholder: "ex. support applicatif, maintenance IT, astreinte technique…"
+
+      - key: perimetre_geographique
+        label: "Périmètre géographique d’intervention"
+        type: text
+        placeholder: "ex. Île‑de‑France ; rayon 30 km du site X ; intervention à distance"
+
+      - key: plages_astreinte
+        label: "Plages possibles"
+        type: textarea
+        required: true
+        placeholder: "ex. Soirs 18h30–8h30 du lundi au vendredi ; Week‑ends et jours fériés 24h/24…"
+
+      - key: preavis_jours
+        label: "Délai de prévenance (jours)"
+        type: number
+        min: 1
+        step: 1
+        default: 15
+        help: "15 jours usuel ; peut être réduit en cas d’urgence dûment justifiée."
+
+      - key: urgence_preavis_jours
+        label: "Préavis minimal en cas d’urgence (jours)"
+        type: number
+        min: 0
+        step: 1
+        default: 1
+
+      - key: delai_intervention_min
+        label: "Délai maximal d’intervention (minutes)"
+        type: number
+        required: true
+        min: 5
+        step: 5
+        default: 60
+
+      - key: frequence_max_mois
+        label: "Fréquence maximale (astreintes/mois)"
+        type: number
+        min: 0
+        step: 1
+        placeholder: "ex. 6"
+
+      - key: moyens_mis_a_disposition
+        label: "Moyens mis à disposition"
+        type: text
+        placeholder: "ex. téléphone pro, ordinateur portable, VPN, véhicule de service…"
+
+      - key: tracabilite_modalites
+        label: "Traçabilité (outils/modalités)"
+        type: text
+        placeholder: "ex. outil de ticketing JIRA ; feuille d’astreinte à remettre au manager…"
+
+      - key: compensation_mode
+        label: "Mode de compensation de l’astreinte (hors interventions)"
+        type: enum
+        required: true
+        options:
+          - { value: "forfait_periode", label: "indemnité forfaitaire par période d’astreinte" }
+          - { value: "taux_horaire", label: "indemnité par heure d’astreinte" }
+          - { value: "repos_compensateur", label: "repos compensateur" }
+        default: "forfait_periode"
+
+      - key: indemn_forfait_eur
+        label: "Indemnité forfaitaire par période (en €)"
+        type: money
+        step: 1
+        placeholder: "ex. 30"
+
+      - key: indemnite_par_heure_eur
+        label: "Indemnité par heure d’astreinte (en €)"
+        type: money
+        step: 0.01
+        placeholder: "ex. 2.50"
+
+      - key: repos_par_periode_heures
+        label: "Repos compensateur par période (heures)"
+        type: number
+        step: 0.5
+        placeholder: "ex. 2"
+
+    text_html: |
+      <p><strong>Astreintes — organisation et compensation.</strong> Pour assurer la continuité du service [[domaine_intervention]], des périodes d’astreinte peuvent être instituées [[base_juridique__label]] (réf. : [[base_reference]]). Les astreintes peuvent être programmées sur les plages suivantes : [[plages_astreinte]]. Le planning individuel est communiqué au salarié avec un préavis de <strong>[[preavis_jours]] jours</strong> (réduit à <strong>[[urgence_preavis_jours]] jour(s)</strong> en cas d’urgence dûment justifiée). À titre indicatif, la fréquence maximale visée est de [[frequence_max_mois]] astreinte(s) par mois.</p>
+
+      <p><strong>Définition et obligations.</strong> Pendant l’astreinte, le salarié, libre de son lieu de résidence, doit demeurer joignable et en mesure d’intervenir dans un délai maximal de <strong>[[delai_intervention_min]] minutes</strong>, le cas échéant sur le périmètre [[perimetre_geographique]]. L’employeur met à disposition les moyens nécessaires : [[moyens_mis_a_disposition]]. Le salarié consigne ses interventions selon les modalités de traçabilité prévues : [[tracabilite_modalites]].</p>
+
+      <p><strong>Compensation de l’astreinte (hors interventions).</strong> L’astreinte ouvre droit à [[compensation_mode__label]]. 
+      <em>Si indemnité forfaitaire</em> : <strong>[[indemn_forfait_eur]] €</strong> par période d’astreinte. 
+      <em>Si indemnité horaire</em> : <strong>[[indemnite_par_heure_eur]] €</strong> par heure d’astreinte. 
+      <em>Si repos compensateur</em> : <strong>[[repos_par_periode_heures]] h</strong> de repos par période d’astreinte. Les montants/droits ci‑dessus s’entendent distinctement du temps d’intervention.</p>
+
+      <p><strong>Interventions pendant l’astreinte.</strong> Toute intervention (y compris le temps de déplacement) est décomptée en <em>temps de travail effectif</em> et rémunérée/majorée conformément aux dispositions légales et conventionnelles applicables (heures supplémentaires, travail de nuit/dimanches/jours fériés le cas échéant), avec reconstitution/sauvegarde des repos quotidien et hebdomadaire.</p>
+
+      <p><em>La présente clause s’applique sous réserve des stipulations conventionnelles plus favorables et de toute évolution légale. Elle ne modifie pas par elle‑même les seuils/plafonds de durée du travail ni le régime des repos, qui demeurent intégralement applicables.</em></p>
+
+
+    # --- Clause forfait-jours ---
+
+  - key: forfait_jours
+    label: "Convention individuelle de forfait annuelle en jours"
+    synopsis: "Insertion d’une convention individuelle de forfait‑jours."
+    learn_more_html: |
+      <ul>
+        <li>Nécessite un <strong>accord collectif habilitant</strong> et un suivi de la charge.</li>
+        <li>Plafonds/an + encadrement du temps de repos.</li>
+      </ul>
+    text_html: |
+      <p><strong>Convention de forfait en jours.</strong> Le Salarié est soumis à une convention individuelle de forfait en jours sur l’année, conformément aux dispositions légales et conventionnelles applicables et à l’accord collectif habilitant. Le nombre de jours travaillés dans l’année est fixé à <em>[218]</em> jours, sous réserve des dispositions conventionnelles en vigueur. Un entretien annuel spécifique sur la charge de travail, l’articulation vie pro/vie perso et la rémunération est organisé.</p>

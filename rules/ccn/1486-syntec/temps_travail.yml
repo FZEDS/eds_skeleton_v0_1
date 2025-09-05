@@ -1,0 +1,29 @@
+# rules/ccn/1486-syntec/temps_travail.yml
+
+meta:
+  idcc: 1486
+  theme: "temps_travail"
+  source:
+    label: "Syntec — Forfait‑jours"
+rules:
+  - key: "forfait_jours"
+    effective: { from: "2021-07-16" }
+    scope: { work_time_mode: "forfait_days" }
+    constraint:
+      days_per_year_max: 218
+    source_ref: "Syntec — Art. 4.4 (forfait‑jours) (plafond usuel 218 j/an)"
+
+  - key: modalite_2
+    scope: { work_time_mode: forfait_hours_mod2 }
+    constraint:
+      weekly_hours_min: 35
+      weekly_hours_max: 38.5
+      days_per_year_cap: 218
+    source_ref: "Syntec – Modalité 2 (Réalisation de missions) : 38h30/sem, plafond annuel en jours 218"
+
+  - key: part_time
+    scope: { work_time_mode: "part_time" }
+    constraint:
+      weekly_hours_min: 24   
+      weekly_hours_max: 34.9
+    source_ref: "Accord de branche étendu, art. …"

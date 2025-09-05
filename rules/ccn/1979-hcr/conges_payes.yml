@@ -1,0 +1,10 @@
+# rules/ccn/1979-hcr/conges_payes.yml
+meta:
+  idcc: 1979
+  theme: "conges_payes"
+  source:
+    label: "HCR — congés payés (base légale)"
+    url: "https://www.legifrance.gouv.fr/codes/id/LEGITEXT000006072050/"
+rules: []
+# Pas de bonus d’ancienneté CP « générique » côté branche. Les « 6 jours fériés garantis »
+# sont traités en hint (voir ui_hints.yml) car ce ne sont pas des CP.

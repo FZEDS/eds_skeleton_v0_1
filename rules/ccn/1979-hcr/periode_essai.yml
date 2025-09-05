@@ -1,0 +1,39 @@
+# rules/ccn/1979-hcr/periode_essai.yml
+meta:
+  idcc: 1979
+  theme: "periode_essai"
+  source:
+    article: "Art. 13 — Période d’essai (CDI)"
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000005826269/?idConteneur=KALICONT000005635173"
+
+rules:
+  # Cadres (V)
+  - key: "cadres_v"
+    category: "cadre"
+    bounds: { max_months: 3, max_total_months: 6 }
+    renewal_allowed: true
+    source_ref: "HCR, art. 13 — cadres"
+
+  # Agents de maîtrise / techniciens (Niveau IV)
+  - key: "am_t_iv"
+    category: "non-cadre"
+    coeff_range: { min: 141, max: 199 }
+    bounds: { max_months: 2, max_total_months: 4 }
+    renewal_allowed: true
+    source_ref: "HCR, art. 13 — AM/T"
+
+  # Employés (Niveaux I à III)
+  - key: "employes_i_iii"
+    category: "non-cadre"
+    coeff_range: { min: 100, max: 139 }
+    bounds: { max_months: 1, max_total_months: 2 }
+    renewal_allowed: true
+    source_ref: "HCR, art. 13 — employés"
+
+  # Exception : Niveau I Échelon 1 — non renouvelable
+  - key: "niv_i_e1_no_renewal"
+    category: "non-cadre"
+    coeff_in: [111]  # I.1
+    bounds: { max_months: 1, max_total_months: 1 }
+    renewal_allowed: false
+    source_ref: "HCR, art. 13 — Niv. I Éch. 1 : pas de renouvellement"

@@ -1,0 +1,22 @@
+# rules/ccn/1979-hcr/temps_travail.yml
+
+meta:
+  idcc: 1979
+  theme: "temps_travail"
+  source:
+    label: "HCR — Forfait annuel en jours (cadres autonomes)"
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000033926595"  # avenant 22 bis
+rules:
+  - key: "forfait_jours"
+    effective: { from: "2018-03-15" }  # extension de l’avenant 22 bis
+    scope: { work_time_mode: "forfait_days" }
+    constraint:
+      days_per_year_max: 218
+    source_ref: "Avenant n°22 bis du 7 octobre 2016 — Cadres autonomes — plafond 218 j/an"
+
+  - key: part_time
+    scope: { work_time_mode: "part_time" }
+    constraint:
+      weekly_hours_min: 24   
+      weekly_hours_max: 34.9
+    source_ref: "Accord de branche étendu, art. …"

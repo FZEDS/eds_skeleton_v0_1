@@ -1,0 +1,12 @@
+meta:
+  source:
+    label: "Code du travail — base congés payés"
+
+rules:
+  - key: "cp_base"
+    base:
+      # 25 jours ouvrés (5 semaines) ≈ 30 ouvrables
+      jours_ouvres: 25
+      jours_ouvrables: 30
+    source_ref: "C. trav., L3141‑3 s."
+    effective: { from: "2016-08-08" }
