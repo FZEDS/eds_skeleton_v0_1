@@ -1,5 +1,5 @@
 meta:
-  label: "Syntec — Classification"
+  label: "Convention collective nationale des bureaux d'études techniques, des cabinets d'ingénieurs‑conseils et des sociétés de conseils (Syntec) (IDCC 1486)"
   mapping:
     categorie_to_backend:
       cadre: "cadre"

@@ -1,0 +1,168 @@
+meta:
+  label: "Clauses spécifiques — IDCC 2216"
+
+clauses:
+  - key: tp_coupures_amplitude_2216
+    label: "Temps partiel — Coupures & amplitude (2216)"
+    synopsis: "Limite d’amplitude en cas de coupure > 2 h ; repères demi‑journées ; inventaires."
+    learn_more_html: |
+      <ul>
+        <li>Si une coupure au sein d’une même journée excède <strong>2 heures</strong>, l’amplitude journalière est limitée à <strong>12 heures</strong> (ou <strong>13 heures</strong> en cas d’inventaire comptable).</li>
+        <li>Repère de répartition : demi‑journées d’au moins <strong>3 h 30</strong>.</li>
+        <li>Le planning doit respecter les règles de prévenance, de repos quotidien/hebdomadaire et les plafonds légaux.</li>
+      </ul>
+    source_ref: "IDCC 2216 — Spécificités temps partiel : coupures / amplitude / inventaires"
+    flags: { needs_parameters: true }
+    params:
+      - key: breaks_max
+        label: "Nombre maximal de coupures par jour"
+        type: number
+        min: 0
+        max: 5
+        step: 1
+        default: 1
+        placeholder: "ex. 1"
+      - key: break_threshold_hours
+        label: "Seuil de coupure déclenchant l’amplitude limitée (heures)"
+        type: number
+        min: 0
+        step: 0.1
+        default: 2
+        placeholder: "2.0"
+      - key: daily_amplitude_max_if_break
+        label: "Amplitude max si une coupure dépasse le seuil (heures)"
+        type: number
+        min: 0
+        step: 0.1
+        default: 12
+        placeholder: "12.0"
+      - key: daily_amplitude_max_inventory
+        label: "Amplitude max en cas d’inventaire (heures)"
+        type: number
+        min: 0
+        step: 0.1
+        default: 13
+        placeholder: "13.0"
+      - key: min_halfday_hours
+        label: "Durée minimale d’une demi‑journée (heures)"
+        type: number
+        min: 0
+        step: 0.1
+        default: 3.5
+        placeholder: "3.5"
+      - key: inventory_periods
+        label: "Périodes d’inventaire (texte)"
+        type: textarea
+        placeholder: "Ex. inventaire comptable annuel en décembre ; inventaires intermédiaires trimestriels…"
+
+    text_html: |
+      <p><strong>Temps partiel — Coupures et amplitude (2216).</strong> L’organisation quotidienne du travail au titre du présent contrat à temps partiel prévoit au plus <strong>[[breaks_max]]</strong> coupure(s) par jour. Lorsque la durée d’une coupure excède <strong>[[break_threshold_hours]] heures</strong> au sein d’une même journée, l’amplitude journalière est limitée à <strong>[[daily_amplitude_max_if_break]] heures</strong> (portée à <strong>[[daily_amplitude_max_inventory]] heures</strong> en cas d’inventaire comptable).</p>
+      <p>À titre de repère, la durée minimale d’une demi‑journée de travail est fixée à <strong>[[min_halfday_hours]] heures</strong>. L’Employeur arrête les plannings dans le respect des règles de prévenance, des repos quotidien et hebdomadaire, des plafonds légaux et conventionnels et, le cas échéant, des dispositions d’accord d’entreprise applicables.</p>
+      <p>Inventaires : [[inventory_periods]]</p>
+
+  - key: sunday_work_premiums_2216
+    label: "Travail du dimanche — Majorations et contreparties (2216)"
+    synopsis: "Fixe le cadre (habituel/occasionnel), la surface du magasin et le taux de majoration (20 % / 30 % / 100 %) avec repos compensateur le cas échéant."
+    learn_more_html: |
+      <ul>
+        <li>La majoration varie selon le caractère habituel/occasionnel du travail dominical et la surface de vente (<strong>≤ 400&nbsp;m²</strong> / <strong>&gt; 400&nbsp;m²</strong>).</li>
+        <li>Usages/accords fréquemment rencontrés : <strong>20&nbsp;%</strong> (travail dominical habituel), <strong>30&nbsp;%</strong> (&gt; 400&nbsp;m²), <strong>100&nbsp;%</strong> dans certains cas d’ouverture occasionnelle, <em>avec repos compensateur</em>.</li>
+        <li>Vérifier votre accord d’entreprise/enseigne (ou de branche étendu) et les règles locales (préfectorales/municipales) pour l’ouverture dominicale.</li>
+      </ul>
+    source_ref: "Dimanches — Code du travail (L3132‑13 s.) + dispositions 2216 / accords d’entreprise"
+    flags: { needs_parameters: true }
+    params:
+      - key: sunday_regularity
+        label: "Caractère du travail dominical"
+        type: enum
+        options:
+          - { value: "habituel", label: "Habituel / régulier" }
+          - { value: "occasionnel", label: "Occasionnel" }
+        required: true
+      - key: store_surface
+        label: "Surface du magasin"
+        type: enum
+        options:
+          - { value: "le_400", label: "≤ 400 m²" }
+          - { value: "gt_400", label: "> 400 m²" }
+        required: true
+      - key: premium_percent
+        label: "Taux de majoration du dimanche"
+        type: percent
+        step: 1
+        min: 0
+        placeholder: "20 / 30 / 100"
+      - key: has_comp_rest
+        label: "Repos compensateur prévu (si 100 % ou accord)"
+        type: boolean
+        default: true
+      - key: comp_rest_details
+        label: "Précisions repos compensateur (délai / durée / modalités)"
+        type: textarea
+        placeholder: "Ex. repos d’une durée équivalente dans les 2 mois, planifié par roulement…"
+      - key: sunday_scope
+        label: "Périmètre / fréquence des dimanches"
+        type: textarea
+        placeholder: "Ex. ouverture dominicale habituelle entre 8h et 13h ; 12 dimanches occasionnels/an sur période de fêtes…"
+
+    text_html: |
+      <p><strong>Travail du dimanche — Majorations et contreparties.</strong> Les Parties conviennent que le travail dominical est de nature <strong>[[sunday_regularity__label]]</strong> dans le magasin de surface <strong>[[store_surface__label]]</strong>. À ce titre, les heures effectuées le dimanche donnent lieu à une majoration de <strong>[[premium_percent]] %</strong>, sans préjudice des repos et garanties légales/conventionnelles applicables.</p>
+
+      <p><strong>Repos compensateur.</strong> [[has_comp_rest]] ? "Lorsque la majoration est de 100&nbsp;% ou lorsqu’un accord en dispose autrement, un repos compensateur est attribué comme suit : [[comp_rest_details]]" : "Le cas échéant, un repos compensateur sera accordé si la réglementation/accord l’exige, selon les modalités en vigueur."</p>
+
+      <p><strong>Périmètre / fréquence.</strong> [[sunday_scope]]</p>
+
+  - key: public_holidays_2216
+    label: "Jours fériés chômés et payés (2216)"
+    synopsis: "Fixe les 6 jours fériés chômés en sus du 1er mai et les modalités si travaillés (indemnité ou repos d’égale durée sous 15 jours)."
+    learn_more_html: |
+      <ul>
+        <li>En sus du 1er mai (jour férié légal), la branche prévoit <strong>6 jours fériés chômés et payés</strong>.</li>
+        <li>Lorsqu’un jour férié est travaillé, il donne lieu, selon les cas, à une <strong>indemnité</strong> ou à un <strong>repos d’égale durée</strong> à prendre dans un délai de <strong>15 jours</strong>.</li>
+      </ul>
+    source_ref: "Jours fériés — IDCC 2216 (vérifier dispositions étendues/accords d’entreprise)"
+    text_html: |
+      <p><strong>Jours fériés chômés et payés.</strong> En application des dispositions conventionnelles, en sus du 1er mai, 
+      <strong>six jours fériés</strong> sont chômés et payés au sein de l’Entreprise. Les jours concernés sont fixés par la Direction 
+      en concertation avec les représentants du personnel lorsqu’ils existent et, le cas échéant, conformément aux usages/accords applicables.</p>
+
+      <p><strong>Fériés travaillés — Contreparties.</strong> Lorsqu’un jour férié est travaillé, il donne lieu à une <strong>indemnité</strong> 
+      ou à un <strong>repos d’égale durée</strong> à prendre dans un délai maximal de <strong>15 jours</strong>, selon les règles légales et conventionnelles 
+      en vigueur et, le cas échéant, les dispositions d’un accord d’entreprise.</p>
+
+  - key: annual_bonus_2216
+    label: "Prime annuelle (2216 — « prime de novembre » )"
+    synopsis: "Obligation conventionnelle de branche : 100 % du salaire de base de novembre, avec règles de proratisation et d’absences."
+    learn_more_html: |
+      <ul>
+        <li>Montant de référence : <strong>100 % du salaire de base du mois de novembre</strong> (hors accessoires et variables, sauf stipulation contraire d’accord d’entreprise).</li>
+        <li>Proratisation : année incomplète (arrivée/départ), temps partiel, absences non assimilées.</li>
+        <li>Versement : en une fois sur novembre, ou fractionné selon accords/usage (ex. 50/50 ou étalement).</li>
+      </ul>
+    source_ref: "Prime annuelle — Art. 3.6 (2216) — vérifier dispositions étendues et accords d’entreprise"
+    text_html: |
+      <p><strong>Prime annuelle de branche.</strong> Conformément aux dispositions conventionnelles applicables (IDCC 2216),
+      il est attribué au Salarié une prime annuelle dont le montant de référence correspond à <strong>100 % du salaire de base du mois de novembre</strong>.
+      La prime est distincte du salaire de base et des autres accessoires de rémunération.</p>
+
+      <p><strong>Proratisation et cas particuliers.</strong> La prime est calculée <em>pro rata temporis</em> en cas d’année incomplète (arrivée ou départ en cours d’année),
+      de travail à temps partiel, ainsi qu’en cas d’absences non assimilées à du temps de travail effectif selon les dispositions légales et conventionnelles en vigueur.
+      Lorsqu’un accord d’entreprise ou un usage prévoit des modalités spécifiques (base de calcul différente, calendrier de versement, critères d’assimilation), celles‑ci s’appliquent.</p>
+
+      <p><strong>Versement.</strong> Sauf stipulation plus favorable, la prime est versée avec la paie du mois de novembre ou selon un fractionnement prévu par accord ou usage.</p>
+
+  - key: night_work_premiums_2216
+    label: "Travail de nuit — Majorations (2216)"
+    synopsis: "+5 % 21 h–22 h et +20 % 22 h–6 h (spécificité de branche au‑delà du droit commun)."
+    learn_more_html: |
+      <ul>
+        <li>Majoration <strong>+5&nbsp;%</strong> pour les heures travaillées entre <strong>21 h et 22 h</strong>.</li>
+        <li>Majoration <strong>+20&nbsp;%</strong> pour les heures travaillées entre <strong>22 h et 6 h</strong>.</li>
+        <li>Application sous réserve des dispositions légales (travail de nuit) et des accords d’entreprise éventuels.</li>
+      </ul>
+    source_ref: "Travail de nuit — IDCC 2216 (à confirmer par avenant étendu / accord)"
+    text_html: |
+      <p><strong>Travail de nuit — Majorations spécifiques.</strong> Les heures travaillées entre <strong>21 h et 22 h</strong> donnent lieu à une
+      majoration de <strong>5&nbsp;%</strong> du salaire horaire de base. Les heures travaillées entre <strong>22 h et 6 h</strong> donnent lieu à une
+      majoration de <strong>20&nbsp;%</strong> du salaire horaire de base, sans préjudice des contreparties légales applicables au travail de nuit.</p>
+      <p>Les dispositions d’un éventuel accord d’entreprise prévoyant des taux ou modalités plus favorables se substituent aux présentes stipulations.</p>

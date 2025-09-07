@@ -1,0 +1,38 @@
+meta:
+  idcc: 2216
+  name: "Commerce de détail & de gros à prédominance alimentaire"
+  theme: "periode_essai"
+  source:
+    label: "Annexes I–III (période d’essai)"
+  last_checked: "2025-09-06"
+
+rules:
+  # Ouvriers/Employés (1A–4B)
+  - effective: { from: "2010-04-21" }
+    category: "non-cadre"
+    coeff_range: { min: 101, max: 402 }
+    bounds: { max_months: 2, max_total_months: 2 }
+    renewal_allowed: false
+    source_ref: "Annexe I — Essai 2 mois non renouvelable"
+
+  # AM/T (5–7)
+  - effective: { from: "2010-04-21" }
+    category: "non-cadre"
+    coeff_range: { min: 500, max: 700 }
+    bounds: { max_months: 3, max_total_months: 5 }
+    renewal_allowed: true
+    source_ref: "Annexe II — Essai 3 mois + renouvellement 2 mois (max 5)"
+
+  # Cadres (8–9)
+  - effective: { from: "2010-04-21" }
+    category: "cadre"
+    coeff_range: { min: 800, max: 900 }
+    bounds: { max_months: 4, max_total_months: 8 }
+    renewal_allowed: true
+    source_ref: "Annexe III — Essai 4 mois + renouvellement (max 8)"
+
+legal_floor:
+  # rappel ordre public pour traçabilité
+  ouvriers_employes:           { max_total_months: 2 }
+  agents_maitrise_techniciens: { max_total_months: 5 }
+  cadres:                      { max_total_months: 8 }

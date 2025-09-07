@@ -1,0 +1,44 @@
+meta:
+  idcc: 2216
+  theme: "preavis"
+  source:
+    label: "Titre III — Rupture"
+  last_checked: "2025-09-06"
+
+rules:
+  # --- Démission ---
+  - category: "non-cadre"
+    coeff_range: { min: 101, max: 402 }   # Ouv/Emp
+    notice_months: { demission: 1 }
+    source_ref: "Démission — Ouvriers/Employés : 1 mois"
+
+  - category: "non-cadre"
+    coeff_range: { min: 500, max: 700 }   # AM/T
+    notice_months: { demission: 2 }
+    source_ref: "Démission — AM/T : 2 mois"
+
+  - category: "cadre"                     # Cadres
+    notice_months: { demission: 3 }
+    source_ref: "Démission — Cadres : 3 mois"
+
+  # --- Licenciement ---
+  - category: "non-cadre"
+    coeff_range: { min: 101, max: 402 }   # Ouv/Emp
+    anciennete_months: { min: 0, max: 24 }
+    notice_months: { licenciement: 1 }
+    source_ref: "Licenciement Ouv/Emp : 1 mois < 2 ans"
+
+  - category: "non-cadre"
+    coeff_range: { min: 101, max: 402 }
+    anciennete_months: { min: 24 }
+    notice_months: { licenciement: 2 }
+    source_ref: "Licenciement Ouv/Emp : 2 mois ≥ 2 ans"
+
+  - category: "non-cadre"                 # AM/T
+    coeff_range: { min: 500, max: 700 }
+    notice_months: { licenciement: 2 }
+    source_ref: "Licenciement — AM/T : 2 mois"
+
+  - category: "cadre"                     # Cadres
+    notice_months: { licenciement: 3 }
+    source_ref: "Licenciement — Cadres : 3 mois"

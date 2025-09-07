@@ -56,7 +56,7 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 /* =========================
    Toolbar & boutons
    ========================= */
-.toolbar{display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px}
+.toolbar{display:flex;justify-content:flex-end;gap:10px;margin-bottom:14px}
  button{appearance:none;border:0;border-radius:12px;padding:10px 14px;font-weight:600;cursor:pointer}
 .btn{background:#f2f6fb;border:1px solid var(--line)} .btn:hover{background:#e9f1f8}
 .btn-ghost{background:#fff;border:1px solid var(--line);color:var(--brand)}
@@ -72,39 +72,46 @@ hr{border:0;border-top:1px solid var(--line);margin:18px 0}
 /* =========================
    Grilles & cartes
    ========================= */
-.formgrid{display:grid;grid-template-columns:1fr 280px;gap:24px}
-.maincol .card{border:1px solid var(--line);border-radius:var(--radius);padding:18px;background:#fff;box-shadow:var(--shadow)}
+.formgrid{display:grid;grid-template-columns:1fr 280px;gap:28px}
+.maincol .card{border:1px solid var(--line);border-radius:var(--radius);padding:22px;background:#fff;box-shadow:var(--shadow)}
 .summary{position:sticky;top:24px;border:1px solid var(--line);border-radius:var(--radius);padding:16px;background:#fff}
 .summary h4{margin:0 0 10px}
 
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
 .align-top{align-items:flex-start}
 
 /* =========================
    Progression & étapes
    ========================= */
-.progress{height:8px;background:#dbe6f0;border-radius:999px;overflow:hidden;margin:8px 0 16px}
+.progress{height:8px;background:#dbe6f0;border-radius:999px;overflow:hidden;margin:10px 0 18px}
 .progress > i,
 .progress > i#progress{display:block;height:100%;width:0;background:var(--brand);transition:width .25s ease}
 
 .steps{list-style:none;margin:0;padding:0}
-.steps li{display:flex;gap:10px;align-items:center;padding:8px;border-radius:10px;color:var(--muted)}
+.steps li{display:flex;gap:10px;align-items:center;padding:10px;border-radius:10px;color:var(--muted)}
 /* Ton JS utilise .current/.done/.blocked */
 .summary .steps li.current{background:#e6eef7;color:var(--brand-ink);font-weight:600;border:1px solid #c9d7e6}
 .summary .steps li.done{opacity:.95}
 .summary .steps li.blocked{opacity:.5}
+.summary .steps li.incomplete{position:relative}
+.summary .steps li.incomplete::after{
+  content:'⚠';
+  color:#b45309; /* amber */
+  font-size:12px;
+  margin-left:auto;
+}
 
 .step{display:none}
 .step[aria-hidden="false"]{display:block}
-.step h3{font-size:1.15rem;margin-bottom:8px}
+.step h3{font-size:1.15rem;margin-bottom:12px}
 
 /* =========================
    Form controls
    ========================= */
-label{display:block;font-size:.92rem;color:var(--muted);margin:6px 0 4px}
+label{display:block;font-size:.92rem;color:var(--muted);margin:8px 0 6px}
 input,select,textarea{
-  width:100%;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);
+  width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);
   transition:border-color .15s ease, box-shadow .15s ease;
 }
 textarea{resize:vertical}
@@ -128,7 +135,7 @@ label.inline{ display:inline-flex; align-items:center; gap:8px; line-height:1.4 
 
 /* Listes radio verticales (classification) */
 .vlist{list-style:none;margin:6px 0 0;padding:0}
-.vlist .radio{display:grid;grid-template-columns:20px 1fr 16px;gap:10px;align-items:center;padding:6px 0}
+.vlist .radio{display:grid;grid-template-columns:20px 1fr 16px;gap:12px;align-items:center;padding:8px 0}
 .vlist .radio input{margin:0}
 .vlist .label{line-height:1.35}
 .vlist .help{justify-self:end}
@@ -146,10 +153,22 @@ label.inline{ display:inline-flex; align-items:center; gap:8px; line-height:1.4 
   border-left:6px solid var(--co-ccn-bd);     /* sera surchargé par variantes */
   background:var(--co-ccn-bg);
   color:var(--co-ccn-fg);
-  border-radius:12px; padding:12px; margin:10px 0;
+  border-radius:12px; padding:14px 16px; margin:12px 0;
+  font-size:14px; /* harmonisation avec les zones Zoom (période d’essai) */
+  line-height:1.5; /* typographie harmonisée avec Zoom */
+  box-shadow: var(--shadow);
 }
-.callout .co-line{ margin-top:6px }
+.callout .co-line{ margin-top:8px }
 .callout .co-line:first-child{ margin-top:2px }
+.callout ul{ margin:6px 0 0 18px; padding:0 }
+.callout li{ margin:4px 0; }
+.callout p + p{ margin-top:6px }
+.callout strong{ font-weight:700 }
+
+/* Mise en page "chip + corps" moderne */
+.callout .co-line{ display:grid; grid-template-columns: 26px 1fr; gap:10px; align-items:flex-start }
+.callout .co-body{ display:block }
+.callout .co-body small{ color:var(--muted) }
 
 /* Variantes */
 .callout-info,
@@ -181,9 +200,11 @@ label.inline{ display:inline-flex; align-items:center; gap:8px; line-height:1.4 
 
 /* Puces “chip” alignées à la charte */
 .co-chip{
-  display:inline-block; font-size:11px; font-weight:700; line-height:1;
-  padding:3px 6px; border-radius:999px; letter-spacing:.02em; margin-right:6px;
-  background:#fff; border:1px solid currentColor;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:26px; height:26px;
+  font-size:14px; font-weight:700; line-height:1;
+  border-radius:50%; letter-spacing:.02em; margin-top:2px;
+  background:#fff; border:1px solid currentColor; color:var(--co-ccn-bd);
 }
 .co-chip.info{ color:var(--co-info-bd) }
 .co-chip.warn{ color:var(--co-warn-bd) }
@@ -245,9 +266,7 @@ label.inline{ display:inline-flex; align-items:center; gap:8px; line-height:1.4 
 .step[data-step="5"] .pt-hours{
   max-width:140px; justify-self:start;
 }
-.step[data-step="5"] .pt-total{
-  margin-top:6px; display:flex; gap:12px; align-items:center;
-}
+.step[data-step="5"] .pt-total{ margin-top:8px; display:flex; gap:12px; align-items:center; }
 
 /* Responsive : empile heures sous la case si l’espace manque */
 @media (max-width:640px){
@@ -333,7 +352,7 @@ label.inline{ display:inline-flex; align-items:center; gap:8px; line-height:1.4 
 .spacer-8{height:8px} .spacer-16{height:16px} .spacer-24{height:24px}
 
 /* ====== SÉPARATEURS ====== */
-.divider{border:0;border-top:1px solid #e5e7eb;margin:12px 0}
+.divider{border:0;border-top:1px solid #e5e7eb;margin:16px 0}
 .divider-strong{border:0;border-top:2px solid #cbd5e1;margin:16px 0}
 .rule{height:1px;background:#e5e7eb;margin:12px 0;border-radius:1px}
 

@@ -35,6 +35,8 @@ def _load_yaml(p: Path) -> Dict[str, Any]:
     return {}
 
 
+
+
 def _index_by_key(items: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
     out: Dict[str, Dict[str, Any]] = {}
     for it in items or []:
@@ -141,13 +143,21 @@ def load_clauses_catalog(idcc: Optional[int] = None) -> Dict[str, Any]:
     common = _load_yaml(RULES_DIR / "clauses" / "common.yml")
     merged = common
     d = _find_ccn_dir(idcc)
-    if d and (d / "clauses.yml").exists():
-        merged = _merge_catalogs(common, _load_yaml(d / "clauses.yml"))
+    ccn_doc = _load_yaml(d / "clauses.yml") if (d and (d / "clauses.yml").exists()) else {"clauses": []}
+    if ccn_doc.get("clauses"):
+        merged = _merge_catalogs(common, ccn_doc)
+
+    # Index d'origine (pour grouper côté UI)
+    common_keys = { (c.get("key") or "").strip() for c in (common.get("clauses") or []) }
+    ccn_keys    = { (c.get("key") or "").strip() for c in (ccn_doc.get("clauses") or []) }
 
     items = [_norm_clause_item(x) for x in (merged.get("clauses") or [])]
 
-    ui_items = [
-        {
+    ui_items = []
+    for it in items:
+        k = it.get("key")
+        group = "ccn" if k in ccn_keys else "common"
+        ui_items.append({
             "key": it["key"],
             "label": it["label"],
             "synopsis": it["synopsis"],
@@ -155,11 +165,9 @@ def load_clauses_catalog(idcc: Optional[int] = None) -> Dict[str, Any]:
             "source_ref": it["source_ref"],
             "url": it["url"],
             "flags": it["flags"],
-            # on expose la spec des paramètres
             "params": it["params"],
-        }
-        for it in items
-    ]
+            "group": group,
+        })
 
     return {"items": ui_items, "meta": merged.get("meta") or {}}
 

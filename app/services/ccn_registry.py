@@ -10,10 +10,9 @@ RULES_DIR = APP_DIR.parent / "rules"
 
 # Quelques libellés sûrs en fallback si on ne trouve rien dans les YAML
 FALLBACK_LABELS = {
-    1486: "Bureaux d’études techniques (Syntec)",
-    1979: "Hôtels, cafés, restaurants (HCR)",
-    44:   "Métallurgie (ingénieurs et cadres)",
-    1518: "Commerce de détail et de gros à prédominance alimentaire",
+    1486: "Convention collective nationale des bureaux d'études techniques, des cabinets d'ingénieurs‑conseils et des sociétés de conseils (Syntec) (IDCC 1486)",
+    1979: "Convention collective nationale des hôtels, cafés, restaurants (HCR) (IDCC 1979)",
+    2216: "Convention collective nationale du commerce de détail et de gros à prédominance alimentaire (IDCC 2216)",
 }
 
 def _load_meta_label(d: Path) -> Optional[str]:

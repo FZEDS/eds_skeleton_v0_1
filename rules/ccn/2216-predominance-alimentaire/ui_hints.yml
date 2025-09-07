@@ -1,0 +1,250 @@
+meta:
+  ccn: "Commerce de détail & de gros à prédominance alimentaire (IDCC 2216)"
+  last_checked: "2025-09-06"
+
+hints:
+  # --- Step 4 : Poste & classification ---
+  - theme: "classification"
+    slot: step4.header
+    kind: ccn
+    when: { theme: "classification" }
+    text: >
+      CCN Grande distribution — Niveaux 1 à 9. Les familles usuelles sont :
+      Ouvriers/Employés (niveaux 1 à 4), Agents de maîtrise & Techniciens (5 à 7),
+      Cadres (7 à 9 selon fonctions repères). La classification combine des critères
+      classants (connaissances, aptitude, relations, responsabilité, autonomie) et
+      s’exprime par un niveau (ex. « Niveau 3B », « Niveau 7 »).
+    ref:
+      label: "2216 — Classification (Titre IV / chapitres 4.1–4.2)"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005757434/?idConteneur=KALICONT000005635085"
+
+  # --- Step 5 : Temps de travail ---
+  # Forfait-jours : périmètre et plafond
+  - theme: "temps_travail"
+    slot: step5.block.fd
+    kind: guard
+    when: { work_time_mode: "forfait_days", category: "non-cadre" }
+    text: >
+      Forfait-jours : réservé aux cadres autonomes répondant aux conditions légales.
+      À défaut d’autonomie avérée ou d’accord d’entreprise adapté, privilégier un
+      régime horaire (standard / forfait-heures).
+    ref:
+      label: "Avenant n°52 — Forfait-jours (branche)"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000047743147/?idConteneur=KALICONT000005635085"
+
+  - theme: "temps_travail"
+    slot: step5.block.fd.info
+    kind: ccn
+    when: { work_time_mode: "forfait_days", category: "cadre" }
+    text: >
+      Forfait-jours (cadres autonomes) — plafond annuel usuel : 216 jours.
+      Suivi de la charge, entretiens dédiés, garanties de repos et traçabilité
+      obligatoires. Les journées au‑delà du forfait sont strictement encadrées
+      (majoration minimale 15%).
+    ref:
+      label: "Avenant n°52 — Forfait-jours 216 j/an ; +15% journées sup."
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000047743147/?idConteneur=KALICONT000005635085"
+
+  # Temps partiel 26 h (plancher de branche)
+  - theme: "temps_travail"
+    slot: step5.part_time.header
+    kind: ccn
+    when: { theme: "temps_travail" }
+    text: >
+      Temps partiel — Durée contractuelle minimale : 26 h/semaine, sauf cas
+      dérogatoires (étudiants < 26 ans, demande écrite et motivée du salarié,
+      multi‑employeurs…). Le contrat doit préciser les plages de travail et le
+      régime des compléments d’heures / avenants.
+    ref:
+      label: "Titre VI — Art. 6.1.1 (durée mini 26 h) ; Avenant n°48"
+      url: "https://www.legifrance.gouv.fr/conv_coll/article/KALIARTI000048303336"
+
+  # Heures / organisation : rappel branche
+  - theme: "temps_travail"
+    slot: step5.block.fh
+    kind: ccn
+    when: { theme: "temps_travail" }
+    text: >
+      Organisation horaire — Respect des plafonds hebdomadaires légaux, contreparties
+      aux heures supplémentaires (paiement/Repos Compensateur), repos quotidien et
+      hebdomadaire effectifs. La modulation/annualisation requiert un cadre écrit et
+      un suivi individuel des heures.
+    ref:
+      label: "Code du travail — temps de travail & HS (L3121 s.)"
+      url: "https://code.travail.gouv.fr/"
+
+  # Coupures & amplitude (TP)
+  - theme: "temps_travail"
+    slot: step5.part_time.coupures
+    kind: ccn
+    when: { theme: "temps_travail" }
+    text: >
+      Temps partiel — Coupures & amplitude : si une coupure dans la journée excède <strong>2&nbsp;heures</strong>,
+      l’amplitude journalière est limitée à <strong>12&nbsp;heures</strong> (ou <strong>13&nbsp;heures</strong> en cas d’inventaire comptable).
+      Repères de répartition : demi‑journées de <strong>3h30</strong> minimum, planification communiquée et prévenance respectée.
+      Renseignez les champs « coupures » pour refléter ces limites dans le contrat. Une clause dédiée
+      sera ajoutée automatiquement à l’étape 9 (« Clauses additionnelles ») pour sécuriser ces dispositions.
+    ref:
+      label: "2216 — Spécificités TP (coupures/amplitude)"
+      url: null
+
+  # Dimanches & majorations (pratique de branche)
+  - theme: "temps_travail"
+    slot: step5.more.sunday
+    kind: ccn
+    when: { theme: "temps_travail" }
+    text: >
+      Travail du dimanche (commerce alimentaire) — contreparties spécifiques :
+      majoration de 20% lorsque le travail dominical est régulier/habituel, et
+      règles particulières pour les magasins > 400 m² (loi). Vérifier vos usages
+      d’enseigne et éventuels accords d’entreprise.
+    ref:
+      label: "Code du travail numérique — Commerce alimentaire (dimanches)"
+      url: "https://code.travail.gouv.fr/"
+
+  # Nuit — majorations spécifiques de branche (au‑delà du droit commun)
+  - theme: "temps_travail"
+    slot: step5.more.night
+    kind: ccn
+    when: { theme: "temps_travail" }
+    text: >
+      Travail de nuit — Spécificité de branche : majoration <strong>+5&nbsp;%</strong> sur la tranche <strong>21 h–22 h</strong> et
+      <strong>+20&nbsp;%</strong> sur la tranche <strong>22 h–6 h</strong> (au‑delà du droit commun). Vérifier les accords d’entreprise et usages d’enseigne.
+    ref:
+      label: "2216 — Travail de nuit (vérifier l’avenant étendu)"
+      url: null
+
+  # Zoom par catégorie (ajouts)
+  - theme: "temps_travail"
+    slot: step5.zoom.category
+    kind: ccn
+    when: { category: "non-cadre" }
+    text: >
+      Ouvriers/Employés/AM/T — Temps partiel : plancher <strong>26 h/sem</strong>. Si une coupure > <strong>2 h</strong> dans la journée :
+      amplitude limitée à <strong>12 h</strong> (ou <strong>13 h</strong> en inventaire). Repère demi‑journée : <strong>3 h 30</strong> minimum.
+    ref: { label: "2216 — Repères TP (coupures/amplitude)", url: null }
+
+  - theme: "temps_travail"
+    slot: step5.zoom.category
+    kind: ccn
+    when: { category: "cadre" }
+    text: >
+      Cadres — Forfait‑jours : plafond <strong>216 jours/an</strong> (SMAG 216). Garanties : entretien, suivi de charge, repos.
+      Rémunération : mensualisation SMAG (selon ancienneté) si plus favorable que la grille SMMG.
+    ref: { label: "Avenant n°52 — Forfait‑jours", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000047743147/?idConteneur=KALICONT000005635085" }
+
+  # --- Step 6 : Rémunération ---
+  - theme: "remuneration"
+    slot: step6.footer
+    kind: ccn
+    when: { theme: "remuneration" }
+    text: >
+      Plancher applicable = maximum entre SMIC proratisé et minima de branche
+      (SMMG 151,67 h mensuelles selon niveau). Pour les forfait‑jours, appliquer
+      la référence « SMAG 216 jours » lorsqu’elle est publiée par avenant salaires.
+    ref:
+      label: "2216 — Minima conventionnels (avenants salariaux 2025)"
+      url: "https://www.convention.fr/convention-commerce-de-detail-et-de-gros-a-predominance-alimentaire-3305.html"
+
+  # Bandeau ciblé cadres forfait‑jours (SMAG)
+  - theme: "remuneration"
+    slot: step6.footer
+    kind: ccn
+    when: { work_time_mode: "forfait_days", category: "cadre" }
+    text: >
+      Cadres au forfait‑jours — utiliser la référence annuelle « SMAG 216 jours » (avenant salaires),
+      mensualisée (÷ 12), si elle est plus favorable que la grille mensuelle.
+    ref:
+      label: "Avenant salaires 2025 — SMAG 216 j/an"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000051947555/?idConteneur=KALICONT000005635085"
+
+  - theme: "remuneration"
+    slot: step6.more.minima
+    kind: ccn
+    when: { theme: "remuneration" }
+    text: >
+      Comment se calcule le minimum : (1) repérer le niveau de classification,
+      (2) prendre le SMMG mensuel (151,67 h) et proratiser si temps partiel,
+      (3) comparer au SMIC proratisé ; (4) si forfait‑jours cadre autonome, utiliser
+      la référence annuelle 216 jours (SMAG) de l’avenant n°52 et des avenants salariaux.
+      En cas de conflit, la norme la plus favorable s’applique.
+    ref:
+      label: "Avenant n°52 (forfait‑jours) + avenants salaires 2025"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000047743147/?idConteneur=KALICONT000005635085"
+
+  # Prime annuelle (branche)
+  - theme: "remuneration"
+    slot: "step6.more.ccn_primes"
+    kind: "ccn"
+    when: { theme: "remuneration" }
+    text: >
+      Prime annuelle de branche (« prime de novembre ») — obligation conventionnelle
+      structurante. Montant de référence : <strong>100 % du salaire de base du mois
+      de novembre</strong>, sauf dispositions spécifiques. Elle est versée en une ou plusieurs fois,
+      et se prorate selon le temps de présence (année incomplète), le temps partiel,
+      et les règles relatives aux absences non assimilées. La prime est distincte du
+      salaire de base et ne se confond pas avec le calcul des congés payés.
+
+      👉 Une clause dédiée « Prime annuelle (2216) » est automatiquement insérée dans le contrat
+      pour assurer la traçabilité conventionnelle.
+    ref:
+      label: "Art. 3.6 — Prime annuelle (2216)"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000039111919"
+
+  # --- Step 7 : Période d’essai ---
+  - theme: "periode_essai"
+    slot: step7.card
+    kind: ccn
+    when: { theme: "periode_essai" }
+    text: >
+      Période d’essai initiale maximale (référence de branche) :
+      • Ouvriers/Employés : 2 mois • AM & Techniciens : 3 mois • Cadres : 4 mois.
+      Le contrat peut prévoir plus court. Renouvellement possible selon catégorie
+      et si autorisé par la convention/accord étendu (écrit bilatéral).
+    ref:
+      label: "Fiche DREETS (synthèse 2216) + Code du travail"
+      url: "https://www.paca.drieets.gouv.fr"
+
+  - theme: "periode_essai"
+    slot: "step7.renewal"
+    kind: "ccn"
+    when: { theme: "periode_essai" }
+    text: >
+      Renouvellement — à encadrer strictement : clause écrite dans le CDI, accord
+      exprès du salarié pendant l’essai initial, et respect des plafonds totaux.
+      Vérifier l’avenant salaires/classement applicable et la catégorie du salarié.
+    ref:
+      label: "Code du travail L1221‑21 s. + dispositions 2216"
+      url: "https://code.travail.gouv.fr/"
+
+  # --- Step 8 : Préavis ---
+  - theme: "preavis"
+    slot: step8.card
+    kind: ccn
+    when: { theme: "preavis" }
+    text: >
+      Minima de branche (repères pratiques) :
+      • Démission : 1 mois (Ouvriers/Employés), 2 mois (AM/T), 3 mois (Cadres) ;
+      • Licenciement : barème légal à défaut de dispositions plus favorables ;
+      • Départ à la retraite : préavis spécifique (ex. cadres : 6 mois).
+      Toujours arbitrer au plus favorable entre CCN, loi, contrat et usages d’entreprise.
+    ref:
+      label: "Code du travail numérique — préavis ; DREETS 2216 (retraite)"
+      url: "https://code.travail.gouv.fr/"
+
+  # --- Step 8 : Congés payés ---
+  - theme: "conges_payes"
+    slot: step8.conges
+    kind: ccn
+    when: { theme: "conges_payes" }
+    text: >
+      Base légale : 25 jours ouvrés (30 ouvrables). Branche : jours supplémentaires
+      d’ancienneté prévus (ex. +1 jour après 10 ans, +2 après 15 ans, +3 après 20 ans).
+      Vérifier l’unité (ouvrés/ouvrables) retenue dans l’entreprise et les conversions.
+
+      La branche prévoit <strong>6 jours fériés chômés et payés</strong> en sus du <strong>1er mai</strong>.
+      Lorsqu’ils sont travaillés, ils donnent lieu à une <strong>indemnité</strong> ou à un <strong>repos d’égale durée</strong>
+      à prendre dans une fenêtre de <strong>15 jours</strong>.
+    ref:
+      label: "2216 — congés & ancienneté"
+      url: "https://www.legifrance.gouv.fr/conv_coll/article/KALIARTI000019935305"

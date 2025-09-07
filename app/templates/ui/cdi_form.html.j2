@@ -216,9 +216,12 @@
 
   <hr class="divider">
 
-  <!-- Bloc A — Organismes -->
+  <!-- Bloc A — Protection sociale -->
   <div class="fieldset" style="margin-top:10px">
-    <h4 style="margin:0 0 6px">Organismes</h4>
+    <h4 style="margin:0 0 6px">
+      Protection sociale
+      <span class="help" title="La mention des régimes de protection sociale est obligatoire en application du 14° de l'article R1221-24 du Code du travail.">i</span>
+    </h4>
     <div class="grid2">
       <div>
         <label>Identité de l'organisme de mutuelle
@@ -462,6 +465,30 @@
 
     const rank = k => (k==='warn'?3 : (k==='ccn'?2 : 1));
 
+    // Échappement disponible pour tout le rendu (hors forEach)
+    const escapeHtml2 = (str)=> String(str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+    const renderRich = (raw)=>{
+      const s = String(raw||'');
+      const lines = s.split('\n');
+      let html = '';
+      let ul = [];
+      const pushUl = ()=>{ if (ul.length){ html += '<ul>'+ul.map(x=>`<li>${escapeHtml2(x)}</li>`).join('')+'</ul>'; ul = []; } };
+      lines.forEach(line=>{
+        const t = line.trim();
+        if (t.startsWith('- ')){
+          ul.push(t.slice(2));
+        } else {
+          pushUl();
+          html += escapeHtml2(t) + '<br>';
+        }
+      });
+      pushUl();
+      // retire un <br> final éventuel
+      if (html.endsWith('<br>')) html = html.slice(0,-4);
+      return html;
+    };
+
     bySlot.forEach((items, slot)=>{
       const targetSel = (window.SLOT_TARGETS && window.SLOT_TARGETS[slot]) || SLOT_TARGETS[slot];
       if(!targetSel) return;
@@ -475,12 +502,12 @@
       node.setAttribute('role', variant==='warn' ? 'alert' : 'region');
       node.setAttribute('aria-label', variant==='warn' ? 'Avertissement' : (variant==='ccn' ? 'Information CCN' : 'Information'));
 
-      const escapeHtml2 = (str)=> String(str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
       node.innerHTML = items.map(x=>{
-        const label = (x._kind==='warn' ? 'Avertissement' : (x._kind==='ccn' ? 'CCN' : 'Info'));
+        const emote = (x._kind==='warn' ? '⚠️' : (x._kind==='ccn' ? '📘' : '💡'));
         const ref = (x.url) ? `<small><a href="${x.url}" target="_blank" rel="noopener">${escapeHtml2(x.ref||'Réf.')}</a></small>`
                             : (x.ref ? `<small>${escapeHtml2(x.ref)}</small>` : '');
-        return `<div class="co-line"><span class="co-chip ${x._kind}">${label}</span>${escapeHtml2(x.text||'')}${ref?'<br>'+ref:''}</div>`;
+        const body = renderRich(x.text||'');
+        return `<div class="co-line" style="margin:8px 0"><span class="co-chip ${x._kind}">${emote}</span><div class="co-body">${body}${ref?'<br>'+ref:''}</div></div>`;
       }).join('');
 
       node.style.display = 'block';
@@ -738,7 +765,22 @@
       return `+ En savoir plus sur la clause de ${lower}`;
     };
 
-    items.forEach(it=>{
+    // Groupes pour une navigation claire
+    const ccnItems = items.filter(it => (it.group||'common') === 'ccn');
+    const genItems = items.filter(it => (it.group||'common') !== 'ccn');
+
+    const appendSection = (title)=>{
+      const section = document.createElement('div');
+      section.className = 'fieldset';
+      section.innerHTML = `<h4 style="margin:0 0 6px">${escapeHtml(title)}</h4>`;
+      box.appendChild(section);
+      return section;
+    };
+
+    const secCcn = ccnItems.length ? appendSection('Clauses conventionnelles (CCN)') : null;
+    const secGen = genItems.length ? appendSection('Clauses contractuelles (modèles personnalisables)') : null;
+
+    function renderOne(it){
       const id = `cl_${it.key}`;
       const el = document.createElement('div');
       el.className = 'clause-item';
@@ -760,7 +802,7 @@
         </div>
       `;
 
-      box.appendChild(el);
+      (it.group==='ccn' ? (secCcn||box) : (secGen||box)).appendChild(el);
 
       const cb = el.querySelector('input[type="checkbox"]');
       const paramsBlock = el.querySelector(`#clp_${CSS.escape(it.key)}`);
@@ -805,7 +847,10 @@
         paramsBlock.addEventListener('input',  ()=>{ collectParamsForKey(it.key); serializeClauses(); });
         paramsBlock.addEventListener('change', ()=>{ collectParamsForKey(it.key); serializeClauses(); });
       }
-    });
+    }
+
+    ccnItems.forEach(renderOne);
+    genItems.forEach(renderOne);
 
     serializeClauses();
   }
@@ -855,7 +900,51 @@
       const q = new URLSearchParams(); const idcc = getIdcc(); if (idcc) q.set('idcc', String(idcc));
       const r = await fetch('/api/clauses/catalog?'+q.toString());
       const js = await r.json();
-      renderClausesCatalog(js?.items || []);
+      const items = js?.items || [];
+      // Auto‑sélection clause TP (2216) si régime temps partiel
+      try{
+        const regime = document.querySelector('input[name="work_time_regime"]:checked')?.value || null;
+        if (idcc === 2216 && regime === 'temps_partiel'){
+          const has = items.some(it => it.key === 'tp_coupures_amplitude_2216');
+          if (has && !selectedClauses.has('tp_coupures_amplitude_2216')){
+            selectedClauses.add('tp_coupures_amplitude_2216');
+            // Paramètres par défaut depuis les capabilities exposées par le backend (si présents)
+            const rules = (GLOBAL_CAPABILITIES?.part_time_rules) || {};
+            const p = {};
+            if (rules.break_threshold_hours != null)       p.break_threshold_hours = rules.break_threshold_hours;
+            if (rules.daily_amplitude_max_if_break != null) p.daily_amplitude_max_if_break = rules.daily_amplitude_max_if_break;
+            if (rules.daily_amplitude_max_inventory != null) p.daily_amplitude_max_inventory = rules.daily_amplitude_max_inventory;
+            if (rules.min_halfday_hours != null)           p.min_halfday_hours = rules.min_halfday_hours;
+            // Nb max de coupures : reprendre le champ de l’étape 5 si saisi, sinon 1
+            const bmVal = parseInt(document.getElementById('pt_breaks_max')?.value || '1', 10);
+            if (!Number.isNaN(bmVal)) p.breaks_max = bmVal;
+            clauseParamsByKey['tp_coupures_amplitude_2216'] = p;
+          }
+        }
+
+        // Auto‑sélection des clauses CCN 1501 (temps partiel & programme de travail)
+        if (idcc === 1501){
+          // Clause coupures/amplitude (temps partiel)
+          if (regime === 'temps_partiel'){
+            const has1501 = items.some(it => it.key === 'tp_coupures_1501');
+            if (has1501 && !selectedClauses.has('tp_coupures_1501')){
+              selectedClauses.add('tp_coupures_1501');
+              const rules = (GLOBAL_CAPABILITIES?.part_time_rules) || {};
+              const p = {};
+              ['breaks_per_day_max','breaks_per_week_max','max_break_duration_hours','min_sequence_hours','daily_amplitude_max','break_premium_mg_ratio','break_premium_min_eur','forbid_breaks_if_weekly_hours_lt','forbid_breaks_if_monthly_hours_lt'].forEach(k=>{
+                if (rules[k] != null) p[k] = rules[k];
+              });
+              clauseParamsByKey['tp_coupures_1501'] = p;
+            }
+          }
+          // Clause programme de travail (J‑10 / J‑3)
+          const hasWP = items.some(it => it.key === 'work_program_prevenance_1501');
+          if (hasWP && !selectedClauses.has('work_program_prevenance_1501')){
+            selectedClauses.add('work_program_prevenance_1501');
+          }
+        }
+      }catch(_){ /* silent */ }
+      renderClausesCatalog(items);
     }catch(e){
       if (window.EDS_DEBUG) console.warn('clauses catalog failed', e);
       renderClausesCatalog([]);
@@ -1019,10 +1108,32 @@
 
   // allRequiredFilled (utilise requiredFields)
   function allRequiredFilled(stepIdx){
-    const reqs = requiredFields(stepIdx);
+    const s = steps[stepIdx];
+    if (!s) return false;
+    // Ne jamais compter les étapes futures comme "faites"
+    if (stepIdx > i) return false;
+
+    // Étape courante → champs requis visibles
+    // Étape passée   → champs requis (même si masqués) pour éviter l'effet "tout est rempli" sur un step caché
+    let reqs = [];
+    if (stepIdx === i) {
+      reqs = requiredFields(stepIdx);
+    } else {
+      // Étape passée : on prend tous les requis, en gardant la logique de "si param de clause, seulement si la clause est cochée"
+      reqs = Array.from(s.querySelectorAll('[data-required="true"]')).filter(el=>{
+        const paramsBlock = el.closest('.clause-params');
+        if (paramsBlock){
+          const item = el.closest('.clause-item');
+          const cb = item && item.querySelector('input[type="checkbox"][data-key]');
+          if (cb && !cb.checked) return false;
+        }
+        return true;
+      });
+    }
+
     return reqs.every(el=>{
       if(el.type === 'radio'){
-        const group = el.closest('.step').querySelectorAll(`input[name="${el.name}"]`);
+        const group = s.querySelectorAll(`input[name="${el.name}"]`);
         return Array.from(group).some(r=>r.checked);
       }
       if(el.type === 'checkbox') return el.checked;
@@ -1142,6 +1253,8 @@
       li.classList.toggle('done', doneFlags[idx]);
       const blocked = (firstIncomplete !== -1 && idx > firstIncomplete);
       li.classList.toggle('blocked', blocked && !doneFlags[idx]);
+      li.classList.toggle('incomplete', idx === firstIncomplete);
+      if (idx === firstIncomplete) li.setAttribute('title','À compléter'); else li.removeAttribute('title');
       li.setAttribute('aria-current', idx===i ? 'step' : 'false');
     });
   }
@@ -1187,6 +1300,11 @@
       })();
     }
 
+    // Étape 3 (index 2) — assure le rafraîchissement/affichage CCN
+    if (i === 2 && window.EDS_CCN_AE?.refresh) {
+      window.EDS_CCN_AE.refresh();
+    }
+
     if (i === 4) { refreshWorktimeDelegated(); }
 
     if (i === 5 && window.EDS_SAL?.refresh) {
@@ -1224,7 +1342,8 @@
             const m = /^\s*(\d{4})\b/.exec(String(v||''));
             const id = m ? m[1] : '';
             const hid = $('#idcc');
-            if (hid) hid.value = id;
+            // Ne pas écraser l'idcc existant si l'input est vide/non valide
+            if (hid && id) hid.value = id;
           }
         }
         i++;
@@ -1309,6 +1428,24 @@
   if(submitBtn){
     submitBtn.addEventListener('click', function(e){
       e.preventDefault();
+
+      // Validation globale avant génération : toutes les étapes essentielles doivent être complètes
+      try{
+        const doneFlags = computeStepCompletion();
+        const overrides = new Set(Array.from(window.EDS_OVERRIDES_STEPS || []));
+        const items = Array.from(document.querySelectorAll('#steps li'));
+        const incompleteIdx = doneFlags.map((ok, idx)=> ok ? null : idx).filter(idx=> idx!==null);
+        // Filtre : les étapes explicitement overridées ne bloquent pas la génération
+        const blockingIdx = incompleteIdx.filter(idx => !overrides.has(idx+1));
+        if (blockingIdx.length){
+          const missing = blockingIdx.map(idx => (items[idx]?.textContent||`Étape ${idx+1}`));
+          alert(`Veuillez compléter les champs essentiels avant de générer le PDF.\nÉtapes incomplètes :\n- ${missing.join('\n- ')}`);
+          // Redirige l’utilisateur vers la première étape bloquante (non overridée)
+          i = blockingIdx[0];
+          setState();
+          return;
+        }
+      }catch(_){ /* si la validation jette, on laisse passer la soumission classique */ }
 
       const form = document.createElement('form');
       form.method='post';

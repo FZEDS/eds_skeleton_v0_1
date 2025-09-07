@@ -1,7 +1,7 @@
 # rules/clauses/common.yml
 
 meta:
-  label: "Clauses génériques"
+  label: "Clauses contractuelles (modèles personnalisables)"
 
 clauses:
   - key: pdp
@@ -289,15 +289,15 @@ clauses:
         type: enum
         required: true
         options:
-          - { value: "hors_pdc_hors_obligation", label: "n’entre pas dans le plan de développement des compétences et ne relève pas de l’obligation d’adaptation (L. 6321‑1 C. trav.)" }
-          - { value: "hors_pdc",                 label: "n’entre pas dans le plan de développement des compétences" }
-          - { value: "pdc",                      label: "est incluse dans le plan de développement des compétences" }
+          - { value: "hors_pdc_hors_obligation", label: "n’entre pas dans le plan de développement des compétences et ne relève pas de l’obligation d’adaptation (L. 6321‑1 C. trav.)" }
+          - { value: "hors_pdc", label: "n’entre pas dans le plan de développement des compétences" }
+          - { value: "pdc", label: "est incluse dans le plan de développement des compétences" }
         default: "hors_pdc_hors_obligation"
 
       - key: remuneration_maintien
         label: "Modalités de rémunération pendant la formation"
         type: text
-        placeholder: "ex. intégralement maintenue ; X % ; selon art. … du contrat"
+        placeholder: "ex. intégralement maintenue ; X % ; selon art. … du contrat"
 
       - key: frais_modalites
         label: "Frais (déplacement/repas/hébergement) — modalités"
@@ -311,20 +311,20 @@ clauses:
         min: 1
         max: 36
         step: 1
-        help: "12–24 mois fréquent selon coût/longueur ; rester proportionné."
+        help: "12–24 mois fréquent selon coût/longueur ; rester proportionné."
 
       - key: point_depart
         label: "Point de départ de la durée"
         type: enum
         required: true
         options:
-          - { value: "fin_formation",     label: "à compter de l’achèvement de la formation" }
-          - { value: "reprise_poste",     label: "à compter de la reprise effective du poste" }
-          - { value: "obtention_titre",   label: "à compter de l’obtention de l’attestation/certification" }
+          - { value: "fin_formation", label: "à compter de l’achèvement de la formation" }
+          - { value: "reprise_poste", label: "à compter de la reprise effective du poste" }
+          - { value: "obtention_titre", label: "à compter de l’obtention de l’attestation/certification" }
         default: "fin_formation"
 
       - key: triggers
-        label: "Cas d’exigibilité (recommandé : imputable au salarié)"
+        label: "Cas d’exigibilité (recommandé : imputable au salarié)"
         type: enum
         required: true
         options:
@@ -336,6 +336,108 @@ clauses:
       - key: exclusions_std
         label: "Insérer les exclusions usuelles"
         type: boolean
+
+
+  # ==========================
+  # Rémunération variable / objectifs — deux variantes
+  # ==========================
+
+  - key: var_objectifs_prv
+    label: "Rémunération variable — plan annuel (fixation unilatérale)"
+    synopsis: "Fixation unilatérale des objectifs via un plan de rémunération variable (PRV) communiqué en début d’exercice."
+    learn_more_html: |
+      <ul>
+        <li>Jurisprudence: la fixation unilatérale est admise si le plan est <em>porté à la connaissance</em> du salarié, <em>compréhensible</em> et <em>objectivement vérifiable</em> (objectifs mesurables ; modalités de calcul transparentes).</li>
+        <li>Veiller à une <strong>information claire</strong> (contenu, modalités de calcul, sources de données), un <strong>suivi régulier</strong> et des <strong>objectifs raisonnables</strong>.</li>
+        <li>Bonne pratique: prévoir un <strong>plancher de rémunération globale</strong> pour prévenir les effets de variation d’objectifs.</li>
+      </ul>
+    flags: { needs_parameters: true }
+    params:
+      - key: plan_label
+        label: "Intitulé du plan"
+        type: text
+        placeholder: "Plan de rémunération variable (PRV)"
+        default: "Plan de rémunération variable (PRV)"
+      - key: periodicite
+        label: "Périodicité"
+        type: enum
+        options:
+          - { value: "annuelle", label: "annuelle" }
+          - { value: "semestrielle", label: "semestrielle" }
+          - { value: "trimestrielle", label: "trimestrielle" }
+          - { value: "mensuelle", label: "mensuelle" }
+      - key: objectifs_elements
+        label: "Éléments pouvant constituer un objectif"
+        type: textarea
+        placeholder: "ex. chiffre d’affaires, marge, NPS, taux de transformation…"
+      - key: com_mode
+        label: "Mode de communication"
+        type: enum
+        options:
+          - { value: "courriel", label: "courriel" }
+          - { value: "courrier", label: "courrier" }
+          - { value: "courriel ou courrier", label: "courriel ou courrier" }
+        default: "courriel"
+      - key: suivi_modalites
+        label: "Modalités du suivi périodique"
+        type: textarea
+        placeholder: "ex. réunions mensuelles, tableau de bord partagé…"
+      - key: entretien_timing
+        label: "Moment de l’entretien d’explicitation"
+        type: text
+        default: "dans les premières semaines du début de l’exercice"
+      - key: plancher_pct
+        label: "Plancher de rémunération globale (%)"
+        type: percent
+        step: 1
+        placeholder: "ex. 80"
+      - key: seniority_years
+        label: "Ancienneté à partir de laquelle on passe sur une base de comparaison glissante (années)"
+        type: number
+        step: 1
+        placeholder: "ex. 3"
+      - key: base_years
+        label: "Base de comparaison (années précédentes)"
+        type: number
+        step: 1
+        placeholder: "ex. 2"
+    text_html: |
+      <p><strong>Rémunération par objectifs — fixation via un plan.</strong> La rémunération du Salarié est constituée d’un fixe mensuel auquel s’ajoute une rémunération variable.</p>
+
+      <p>Le <em>[[plan_label]]</em> est déterminé, chaque <em>[[periodicite__label]]</em>, unilatéralement par la Direction. Dans ce cadre, la Direction fixe les objectifs à atteindre et les montants des primes versées liés à leur réalisation. Les éléments susceptibles de constituer un objectif sont notamment&nbsp;: <em>[[objectifs_elements]]</em>.</p>
+
+      <p>Le <em>[[plan_label]]</em> précise le montant brut des primes attribuées pour chacun des objectifs à atteindre. Il est communiqué au Salarié en début d’exercice par <em>[[com_mode__label]]</em>. Il détaille, pour chaque objectif, sa nature, les éléments pris en compte pour le calcul et les sources d’information utilisées. Il prévoit également les modalités de suivi périodique des résultats (<em>[[suivi_modalites]]</em>).</p>
+
+      <p>Le <em>[[plan_label]]</em> est une note d’information et ne constitue pas un document ayant valeur contractuelle. Un entretien individualisé sera organisé <em>[[entretien_timing]]</em> afin d’expliciter le plan et de répondre aux questions du Salarié.</p>
+
+      <p>Les nouveaux objectifs ne pourront avoir pour effet de porter la rémunération globale du Salarié à un niveau inférieur à <strong>[[plancher_pct]] %</strong> de la rémunération moyenne perçue depuis son embauche. Après <strong>[[seniority_years]]</strong> années d’ancienneté, la comparaison portera sur les <strong>[[base_years]]</strong> années précédentes.</p>
+
+  - key: var_objectifs_accord
+    label: "Rémunération variable — objectifs négociés (accord des parties)"
+    synopsis: "Objectifs renégociés en début d’année d’un commun accord, avec reconduction provisoire en cas de désaccord."
+    learn_more_html: |
+      <ul>
+        <li>Mode « accord des parties » : privilégier une <strong>trace écrite</strong> (courriel/avenant) et des objectifs <strong>objectifs et mesurables</strong>.</li>
+        <li>En cas de désaccord, la reconduction provisoire de l’ancien plan doit rester <strong>bornée dans le temps</strong> (3–6 mois).</li>
+      </ul>
+    flags: { needs_parameters: true }
+    params:
+      - key: negoci_date
+        label: "Date / période habituelle de renégociation"
+        type: text
+        default: "1er janvier"
+      - key: titre_superieur
+        label: "Titre du supérieur hiérarchique"
+        type: text
+        placeholder: "ex. directeur commercial, chef des ventes…"
+      - key: reconduction_max
+        label: "Durée maximale de reconduction provisoire"
+        type: text
+        default: "trois mois"
+    text_html: |
+      <p><strong>Rémunération par objectifs — accord des parties.</strong> Les objectifs (ou le taux et les modalités de calcul des primes/commissions) seront renégociés au début de chaque année, d’un commun accord entre le Salarié et son supérieur hiérarchique (<em>[[titre_superieur]]</em>).</p>
+
+      <p>Le Salarié accepte le principe de cette renégociation annuelle et s’engage à l’aborder avec loyauté et dans la volonté d’aboutir. Si, au <em>[[negoci_date]]</em>, les Parties constatent l’impossibilité de parvenir à un accord, la négociation se poursuivra, les objectifs de l’année précédente étant provisoirement reconduits jusqu’à signature de l’avenant et pour une durée maximale de <strong>[[reconduction_max]]</strong>.</p>
         default: true
         help: "Licenciement hors faute grave, rupture conventionnelle, inaptitude non fautive, motif économique, force majeure…"
 
@@ -567,5 +669,16 @@ clauses:
         <li>Nécessite un <strong>accord collectif habilitant</strong> et un suivi de la charge.</li>
         <li>Plafonds/an + encadrement du temps de repos.</li>
       </ul>
+    flags: { needs_parameters: true }
+    params:
+      - key: jours_annuels
+        label: "Nombre de jours (an)"
+        type: number
+        min: 1
+        max: 230
+        step: 1
+        required: true
+        default: 218
+        placeholder: "ex. 218"
     text_html: |
-      <p><strong>Convention de forfait en jours.</strong> Le Salarié est soumis à une convention individuelle de forfait en jours sur l’année, conformément aux dispositions légales et conventionnelles applicables et à l’accord collectif habilitant. Le nombre de jours travaillés dans l’année est fixé à <em>[218]</em> jours, sous réserve des dispositions conventionnelles en vigueur. Un entretien annuel spécifique sur la charge de travail, l’articulation vie pro/vie perso et la rémunération est organisé.</p>
+      <p><strong>Convention de forfait en jours.</strong> Le Salarié est soumis à une convention individuelle de forfait en jours sur l’année, conformément aux dispositions légales et conventionnelles applicables et à l’accord collectif habilitant. Le nombre de jours travaillés dans l’année est fixé à <em>[[jours_annuels]]</em> jours. Un entretien annuel spécifique sur la charge de travail, l’articulation vie pro/vie perso et la rémunération est organisé.</p>

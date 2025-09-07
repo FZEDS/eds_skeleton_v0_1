@@ -326,19 +326,55 @@ def compute_notice_bounds(
         and _anciennete_match(r, anciennete_months)
     ]
     if ccn_candidates:
+        # Agrège les minima sur l’ensemble des règles CCN correspondant au contexte
+        dem_list = []
+        lic_list = []
+        for r in ccn_candidates:
+            nm = (r.get("notice_months") or {})
+            if nm.get("demission") is not None:
+                dem_list.append(_to_float(nm.get("demission")))
+            if nm.get("licenciement") is not None:
+                lic_list.append(_to_float(nm.get("licenciement")))
+        notice = {
+            "demission": (min(dem_list) if dem_list else None),
+            "licenciement": (min(lic_list) if lic_list else None),
+        }
+        # Choisit la règle la plus spécifique pour la métadonnée (à défaut, la première)
         ccn_candidates.sort(key=_score_specificity, reverse=True)
         chosen = ccn_candidates[0]
-        nm = chosen.get("notice_months", {}) or {}
-        notice = {
-            "demission": _to_float(nm.get("demission")),
-            "licenciement": _to_float(nm.get("licenciement")),
-        }
         return notice, {
             "source": "ccn",
-            "source_ref": chosen.get("source_ref"),
+            "source_ref": chosen.get("source_ref") or "CCN — préavis (règles agrégées)",
             "bloc": "bloc_1",
-            "raw": chosen,
+            "raw": {"aggregated": True, "matched": ccn_candidates},
         }, ccn_candidates
+
+    # Fallback CCN si le coefficient est absent : ignorer la contrainte de coeff et prendre les minimas par catégorie/ancienneté
+    if idcc and coeff is None and bundle["ccn_items"]:
+        relaxed = [
+            r for r in bundle["ccn_items"]
+            if _within_effective(r, d) and _category_match(r.get("category"), cat_key) and _anciennete_match(r, anciennete_months)
+        ]
+        if relaxed:
+            dem_list = []
+            lic_list = []
+            for r in relaxed:
+                nm = (r.get("notice_months") or {})
+                if nm.get("demission") is not None:
+                    dem_list.append(_to_float(nm.get("demission")))
+                if nm.get("licenciement") is not None:
+                    lic_list.append(_to_float(nm.get("licenciement")))
+            notice = {
+                "demission": (min(dem_list) if dem_list else None),
+                "licenciement": (min(lic_list) if lic_list else None),
+            }
+            if notice["demission"] is not None or notice["licenciement"] is not None:
+                return notice, {
+                    "source": "ccn",
+                    "source_ref": "CCN — règle générique (catégorie/ancienneté)",
+                    "bloc": "bloc_1",
+                    "raw": {"relaxed_match": True},
+                }, relaxed
 
     # Code du travail — filtré par ancienneté
     code_candidates = [
@@ -400,6 +436,74 @@ def _syntec_coeff_to_position_label(coeff: Optional[int]) -> Optional[str]:
         return None
     return m.get(c)
 
+# --- IDCC 2216 helpers --------------------------------------------------------
+def _idcc2216_level_from_coeff(coeff: Optional[int]) -> Optional[str]:
+    """Retourne le niveau '7' ou '8' à partir du coefficient (700/800) si identifiable."""
+    if coeff is None:
+        return None
+    try:
+        c = int(coeff)
+    except Exception:
+        return None
+    if c >= 800:
+        return "8"
+    if c >= 700:
+        return "7"
+    return None
+
+def _idcc2216_fj_monthly_from_extras(
+    extras: Dict[str, Any],
+    coeff: Optional[int],
+    classification_level: Optional[str],
+    anciennete_months: Optional[int] = None,
+) -> Optional[float]:
+    """Calcule un minimum mensuel pour le forfait‑jours (SMAG 216 j/an) si disponible.
+    Choisit la valeur annuelle la plus protectrice (max entre 'first_36_months' et 'after_36_months'), divisée par 12.
+    Le niveau est déduit de classification_level (si mention explicite 7/8), sinon du coefficient.
+    """
+    fj = (extras.get("forfait_jours") or {})
+    smag = (fj.get("smag_216_days") or {})
+    if not smag:
+        return None
+    level_key: Optional[str] = None
+    # 1) tenter de lire un "7" ou "8" dans classification_level
+    try:
+        import re as _re
+        if classification_level:
+            m = _re.search(r"\b([78])\b", str(classification_level))
+            if m:
+                level_key = m.group(1)
+    except Exception:
+        level_key = None
+    # 2) fallback: depuis le coefficient
+    if not level_key:
+        level_key = _idcc2216_level_from_coeff(coeff)
+    if not level_key:
+        return None
+    node = smag.get(str(level_key))
+    if not isinstance(node, dict):
+        return None
+    a1 = node.get("first_36_months_annual_eur")
+    a2 = node.get("after_36_months_annual_eur")
+    # Si ancienneté fournie, choisir la bonne case ; sinon rester protecteur (max)
+    annual: Optional[float] = None
+    if isinstance(anciennete_months, int):
+        try:
+            m = int(anciennete_months)
+        except Exception:
+            m = None
+        if m is not None:
+            if m < 36 and isinstance(a1, (int, float)):
+                annual = float(a1)
+            elif m >= 36 and isinstance(a2, (int, float)):
+                annual = float(a2)
+    if annual is None:
+        vals = [v for v in [a1, a2] if isinstance(v, (int, float))]
+        if not vals:
+            return None
+        annual = float(max(vals))
+    return round(annual / 12.0, 2)
+
 # --- RÉMUNÉRATION -------------------------------------------------------------
 
 def compute_salary_minimum(
@@ -412,6 +516,7 @@ def compute_salary_minimum(
     classification_level: Optional[str] = None,
     has_13th_month: Optional[bool] = False,  # support 13e mois
     as_of: Optional[str] = None,
+    anciennete_months: Optional[int] = None,
 ) -> Tuple[Dict[str, Optional[float]], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     RÉMUNÉRATION — Unifiée (SMIC vs CCN + multiplicateurs + ratio mensuel CCN).
@@ -421,6 +526,9 @@ def compute_salary_minimum(
     """
     d = date.fromisoformat(as_of) if as_of else date.today()
     cat_key = _normalize_category(idcc, categorie)
+
+    # Pour quelques règles dépendant de l'ancienneté (ex. SMAG 216 j/an selon palier), on garde sous la main
+    ctx_anciennete_months = anciennete_months
 
     # ---------- 1) SMIC ----------
     smic_block = _pick_smic(d)
@@ -482,7 +590,7 @@ def compute_salary_minimum(
                 if val is not None:
                     ccn_base = float(val)
 
-    # Ajustements CCN selon le mode (Syntec uniquement pour forfait-jours / modalité 2)
+    # Ajustements CCN selon le mode (Syntec & 2216)
     ccn_min: Optional[float] = None
     mode = (work_time_mode or "").lower()
     if ccn_base is not None:
@@ -509,6 +617,42 @@ def compute_salary_minimum(
                 applied_labels.append("modalite2_115pct")
 
         ccn_min = ccn_val  # minimum CCN mensuel "brut" (après prorata & éventuels multiplicateurs)
+
+    # Spécifique IDCC 2216 — forfait‑jours (SMAG 216 j/an) : remplacer le minimum mensuel par la mensualisation du SMAG si plus protecteur
+    if idcc == 2216 and mode == "forfait_days" and str(cat_key).lower() == "cadre":
+        fj_monthly = _idcc2216_fj_monthly_from_extras(extras, coeff, classification_level, ctx_anciennete_months)
+        if isinstance(fj_monthly, (int, float)):
+            if ccn_min is None or float(fj_monthly) > float(ccn_min):
+                ccn_min = float(fj_monthly)
+            # on marque l’étiquette appliquée
+            if "fj_smag_216" not in applied_labels:
+                applied_labels.append("fj_smag_216")
+
+    # Spécifique via policy générique — forfait‑jours cadres : plancher basé sur un coefficient de référence (ex. IV‑D * 120%)
+    try:
+        if mode == "forfait_days" and str(cat_key).lower() in {"cadre", "ic"}:
+            pol = (extras.get("policy") or {}).get("cadre_forfait_jours_floor") if isinstance(extras, dict) else None
+            if isinstance(pol, dict):
+                ref_coeff = pol.get("coeff") or pol.get("coeff_ref")
+                ref_cat = (pol.get("category") or "non-cadre").strip().lower()
+                mult = float(pol.get("multiple") or 1.20)
+                ref_monthly = None
+                if ref_coeff is not None and isinstance(grid, dict):
+                    # Grille imbriquée par catégorie (préférée)
+                    node = grid.get(ref_cat) if isinstance(grid.get(ref_cat, None), dict) else None
+                    if node and str(ref_coeff) in node:
+                        ref_monthly = float(node[str(ref_coeff)])
+                    # Grille plate en secours
+                    if ref_monthly is None and str(ref_coeff) in grid:
+                        ref_monthly = float(grid[str(ref_coeff)])
+                if isinstance(ref_monthly, (int, float)):
+                    fj_floor = round(float(ref_monthly) * mult, 2)
+                    if ccn_min is None or fj_floor > float(ccn_min):
+                        ccn_min = fj_floor
+                    if "fj_floor_ivd_120pct" not in applied_labels:
+                        applied_labels.append("fj_floor_ivd_120pct")
+    except Exception:
+        pass
 
     # Ratio mensuel CCN (après multiplicateurs)
     ccn_monthly_floor: Optional[float] = None
@@ -635,6 +779,73 @@ def compute_worktime_bounds(
                     "source_ref": m2.get("source_ref") or "Modalité 2 (CCN)",
                     "bloc": "bloc_1",
                 }
+
+    # 4) CCN — Temps partiel (override du plancher légal si la branche prévoit un minimum supérieur)
+    if work_time_mode == "part_time" and idcc:
+        dccn = _find_ccn_dir(idcc)
+        if dccn:
+            ccn_items, _ = _load_yaml(dccn / "temps_travail.yml")
+            pt = next((r for r in ccn_items if r.get("scope", {}).get("work_time_mode") == "part_time"), None)
+            if pt:
+                considered.append(pt)
+                c = pt.get("constraint") or {}
+                # on applique les bornes CCN si elles existent (priorité à la branche)
+                if c.get("weekly_hours_min") is not None:
+                    bounds["weekly_hours_min"] = c.get("weekly_hours_min")
+                if c.get("weekly_hours_max") is not None:
+                    bounds["weekly_hours_max"] = c.get("weekly_hours_max")
+                chosen = {
+                    "source": "ccn",
+                    "source_ref": pt.get("source_ref") or "Temps partiel (CCN)",
+                    "bloc": "bloc_1",
+                }
+                # Expose des règles spécifiques temps partiel (coupures/amplitude)
+                # via capabilities pour pré-remplir des champs UI et afficher un rappel.
+                extra_rules = {}
+                for k in [
+                    # existants
+                    "break_threshold_hours",
+                    "daily_amplitude_max_if_break",
+                    "daily_amplitude_max_inventory",
+                    "min_halfday_hours",
+                    # 1501 — coupures & amplitude
+                    "breaks_per_day_max",
+                    "breaks_per_week_max",
+                    "max_break_duration_hours",
+                    "min_sequence_hours",
+                    "daily_amplitude_max",
+                    # prime coupure
+                    "break_premium_mg_ratio",
+                    "break_premium_min_eur",
+                    # gardes‑fous < 12h/sem ou < 52h/mois
+                    "forbid_breaks_if_weekly_hours_lt",
+                    "forbid_breaks_if_monthly_hours_lt",
+                ]:
+                    if c.get(k) is not None:
+                        extra_rules[k] = c.get(k)
+                if extra_rules:
+                    capabilities = bounds.setdefault("_capabilities", {})  # stockage local si besoin
+                    capabilities.update({"part_time_rules": extra_rules})
+
+            # Programme de travail (prévenance J‑10 / J‑3) — clé dédiée optionnelle
+            try:
+                dccn = _find_ccn_dir(idcc) if idcc else None
+                if dccn:
+                    ccn_items, _cx = _load_yaml(dccn / "temps_travail.yml")
+                    wp = next((r for r in ccn_items if r.get("key") in {"work_program", "program_prevenance"}), None)
+                    if wp:
+                        wc = (wp.get("constraint") or {})
+                        defaults = bounds.setdefault("_capabilities", {}).setdefault("defaults", {})
+                        if wc.get("program_prevenance_days") is not None:
+                            defaults["program_prevenance_days"] = int(wc.get("program_prevenance_days"))
+                        if wc.get("program_modify_deadline_days") is not None:
+                            defaults["program_modify_deadline_days"] = int(wc.get("program_modify_deadline_days"))
+                        caps = bounds.setdefault("_capabilities", {})
+                        wp_caps = caps.setdefault("work_program", {})
+                        if wc.get("shift_swap_allowed") is not None:
+                            wp_caps["shift_swap_allowed"] = bool(wc.get("shift_swap_allowed"))
+            except Exception:
+                pass
 
     return bounds, chosen, considered
 

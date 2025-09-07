@@ -108,6 +108,15 @@
   Rémunération mensuelle brute de base : <strong>{{ "%.2f"|format(salary_gross_monthly|float) }} €</strong>.
   {% if remuneration_accessories %}<br/>Accessoires éventuels : {{ remuneration_accessories }}.{% endif %}
   {% if expense_policy %}<br/>Frais professionnels : {{ expense_policy }}.{% endif %}
+  {% if has_13th_month %}
+    <br/>Prime de 13ᵉ mois : Oui.
+    {% if bonus13_when or bonus13_when_free %}
+      <br/>Versement : {{ bonus13_when_free if bonus13_when == 'autre' else bonus13_when }}.
+    {% endif %}
+    {% if bonus13_base or bonus13_base_free %}
+      <br/>Base de calcul : {{ bonus13_base_free if bonus13_base == 'autre' else bonus13_base }}.
+    {% endif %}
+  {% endif %}
 </div>
 
 <h2>Article 6 — Durée du travail</h2>
@@ -130,6 +139,17 @@
   {% elif work_time_mode == 'forfait_days' %}
     Le salarié relève d’un <strong>forfait annuel en jours</strong> de <strong>{{ forfait_days_per_year }}</strong> jours par an.
     {% if ref_period_desc %}Période de référence : {{ ref_period_desc }}.{% endif %}
+  {% endif %}
+
+  {# Modalité 2 (Syntec) — Forfait heures sur la semaine avec plafond annuel en jours #}
+  {% if work_time_mode in ['modalite_2','forfait_hours_mod2'] %}
+    <p>
+      Organisation de la durée du travail en <strong>Modalité 2</strong> (Syntec) :
+      plafond hebdomadaire de <strong>{{ weekly_hours }}</strong> h.
+      {% if m2_days_cap %}
+        Plafond annuel en jours (contrat) : <strong>{{ m2_days_cap }}</strong> j.
+      {% endif %}
+    </p>
   {% endif %}
 
   {% if part_time %}
@@ -246,7 +266,9 @@
   </p>
 
   {# Bornes appliquées #}
-  {% set has_bounds = (probation_max or notice_min_resignation or notice_min_dismissal) %}
+  {% set wb = worktime_bounds or {} %}
+  {% set has_tt = (wb.weekly_hours_min is not none) or (wb.weekly_hours_max is not none) or (wb.average_12_weeks_max is not none) or (wb.days_per_year_max is not none) %}
+  {% set has_bounds = (probation_max or notice_min_resignation or notice_min_dismissal or has_tt) %}
   {% if has_bounds %}
     <h3>Bornes appliquées</h3>
     <table class="table small no-break">
@@ -254,6 +276,27 @@
         <tr><th>Thème</th><th>Paramètre</th><th>Valeur</th></tr>
       </thead>
       <tbody>
+        {% if has_tt %}
+          {% if (wb.weekly_hours_min is not none) or (wb.weekly_hours_max is not none) or (wb.average_12_weeks_max is not none) %}
+            <tr>
+              <td>Temps de travail</td>
+              <td>Hebdomadaire</td>
+              <td>
+                {% if wb.weekly_hours_min is not none %}min <b>{{ wb.weekly_hours_min }}</b> h{% endif %}
+                {% if (wb.weekly_hours_min is not none) and (wb.weekly_hours_max is not none) %} • {% endif %}
+                {% if wb.weekly_hours_max is not none %}max <b>{{ wb.weekly_hours_max }}</b> h{% endif %}
+                {% if (wb.average_12_weeks_max is not none) %} • moyenne <b>{{ wb.average_12_weeks_max }}</b> h / 12&nbsp;semaines{% endif %}
+              </td>
+            </tr>
+          {% endif %}
+          {% if wb.days_per_year_max is not none %}
+            <tr>
+              <td>Forfait‑jours</td>
+              <td>Plafond annuel</td>
+              <td>{{ wb.days_per_year_max }} jours / an</td>
+            </tr>
+          {% endif %}
+        {% endif %}
         {% if probation_max %}
           <tr><td>Période d’essai</td><td>Plafond</td><td>{{ probation_max }} mois{% if probation_max_total %} — Total après renouvellement ≤ {{ probation_max_total }} mois{% endif %}</td></tr>
         {% endif %}

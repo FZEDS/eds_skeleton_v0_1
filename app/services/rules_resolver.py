@@ -178,6 +178,27 @@ def _rule_explain(theme: str, data: Dict[str, Any], rule: Optional[Dict[str, Any
             "ref": rule.get("source_ref"),
             "url": rule.get("url"),
         })
+        # Transparence SMAG 216 j/an (2216, cadres, forfait‑jours)
+        try:
+            if (ctx.get("idcc") == 2216
+                and (ctx.get("work_time_mode") or "").lower() == "forfait_days"
+                and (ctx.get("categorie") or "").lower() in {"cadre", "ic"}
+                and isinstance(data.get("applied"), list)
+                and "fj_smag_216" in data.get("applied")):
+                m = ctx.get("anciennete_months")
+                if isinstance(m, int):
+                    col = "premiers 36 mois" if m < 36 else "36 mois et +"
+                else:
+                    col = "colonne la plus favorable disponible"
+                out.append({
+                    "kind": _kind("ccn"),
+                    "slot": "step6.more.minima",
+                    "text": f"SMAG 216 j/an — colonne utilisée : {col} (mensualisation annuelle ÷ 12).",
+                    "ref": rule.get("source_ref"),
+                    "url": rule.get("url"),
+                })
+        except Exception:
+            pass
         return out
 
     if theme == "temps_travail":
@@ -308,8 +329,23 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             },
             "defaults": {},
         }
+        # Modalité 2: spécifique Syntec (IDCC 1486). Désactiver par défaut ailleurs.
+        if idcc != SYNTEC_IDCC:
+            capabilities["work_time_modes"]["forfait_hours_mod2"] = False
         if bounds.get("days_per_year_max") is not None:
             capabilities["defaults"]["forfait_days_per_year"] = int(bounds["days_per_year_max"])
+
+        # Propager les règles TP (coupures/amplitude) si le moteur les a exposées dans bounds._capabilities
+        try:
+            bcap = (bounds.get("_capabilities") or {})
+            if isinstance(bcap.get("part_time_rules"), dict):
+                # Pré-remplir la durée max de coupure si connue
+                thr = bcap["part_time_rules"].get("break_threshold_hours")
+                if thr is not None:
+                    capabilities["defaults"]["pt_break_max_hours"] = thr
+                capabilities["part_time_rules"] = bcap["part_time_rules"]
+        except Exception:
+            pass
 
         # Encarts factorisés + Hints CCN
         explain.extend(_rule_explain("temps_travail", bounds, rule, ctx))
@@ -319,7 +355,7 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         }))
 
 
-        # Désactivation Modalité 2 (spécifique Syntec) pour HCR
+        # (Conservé pour compat explicite HCR)
         if idcc == 1979:
             capabilities["work_time_modes"]["forfait_hours_mod2"] = False
 
@@ -423,6 +459,7 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             classification_level=ctx.get("classification_level"),
             has_13th_month=bool(ctx.get("has_13th_month")),
             as_of=as_of,
+            anciennete_months=ctx.get("anciennete_months"),
         )
 
         # Suggestion salaire mensuel si connu

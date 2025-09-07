@@ -1,6 +1,6 @@
 # rules/ccn/1979-hcr/classification.yml
 meta:
-  label: "HCR — Niveaux & échelons"
+  label: "Convention collective nationale des hôtels, cafés, restaurants (HCR) (IDCC 1979)"
   mapping:
     # map vers backend (cadre / non-cadre)
     categorie_to_backend:
@@ -37,4 +37,3 @@ categories:
       - { pos: "V.1", coeff: 151, label: "Niveau V — Éch. 1 (coef 151)", tooltip: " Aptitude : Pilotage complet d’un service : organisation, qualité, suivi des indicateurs. Autonomie : Décide dans son périmètre pour atteindre les objectifs fixés. Management : Encadre une équipe sur un site ; peut participer au recrutement et aux évaluations."}
       - { pos: "V.2", coeff: 152, label: "Niveau V — Éch. 2 (coef 152)", tooltip: "Aptitude : Maîtrise globale avec coordination de plusieurs services et conduite de projets. Autonomie : Large marge d’arbitrage pour décliner la stratégie opérationnelle. Management : Manage des responsables de service, éventuellement sur plusieurs sites."}
       - { pos: "V.3", coeff: 153, label: "Niveau V — Éch. 3 (coef 153)", tooltip: "Aptitude : Pilotage étendu : cohérence d’ensemble, performance et amélioration continue multi-sites. Autonomie : Fixe les priorités, alloue les moyens et valide les plans d’action. Management : Anime des managers, arbitre les recrutements clés, garantit le fonctionnement global."}
-

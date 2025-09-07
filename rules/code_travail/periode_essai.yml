@@ -1,7 +1,7 @@
 - id: cdt_periode_essai_non_cadre
   theme: periode_essai
   source: "code_travail"
-  source_ref: "L1221-19 à L1221-26 (à vérifier/actualiser)"
+  source_ref: "C. trav., L1221‑19 à L1221‑26"
   bloc: 1
   scope:
     categorie: "non-cadre"
@@ -17,7 +17,7 @@
 - id: cdt_periode_essai_cadre
   theme: periode_essai
   source: "code_travail"
-  source_ref: "L1221-19 à L1221-26 (à vérifier/actualiser)"
+  source_ref: "C. trav., L1221‑19 à L1221‑26"
   bloc: 1
   scope:
     categorie: "cadre"

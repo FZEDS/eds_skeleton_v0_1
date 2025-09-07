@@ -1,0 +1,295 @@
+meta:
+  ccn: "Restauration rapide (IDCC 1501)"
+  last_checked: "2025-09-06"
+
+hints:
+  # --- Step 4 : Poste & classification ---
+  - theme: "classification"
+    slot: step4.header
+    kind: ccn
+    text: >
+      Restauration rapide — 3 familles : Employé·e (niveaux I à III), Maîtrise (niveau IV),
+      Cadre (niveau V). Les minima I–IV sont fixés à l’heure (convertis en mensuel 35 h),
+      le niveau V est en annuel « tous éléments confondus » (TEC).
+    ref:
+      label: "CCN – Classification & minima"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000005672319"
+
+  - theme: "classification"
+    slot: step4.zoom.cadre
+    kind: ccn
+    when: { category: "cadre" }
+    text: >
+      Cadres (Niv. V) : minima en annuel TEC. En cas de forfait‑jours, la rémunération annuelle
+      ne peut être inférieure à 120 % du minimum du niveau IV‑D (plancher de branche).
+    ref:
+      label: "Art. 33.5.2 (forfait‑jours cadres)"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000005672319"
+
+  # --- Step 5 : Temps de travail (général) ---
+  - theme: "temps_travail"
+    slot: step5.header
+    kind: ccn
+    text: >
+      Programmation des horaires (art. 29.5) : affichage du programme au moins 10 jours calendaires
+      avant la semaine ; modification possible au plus tard J‑3 avec accord du salarié. Décompte
+      quotidien/hebdo du temps (art. 29.3). Pause minimale 20 min si 6 h d’affilée.
+    ref:
+      label: "Art. 29.3 et 29.5"
+      url: "https://www.legifrance.gouv.fr/conv_coll/article/KALIARTI000005833489"
+
+  - theme: "temps_travail"
+    slot: step5.block.program
+    kind: guard
+    text: >
+      Variabilité des horaires : ne pas prévoir de prévenance plus stricte que <strong>J‑10/J‑3</strong> (programme → J‑10 ; modification → J‑3 avec accord du salarié).
+      Les échanges de créneau sont possibles entre salariés (volume équivalent) avec inscription au programme.
+    ref:
+      label: "Art. 29.5 (programme et prévenance)"
+      url: "https://www.legifrance.gouv.fr/conv_coll/article/KALIARTI000005833489"
+
+  - theme: "temps_travail"
+    slot: step5.block.rest
+    kind: ccn
+    text: >
+      Repos quotidien : 11 h (12 h si fin de poste après minuit en IDF / après 22 h en province).
+      Repos hebdomadaire : 2 jours (aménagements possibles) et au moins 8 week‑ends/an pour un temps complet.
+    ref:
+      label: "Art. 30 et 34"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005749469?idConteneur=KALICONT000005635596&origin=list"
+
+  - theme: "temps_travail"
+    slot: step5.block.modulation
+    kind: ccn
+    text: >
+      Annualisation / modulation (art. 33) : base de 1 652 h/an (236 jours travaillés).
+      Lissage de la rémunération, suivi du cumul, régularisation en fin de période ; repos
+      compensateur selon art. 31–32. Prévoir une programmation indicative et respecter les prévenances.
+    ref:
+      label: "Art. 29.2, 31 à 33"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005749468?idConteneur=KALICONT000005635596&origin=list"
+
+  # --- Forfait-jours / cadres ---
+  - theme: "temps_travail"
+    slot: step5.block.fd
+    kind: guard
+    when: { work_time_mode: "forfait_days", category: "non-cadre" }
+    text: >
+      Forfait‑jours : réservé aux cadres autonomes. Non‑cadres : régime non ouvert par la branche,
+      sauf accord d’entreprise spécifique conforme au Code du travail.
+    ref:
+      label: "Art. 33.5.2"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000049369949/?idConteneur=KALICONT000005635596"
+
+  - theme: "temps_travail"
+    slot: step5.block.fd.info
+    kind: ccn
+    when: { work_time_mode: "forfait_days", category: "cadre" }
+    text: >
+      Cadres en forfait‑jours : autonomie réelle + garanties (suivi charge, repos, entretiens).
+      Plancher de rémunération : ≥ 120 % du minimum IV‑D (annuel TEC). Le plafond en jours
+      relève d’un accord d’entreprise (pas de plafond CCN chiffré).
+    ref:
+      label: "Art. 33.5.2"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000049369949/?idConteneur=KALICONT000005635596"
+
+  # --- Forfait-heures / heures supplémentaires (temps complet) ---
+  - theme: "temps_travail"
+    slot: step5.block.fh
+    kind: ccn
+    when: { work_time_mode: "forfait_hours" }
+    text: >
+      Heures supplémentaires : contingent annuel de 220 h (art. 31.2). Majoration selon la loi
+      ou accord d’entreprise ; possible remplacement par repos équivalent (art. 31.4), sans
+      préjudice du repos compensateur légal (art. 32). En modulation, seules les heures au‑delà
+      de la borne haute et de la moyenne 35 h deviennent des heures sup (art. 33.3 E1–E2).
+    ref:
+      label: "Art. 31.1 à 31.4 ; 33.3 E"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000047866024"
+
+  # --- Temps partiel : cadre contractuel & coupures ---
+  - theme: "temps_travail"
+    slot: step5.part_time.header
+    kind: ccn
+    when: { work_time_mode: "part_time" }
+    text: >
+      Durée minimale 24 h/sem (contrats <12 h/sem ou 52 h/mois : horaires réguliers, fixes et sans
+      coupure sauf demande expresse). Le contrat doit prévoir des « plages de planification possible »
+      (art. 4.5) : tranches horaires par jour/semaine, total ≤ 3 × durée hebdo (plafond 75 h) et ≤ 12 h/j.
+    ref:
+      label: "Avenant n° 24 mod. — art. 4.4 et 4.5"
+      url: "https://www.legifrance.gouv.fr/conv_coll/article/KALIARTI000028929410#KALIARTI000028929410"
+
+  - theme: "temps_travail"
+    slot: step5.part_time.coupures
+    kind: ccn
+    when: { work_time_mode: "part_time" }
+    text: >
+      Coupures (art. 5) : 1 interruption max/jour (≤ 5 h), 4/semaine max (sauf demande du salarié),
+      amplitude journalière ≤ 12 h. Prime d’interruption ≥ 80 % du MG pour chaque coupure > 2 h.
+    ref:
+      label: "Avenant n° 24 mod. — art. 5"
+      url: "https://www.legifrance.gouv.fr/conv_coll/article/KALIARTI000043444366#KALIARTI000043444366"
+
+  - theme: "temps_travail"
+    slot: step5.part_time.heures_compl
+    kind: ccn
+    when: { work_time_mode: "part_time" }
+    text: >
+      Heures complémentaires (art. 4.11) : +10 % jusqu’à 1/10 de la durée contractuelle, puis +25 %
+      jusqu’à 1/3 (max 33 % si le contrat l’autorise). Prévenance ≥ J‑3 sauf imprévu (accord du salarié).
+      Suivi et mention distincte au bulletin.
+    ref:
+      label: "Avenant n° 24 mod. — art. 4.11"
+      url: "https://www.legifrance.gouv.fr/conv_coll/article/KALIARTI000028929417#KALIARTI000028929417"
+
+  - theme: "temps_travail"
+    slot: step5.part_time.avenant_complement
+    kind: ccn
+    when: { work_time_mode: "part_time" }
+    text: >
+      Avenant « complément d’heures » (art. 4.3) : pour motifs listés (remplacement, surcroît,
+      saisons/vacances, formation) — 6 avenants/an max, 24 semaines cumulé/an. Les heures au‑delà
+      de l’avenant : majoration 25 %.
+    ref:
+      label: "Avenant n° 24 mod. — art. 4.3"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000005672319"
+
+  # --- Nuit / transport / sécurité ---
+  - theme: "temps_travail"
+    slot: step5.block.night
+    kind: ccn
+    text: >
+      Travail de nuit : 22 h–7 h (ou 21 h–6 h par accord). Majoration : 10 % (0–2 h) et 30 % (2–6 h)
+      pour niveaux I à IV, qu’il s’agisse ou non de travailleurs de nuit ; + repos compensateur 2 %/h
+      pour les travailleurs de nuit. Prise en charge taxi/VTC si sortie après 22 h sans transport en commun
+      (plafonds différenciés IDF/province).
+    ref:
+      label: "Art. 36.a et 36.b"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000038162823/?idConteneur=KALICONT000005635596"
+
+  # --- Repas, tenues, fériés, CET ---
+  - theme: "temps_travail"
+    slot: step5.block.meals
+    kind: ccn
+    text: >
+      Repas (art. 42) : titres‑restaurant / menu personnel / prime panier ; pause repas < 30 min = temps
+      de travail. Heures de pointe (déj./dîner) définies par l’établissement conditionnent l’ouverture du droit.
+    ref:
+      label: "Art. 42"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005749477?idConteneur=KALICONT000005635596&origin=list"
+
+  - theme: "temps_travail"
+    slot: step5.block.clothes
+    kind: ccn
+    text: >
+      Tenue et blanchissage (art. 41) : fourniture par l’employeur ou indemnité indexée sur le MG lorsque
+      le salarié prend à sa charge le blanchissage. Temps d’habillage/déshabillage : contreparties prévues.
+    ref:
+      label: "Art. 41 ; 29.6"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005749476?idConteneur=KALICONT000005635596&origin=list"
+
+  - theme: "temps_travail"
+    slot: step5.block.feries
+    kind: ccn
+    text: >
+      Jours fériés (art. 40) : droits ouverts après 8 mois de présence ; au choix de l’employeur, paiement
+      ou compensation en temps (hors 1er mai régi par la loi).
+    ref:
+      label: "Art. 40"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005749475?idConteneur=KALICONT000005635596&origin=list"
+
+  - theme: "temps_travail"
+    slot: step5.block.cet
+    kind: ccn
+    text: >
+      Compte épargne‑temps (CET) possible : ouverture après 1 an d’ancienneté, alimentation notamment par
+      jours de repos d’annualisation, conversion en heures indemnisables, règles de valorisation et d’utilisation.
+    ref:
+      label: "Art. 33.6"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005749468?idConteneur=KALICONT000005635596&origin=list"
+
+  # --- Step 6 : Rémunération ---
+  - theme: "remuneration"
+    slot: step6.footer
+    kind: ccn
+    text: >
+      Plancher applicable = max(SMIC proratisé ; minimum CCN du niveau/échelon). Niv. V : minima en annuel TEC.
+      En forfait‑jours (cadres), vérifier le plancher 120 % du IV‑D (annuel TEC).
+    ref:
+      label: "Avenant n° 72 (minima 2025) ; Art. 33.5.2"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000052133139/?idConteneur=1501"
+
+  - theme: "remuneration"
+    slot: step6.more.minima
+    kind: ccn
+    text: >
+      I–IV : minima fixés en €/h (convertis en mensuel 35 h par la plateforme) ; V : minima en annuel TEC
+      (affichés en équivalent mensuel pour comparaison). Les accessoires (repas, coupure, nuit, blanchissage)
+      ne permettent pas de descendre sous le plancher.
+    ref:
+      label: "Avenant n° 72 du 05/06/2025 (étendu)"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000052133139/?idConteneur=1501"
+
+  - theme: "remuneration"
+    slot: step6.more.ursaff_repas
+    kind: info
+    text: >
+      Avantage en nature « repas » (si repas fournis) : évaluation URSSAF fondée sur le minimum garanti. Impact en paie (cotisations) à anticiper.
+    ref:
+      label: "URSSAF — Avantage repas"
+      url: "https://www.urssaf.fr/portail/home/espaces-dedies/employeur/avantages-en-nature/avantage-en-nature-repas.html"
+
+  - theme: "remuneration"
+    slot: step6.more.pt_avenant
+    kind: ccn
+    when: { work_time_mode: "part_time" }
+    text: >
+      Temps partiel : les avenants « complément d’heures » (jusqu’à 6/an, 24 semaines/an) permettent de
+      majorer temporairement la durée contractuelle ; les heures au‑delà de l’avenant sont à +25 %.
+    ref:
+      label: "Art. 4.3"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000005672319"
+
+  # --- Step 7 : Période d’essai ---
+  - theme: "periode_essai"
+    slot: step7.card
+    kind: ccn
+    text: >
+      Périodes d’essai (CDI) : 1 mois (Niv. I–II), 2 mois (Niv. III), 3 mois (Maîtrise Niv. IV),
+      4 mois (Cadres Niv. V). Renouvellement : réservé aux cadres, avec plafond total 6 mois.
+    ref:
+      label: "Art. 9 — Période d’essai (mise à jour/extension)"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000051017374"
+
+  - theme: "periode_essai"
+    slot: "step7.renewal"
+    kind: "ccn"
+    when: { category: "cadre" }
+    text: >
+      Renouvellement possible uniquement pour les cadres, si prévu au contrat initial et accepté pendant l’essai.
+      Le total (initial + renouvellement) ne doit pas excéder 6 mois.
+    ref:
+      label: "Art. 9"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000051017374"
+
+  # --- Step 8 : Préavis & Congés ---
+  - theme: "preavis"
+    slot: step8.card
+    kind: ccn
+    text: >
+      Préavis (CDI) : Ouvriers/Employés I–III : 8 j (<6 mois), 15 j (6–24 mois), 1 mois (≥2 ans).
+      Maîtrise IV : 1 mois (<2 ans), 2 mois (≥2 ans). Cadres V : 3 mois (démission/licenciement).
+    ref:
+      label: "Art. 12 — Préavis"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000005672319"
+
+  - theme: "conges_payes"
+    slot: step8.conges
+    kind: ccn
+    text: >
+      Congés annuels : décompte en ouvrables, fractionnement encadré (pas de jours en plus sauf refus de l’employeur
+      de prise entre le 1er mai et le 31 octobre). Don de jours de repos possible (enfant gravement malade / proche aidant).
+    ref:
+      label: "Art. 37 et 37.1"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005749472?idConteneur=KALICONT000005635596&origin=list"

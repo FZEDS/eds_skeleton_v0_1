@@ -1,0 +1,13 @@
+meta:
+  idcc: 1501
+  theme: "conges_payes"
+  source:
+    label: "Restauration rapide — Congés annuels et jours fériés"
+    note: "Art. 37 (fractionnement encadré) ; Art. 40 (jours fériés après 8 mois de présence : payés ou compensés)."
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000005672319"
+
+# La CCN ne prévoit pas de jours d’ancienneté automatiques ; le fractionnement ne donne pas droit à bonification
+# sauf refus de l’employeur de laisser prendre entre le 1er mai et le 31 octobre (art. 37).
+# Les jours fériés (hors 1er mai) sont ouverts après 8 mois de présence et payés ou compensés au choix de l’employeur (art. 40).
+
+rules: []

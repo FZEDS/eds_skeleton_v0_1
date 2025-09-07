@@ -195,8 +195,8 @@
     // HCR (1979) : conserve la logique AM, mais ne déclenche "Cadres" que si c'est vraiment "cadre"
     if (idcc === 1979){
       if (isCadre) return 'Cadres';
-      if (/ma[iî]trise|am\b/.test(cl)) return 'Agents de maîtrise';
-      return 'Employés';
+      // Pour HCR, on regroupe Employés et Agents de maîtrise sous un même zoom
+      return 'Employés/Agents de maîtrise';
     }
 
     // par défaut (autres CCN)
@@ -232,11 +232,16 @@
       const hasWarn = items.some(x => String(x.kind||'').toLowerCase().includes('warn'));
       const hasCCN  = items.some(x => String(x.kind||'').toLowerCase()==='ccn');
       panel.classList.add(hasWarn ? 'callout-warn' : (hasCCN ? 'callout-ccn' : 'callout-info'));
+      const sanitize = (html)=> String(html||'')
+        .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+        .replace(/\son\w+\s*=\s*"[^"]*"/gi, '')
+        .replace(/\son\w+\s*=\s*'[^']*'/gi, '');
       const html = items.map(x=>{
-        const text = escapeHtml(x.text||'').replace(/\n/g,'<br>');
+        const raw = String(x.text||'');
+        const text = raw.includes('<') ? sanitize(raw) : escapeHtml(raw).replace(/\n/g,'<br>');
         const ref  = x.url ? `<small><a href="${x.url}" target="_blank" rel="noopener">${escapeHtml(x.ref||'Réf.')}</a></small>`
                            : (x.ref ? `<small>${escapeHtml(x.ref)}</small>` : '');
-        return `<div style="margin-top:6px">${text}${ref?'<br>'+ref:''}</div>`;
+        return `<div style="margin:8px 0; line-height:1.45">${text}${ref?'<br>'+ref:''}</div>`;
       }).join('');
       body.innerHTML = html;
     }else{
@@ -255,6 +260,7 @@
   // ---------- State règles/bornes ----------
   let lastCaps = {};
   let lastBounds = {};
+  let lastRuleMeta = {};
 
   function applyCapabilities(caps){
     lastCaps = caps || {};
@@ -279,6 +285,14 @@
       const fj = $('#forfait_days_per_year');
       if (fj && !fj.value) fj.placeholder = String(dfl.forfait_days_per_year);
     }
+    // Pré-remplissages spécifiques temps partiel (2216 …)
+    try{
+      const bmax = dfl.pt_break_max_hours;
+      if (bmax!=null){
+        const inp = $('#pt_break_max_hours');
+        if (inp && !inp.value) inp.placeholder = String(bmax);
+      }
+    }catch(_){ }
   }
 
   function renderExplain(items){
@@ -291,12 +305,21 @@
       'step5.block.m2':          '#m2_card',     // Modalité 2
       'step5.block.std':         '#std_card',
       'step5.footer':            '#worktime_card',
+      'step5.more.sunday':       '#worktime_card',
+      'step5.more.night':        '#worktime_card',
       'step5.part_time.header':  '#pt_header',
       'step5.part_time.fixed':   '#pt_fixed_card',
       'step5.part_time.flex':    '#pt_flex_card',      // conservé s'il existe encore dans le DOM
       'step5.part_time.coupures':'#pt_coupures_card',
       'step5.part_time.modif':   '#pt_modif_card',
     };
+
+    // Autoriser des cibles supplémentaires (ex. étapes 6: salaire)
+    try {
+      if (window.SLOT_TARGETS && typeof window.SLOT_TARGETS === 'object'){
+        Object.keys(window.SLOT_TARGETS).forEach(k=>{ SLOT[k] = window.SLOT_TARGETS[k]; });
+      }
+    } catch(_) {}
 
     // reset slots
     Object.values(SLOT).forEach(sel=>{
@@ -305,6 +328,36 @@
       n.classList.remove('callout-info','callout-warn','callout-ccn');
       if (!n.classList.contains('callout')) n.classList.add('callout');
     });
+
+    const sanitizeSafeHtml = (html)=>{
+      return String(html||'')
+        .replace(/<script[\s\S]*?>[\s\S]*?<\/script>/gi, '')
+        .replace(/\son\w+\s*=\s*"[^"]*"/gi, '')
+        .replace(/\son\w+\s*=\s*'[^']*'/gi, '');
+    };
+    const renderRich = (raw)=>{
+      const s = String(raw||'');
+      if (s.includes('<')){
+        return sanitizeSafeHtml(s);
+      }
+      const lines = s.split('\n');
+      let html = '';
+      let ul = [];
+      const pushUl = ()=>{ if (ul.length){ html += '<ul>'+ul.map(x=>`<li>${escapeHtml(x)}</li>`).join('')+'</ul>'; ul = []; } };
+      lines.forEach(line=>{
+        const t = line.trim();
+        if (!t){ pushUl(); html += '<br>'; return; }
+        if (t.startsWith('- ')){
+          ul.push(t.slice(2));
+        } else {
+          pushUl();
+          html += escapeHtml(t) + '<br>';
+        }
+      });
+      pushUl();
+      if (html.endsWith('<br>')) html = html.slice(0,-4);
+      return html;
+    };
 
     items.forEach(it=>{
       const node = $(SLOT[it.slot] || '#worktime_card'); if(!node) return;
@@ -320,9 +373,11 @@
         : (it.ref ? `<small>${escapeHtml(it.ref)}</small>` : '');
 
       const div = document.createElement('div');
-      div.style.marginTop = '4px';
-      const htmlText = escapeHtml(it.text || '').replace(/\n/g, '<br>');
-      div.innerHTML = `${htmlText}${ref ? '<br>'+ref : ''}`;
+      div.style.margin = '8px 0';
+      div.style.lineHeight = '1.45';
+      const htmlText = renderRich(it.text || '');
+      const emote = (kind==='warn' || kind==='guard') ? '⚠️' : (kind==='ccn' ? '📘' : '💡');
+      div.innerHTML = `<div class="co-line"><span class="co-chip ${kind}">${emote}</span><div class="co-body">${htmlText}${ref ? '<br>'+ref : ''}</div></div>`;
       node.appendChild(div);
       node.style.display = 'block';
     });
@@ -345,11 +400,14 @@
          <small>C. trav., L3121‑20 s. (48h/sem max ; moy. 44h/12 sem)</small>`;
       card.style.display = 'block';
     } else if (regime === 'temps_partiel') {
+      const wMin = (typeof lastBounds.weekly_hours_min === 'number') ? lastBounds.weekly_hours_min : 24;
+      const wMax = (typeof lastBounds.weekly_hours_max === 'number') ? lastBounds.weekly_hours_max : 34.9;
+      const ref = (lastRuleMeta && lastRuleMeta.source_ref) ? lastRuleMeta.source_ref : 'C. trav., L3123‑27 à L3123‑34 (temps partiel)';
       card.innerHTML =
         `<strong>Conformité Temps partiel</strong><br>
-         Hebdomadaire : min <b>24</b> h/sem · max <b>34.9</b> h/sem.<br>
-         <small>C. trav., L3123‑27 à L3123‑34 (temps partiel)</small><br>
-         L'entreprise devra s'assurer que son temps de travail réel ne dépasse pas ce qui est prévu dans son contrat. A défaut, le salarié peut réclamer le paiement d'heures supplémentaires. 💡 Si cela ne correspondra pas à la réalité de son travail, vous pouvez envisager un autre mode d'organisation du temps de travail (forfait jours, etc.)<br>
+         Hebdomadaire : min <b>${wMin}</b> h/sem · max <b>${wMax}</b> h/sem.<br>
+         <small>${escapeHtml(ref)}</small><br>
+         L'entreprise devra s'assurer que son temps de travail réel ne dépasse pas ce qui est prévu dans son contrat. A défaut, le salarié peut réclamer le paiement d'heures supplémentaires. 💡 Si cela ne correspond pas à la réalité de son travail, vous pouvez envisager un autre mode d'organisation du temps de travail (forfait‑jours, etc.)<br>
          <small>C. trav., L3121‑27 & L3123‑27</small>`;
       card.style.display = 'block';
     }
@@ -617,7 +675,13 @@
     }
 
     lastBounds = payload.bounds || {};
-    applyCapabilities(payload.capabilities || {});
+    lastRuleMeta = payload.rule || {};
+    // Applique localement (Step 5) et propage globalement (pour éviter qu'un autre module ne réaffiche des options masquées)
+    const caps = payload.capabilities || {};
+    applyCapabilities(caps);
+    if (typeof window.mergeCapabilities === 'function') {
+      window.mergeCapabilities(caps);
+    }
     renderExplain(Array.isArray(payload.explain) ? payload.explain : []);
 
     // Bandeau générique si l’API n’a rien envoyé (standard/part_time)
@@ -667,8 +731,14 @@
           n.style.display='block';
         }
       }
-      if ($('#m2_days_cap') && lastBounds.days_per_year_max!=null){
-        $('#m2_days_cap').value = String(lastBounds.days_per_year_max);
+      const m2cap = $('#m2_days_cap');
+      if (m2cap && lastBounds.days_per_year_max!=null){
+        // Ne pas écraser une saisie utilisateur; à défaut, utiliser le plafond comme valeur par défaut
+        if (!m2cap.value) {
+          m2cap.value = String(lastBounds.days_per_year_max);
+        } else if (!m2cap.placeholder) {
+          m2cap.placeholder = String(lastBounds.days_per_year_max);
+        }
       }
     }
 
@@ -873,6 +943,9 @@
       show('#blk_forfait_days',  false);
       show('#blk_modalite_2',    false);
       show('#blk_standard',      true);
+      // Ne pas afficher le cartouche "35h standard" en TP
+      const stdCard = document.getElementById('std_card');
+      if (stdCard) { stdCard.style.display = 'none'; stdCard.innerHTML = ''; }
 
       const std = $('#weekly_hours_std');
       if (std){
@@ -937,7 +1010,7 @@
       ptResetAll();
     }
 
-    renderRegimeConformity();
+    // Bandeau générique supprimé au profit des hints dynamiques CCN
     document.dispatchEvent(new CustomEvent('eds:worktime_changed'));
   }
 
@@ -982,6 +1055,12 @@
 
     // Notifie le reste de l'appli
     document.dispatchEvent(new CustomEvent('eds:worktime_changed'));
+  }
+
+  function refreshAll(){
+    updateZoomSummary();
+    refreshZoomByCategory();
+    return refreshFromApi();
   }
 
   // ---------- Init (sûr & idempotent) ----------
@@ -1071,8 +1150,15 @@
 
     // Hook public
     window.EDS_WT = window.EDS_WT || {};
-    window.EDS_WT.refresh   = refreshFromApi;
+    window.EDS_WT.refresh   = refreshAll;
     window.EDS_WT.forceInit = init;
+
+    // Recalcul si la catégorie change (ex. après modification classification)
+    document.getElementById('categorie')?.addEventListener('change', ()=>{
+      if (document.querySelector('.step[data-step="5"][aria-hidden="false"]')){
+        refreshAll();
+      }
+    });
   }
 
   // Lance init selon l’état du DOM

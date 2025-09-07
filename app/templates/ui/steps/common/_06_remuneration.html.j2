@@ -1,7 +1,9 @@
 {% from 'components/macros.html.j2' import callout, error_msg %}
 
 <div class="step card" data-step="6" aria-hidden="true">
-  <h3>06. Rémunération</h3>
+  <h3>06. Rémunération
+    <span class="help" title="Pour prévoir une rémunération variable (objectifs/commissions), ajoutez une clause dédiée à l’étape 9 (« Clauses additionnelles » → Rémunération variable).">i</span>
+  </h3>
 
   <!-- Bandeau d’info (minima / plancher) alimenté par l’API -->
   <div id="salary_card" class="callout" data-slot="step6.footer" style="display:none;margin-top:10px"></div>
@@ -45,6 +47,11 @@
     <label>Politique de frais (optionnel)</label>
     <textarea name="expense_policy" id="expense_policy" rows="2"
               placeholder="Ex. barème kilométrique, per diem, justificatifs requis…"></textarea>
+  </div>
+
+  <div class="hintbar" style="margin-top:10px">
+    💡 Pour prévoir une rémunération variable (objectifs/commissions), ajoutez une clause dédiée à l’étape 9
+    (<em>Clauses additionnelles</em> → <strong>Rémunération variable</strong>).
   </div>
 
     <div class="divider"></div>

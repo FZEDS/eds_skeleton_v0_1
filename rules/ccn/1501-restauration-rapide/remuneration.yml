@@ -1,0 +1,47 @@
+meta:
+  idcc: 1501
+  theme: "remuneration"
+  effective_from: "2025-08-01"
+  source:
+    name: "Avenant n° 72 du 5 juin 2025 relatif aux minima conventionnels"
+    article: "Minima I–IV (taux horaire) et V (annuel TEC)"
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000052133139/?idConteneur=1501"
+
+# Grille mensuelle 35 h (I à IV convertis à 151,67 h ; V = annuel/12)
+grid:
+  non-cadre:
+    "101": 1801.84   # I-A  11,88 €/h → ×151,67
+    "102": 1804.87   # I-B  11,90 €/h
+    "201": 1853.41   # II-A 12,22 €/h
+    "202": 1888.29   # II-B 12,45 €/h
+    "301": 1944.41   # III-A 12,82 €/h
+    "302": 1961.09   # III-B 12,93 €/h
+    "303": 2120.35   # III-C 13,98 €/h
+    "401": 2276.57   # IV-A 15,01 €/h
+    "402": 2340.27   # IV-B 15,43 €/h
+    "403": 2434.30   # IV-C 16,05 €/h
+    "404": 2629.96   # IV-D 17,34 €/h
+  cadre:
+    "501": 3720.48   # V-A  44 645,78 €/an TEC / 12
+    "502": 3836.06   # V-B  46 032,71 €/an TEC / 12
+    "503": 6034.01   # V-C  72 408,11 €/an TEC / 12
+
+# Politique de plancher (aucune décote/ratio mensuel par défaut)
+policy:
+  monthly_floor_ratio:
+    default: 1.00
+
+  # Règle CCN : forfait-jours pour cadres autonomes => au moins 120 % du minimum IV-D (mensuel).
+  cadre_forfait_jours_floor:
+    base_ref: "IV-D"
+    coeff: 404           # aide moteur : coefficient correspondant à IV‑D
+    category: "non-cadre"  # la référence IV-D relève des non-cadres
+    multiple: 1.20
+    note: "Art. 33.5.2 — La rémunération annuelle (TEC) ne peut être inférieure à 120 % du minimum conventionnel du niveau IV échelon D."
+
+notes:
+  - "V (cadres) : les minima sont exprimés en annuel brut tous éléments de salaire confondus (TEC)."
+  - "La comparaison avec le SMIC reste applicable (moteur : max(SMIC proratisé ; CCN))."
+
+# Pas de multiplicateurs CCN spécifiques additionnels
+multipliers: {}

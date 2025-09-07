@@ -1,0 +1,46 @@
+# rules/ccn/1501-restauration-rapide/temps_travail.yml
+
+meta:
+  idcc: 1501
+  theme: "temps_travail"
+  source:
+    label: "Articles 29 à 33 — Durée du travail, programmation, modulation, repos compensateur"
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000005672319"
+
+rules:
+  # Temps partiel (avenant n° 24 modifié, art. 4.4 ; avenant n° 44) — minima légaux/CCN
+  - key: "part_time"
+    scope: { work_time_mode: "part_time" }
+    constraint:
+      weekly_hours_min: 24
+      weekly_hours_max: 34.9
+      # Coupures & amplitude (Art. 5 — avenant temps partiel)
+      breaks_per_day_max: 1
+      breaks_per_week_max: 4
+      max_break_duration_hours: 5
+      min_sequence_hours: 2
+      daily_amplitude_max: 12
+      # Prime de coupure (> 2h) indexée sur MG
+      break_premium_mg_ratio: 0.8
+      break_premium_min_eur: 3.5
+      # Garde‑fous : sans demande écrite du salarié, pas de coupure si horaire < 12 h/sem ou < 52 h/mois
+      forbid_breaks_if_weekly_hours_lt: 12
+      forbid_breaks_if_monthly_hours_lt: 52
+    source_ref: "Avenant n° 24 (mod.), art. 4.4 — durée minimale 24 h ; contrats <12 h sans coupure"
+
+  #  Forfait-jours cadres 
+  - key: "forfait_jours_info"
+    scope: { work_time_mode: "forfait_days" }
+    constraint: {}
+    source_ref: "Art. 33.5.2 — Forfait-jours cadres : conditions & plancher 120 % IV-D (voir hints)"
+
+  # Programme de travail — prévenance J‑10 / J‑3 et échange de créneau (Art. 29.5)
+  - key: "work_program"
+    constraint:
+      program_prevenance_days: 10
+      program_modify_deadline_days: 3
+      shift_swap_allowed: true
+    source_ref: "Art. 29.5 — Programme de travail (prévenance J‑10 / J‑3) ; échanges de créneau autorisés"
+
+  # Aucune règle spécifique n’est publiée ici pour forfait‑jours ni « modalité 2 ».
+  # Par défaut, le moteur appliquera le Code du travail (218 j/an) si l’entreprise envisage un forfait‑jours pour des cadres autonomes.

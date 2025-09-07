@@ -55,8 +55,7 @@ except Exception as e:
         items = [
             {"idcc": 1486, "label": "Bureaux d’études techniques (Syntec)", "slug": "1486-syntec"},
             {"idcc": 1979, "label": "Hôtels, cafés, restaurants (HCR)", "slug": "1979-hcr"},
-            {"idcc": 44,   "label": "Métallurgie (ingénieurs et cadres)", "slug": "0044-metallurgie-ic"},
-            {"idcc": 1518, "label": "Commerce de détail et de gros à prédominance alimentaire", "slug": "1518-predominance-alimentaire"},
+            {"idcc": 2216, "label": "Commerce de détail & de gros à prédominance alimentaire", "slug": "2216-predominance-alimentaire"},
         ]
         if not q:
             return items
@@ -118,6 +117,37 @@ except Exception as e:
 def _today_iso() -> str:
     return date.today().isoformat()
 
+def _smart_name_case(s: Optional[str]) -> Optional[str]:
+    """Met en forme un nom/prénom proprement pour affichage (PDF).
+    - Capitalise chaque mot,
+    - Particules usuelles en minuscules (de, du, des, le, la, les, d', l'),
+    - Gère les traits d'union et apostrophes ("'" et « ’ »).
+    Ne modifie pas si la chaîne est vide/None.
+    """
+    if not s:
+        return s
+    text = str(s).strip()
+    if not text:
+        return text
+    particles = {"de", "du", "des", "le", "la", "les", "da", "di", "del", "della", "van", "von"}
+    apos = {"'", "’"}
+    def capseg(seg: str) -> str:
+        return seg[:1].upper() + seg[1:].lower() if seg else seg
+    def capword(w: str) -> str:
+        if not w:
+            return w
+        for ap in apos:
+            if ap in w:
+                p = w.split(ap)
+                if len(p) == 2 and p[0].lower() in {"d", "l"}:
+                    return p[0].lower() + ap + capseg(p[1])
+        if '-' in w:
+            return '-'.join(capseg(x) for x in w.split('-'))
+        lw = w.lower()
+        if lw in particles:
+            return lw
+        return capseg(w)
+    return " ".join(capword(tok) for tok in text.split())
 def _safe_rule(rule: Optional[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
     """Ne renvoie que les métadonnées utiles au front."""
     if not rule:
@@ -422,6 +452,7 @@ async def api_salaire_bounds(
     classification_level: Optional[str] = None,
     has_13th_month: bool = False,
     as_of: Optional[str] = None,
+    anciennete_months: Optional[int] = None,
 ):
     ctx = {
         "idcc": idcc,
@@ -434,6 +465,7 @@ async def api_salaire_bounds(
         "classification_level": classification_level,
         "has_13th_month": has_13th_month,
         "as_of": as_of or _today_iso(),
+        "anciennete_months": anciennete_months,
     }
     # 1) Resolver principal
     res = _call_resolver("remuneration", ctx)
@@ -584,6 +616,7 @@ async def cdi_generate(
     urssaf_number: str = Form(...),
     rep_name: str = Form(...),
     rep_title: str = Form(...),
+    rep_civility: Optional[str] = Form(None),
 
     # --- Salarié
     employee_civility: str = Form(...),
@@ -591,12 +624,16 @@ async def cdi_generate(
     birth_date: str = Form(...),
     birth_place: str = Form(...),
     nationality: str = Form(...),
+    employee_address: Optional[str] = Form(None),
+    employee_postal_code: Optional[str] = Form(None),
+    employee_city: Optional[str] = Form(None),
     ssn: Optional[str] = Form(None),   # ← facultatif
 
     # --- Contexte conventionnel
     idcc: Optional[int] = Form(None),
     categorie: str = Form(...),
     classification_level: Optional[str] = Form(None),
+    adhesion_syndicat: Optional[str] = Form(None),
     # --- Accords d'entreprise (optionnel)
     ae_exists: Optional[str] = Form(None),
     ae_count: Optional[int] = Form(None),
@@ -606,6 +643,8 @@ async def cdi_generate(
     job_title: str = Form(...),
     main_mission: Optional[str] = Form(None),
     annex_activities: Optional[str] = Form(None),
+    mission_in_contract: Optional[str] = Form(None),
+    mission_in_annex: Optional[str] = Form(None),
 
     # --- Temps de travail
     work_time_regime: str = Form(...),
@@ -616,6 +655,7 @@ async def cdi_generate(
     schedule_info: Optional[str] = Form(None),
     forfait_hours_per_year: Optional[int] = Form(None),
     forfait_days_per_year: Optional[int] = Form(None),
+    m2_days_cap: Optional[int] = Form(None),
     ref_period_desc: Optional[str] = Form(None),
 
     # --- Dates & essai
@@ -628,11 +668,20 @@ async def cdi_generate(
     has_13th_month: Optional[str] = Form(None),   # checkbox string
     remuneration_accessories: Optional[str] = Form(None),
     expense_policy: Optional[str] = Form(None),
+    bonus13_when: Optional[str] = Form(None),
+    bonus13_when_free: Optional[str] = Form(None),
+    bonus13_base: Optional[str] = Form(None),
+    bonus13_base_free: Optional[str] = Form(None),
 
     # --- Lieu / mobilité
     workplace_base: str = Form(...),
     work_area: Optional[str] = Form(None),
     mobility_clause: str = Form("non"),
+    # Rappels employeur (compléments)
+    employer_postal_code: Optional[str] = Form(None),
+    employer_city: Optional[str] = Form(None),
+    legal_form: Optional[str] = Form(None),
+    siren_number: Optional[str] = Form(None),
 
     # --- Congés / organismes
     cp_days_number: Optional[int] = Form(None),
@@ -812,6 +861,7 @@ async def cdi_generate(
         "classification_level": classification_level,
         "has_13th_month": has_13th_flag,
         "as_of": contract_start,
+        "anciennete_months": anciennete_months,
         "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
     }
 
@@ -884,6 +934,18 @@ async def cdi_generate(
                 "message": f"Forfait-jours saisi ({forfait_days_per_year}) > plafond ({dmax}).",
                 "ref": (tt_res.get("rule") or {}).get("source_ref"), "suggested": dmax,
             })
+    # Modalité 2 — plafond annuel en jours (facultatif) : contrôler contre la borne CCN si disponible
+    if wt_api == "forfait_hours_mod2" and m2_days_cap is not None:
+        dmax = tt_bounds.get("days_per_year_max")
+        try:
+            if dmax is not None and int(m2_days_cap) > int(dmax):
+                conformity_issues.append({
+                    "key": "m2_jours_max_srv", "step": 5, "field": "m2_days_cap", "severity": "hard",
+                    "message": f"Plafond annuel saisi ({m2_days_cap}) > plafond ({dmax}).",
+                    "ref": (tt_res.get("rule") or {}).get("source_ref"), "suggested": dmax,
+                })
+        except Exception:
+            pass
 
     # Congés payés — minimum
     cp_ctx = {
@@ -924,6 +986,21 @@ async def cdi_generate(
                             seen.add(kk)
     except Exception:
         selected_keys = []
+
+    # Auto‑inclusions obligatoires (branche)
+    try:
+        if idcc == 2216:
+            # Clause jours fériés (obligatoire de branche) — ajoutée même si non cochée côté UI
+            if 'public_holidays_2216' not in selected_keys:
+                selected_keys.append('public_holidays_2216')
+            # Prime annuelle (obligation conventionnelle structurante)
+            if 'annual_bonus_2216' not in selected_keys:
+                selected_keys.append('annual_bonus_2216')
+            # Travail de nuit — majorations (clause fixe)
+            if 'night_work_premiums_2216' not in selected_keys:
+                selected_keys.append('night_work_premiums_2216')
+    except Exception:
+        pass
 
     # Clauses custom
     try:
@@ -1000,16 +1077,24 @@ async def cdi_generate(
 
 
     # 4) Contexte PDF
+    # Mise en forme des noms pour un rendu PDF propre
+    rep_name_fmt = _smart_name_case(rep_name)
+    employee_name_fmt = _smart_name_case(employee_name)
+
     context = {
         # Employeur
         "employer_name": employer_name,
         "employer_address": employer_address,
         "urssaf_number": urssaf_number,
-        "rep_name": rep_name,
+        "rep_name": rep_name_fmt or rep_name,
         "rep_title": rep_title,
+        "rep_civility": rep_civility,
         # Salarié
         "employee_civility": employee_civility,
-        "employee_name": employee_name,
+        "employee_name": employee_name_fmt or employee_name,
+        "employee_address": employee_address,
+        "employee_postal_code": employee_postal_code,
+        "employee_city": employee_city,
         "birth_date": birth_date,
         "birth_place": birth_place,
         "nationality": nationality,
@@ -1018,6 +1103,7 @@ async def cdi_generate(
         "idcc": idcc,
         "categorie": categorie,
         "classification_level": classification_level,
+        "adhesion_syndicat": adhesion_syndicat,
         "ae_exists": ae_exists_flag,
         "ae_count": ae_count_val,
         "ae_items": ae_items,
@@ -1025,6 +1111,8 @@ async def cdi_generate(
         "job_title": job_title,
         "main_mission": main_mission,
         "annex_activities": annex_activities,
+        "mission_in_contract": mission_in_contract,
+        "mission_in_annex": mission_in_annex,
         # Temps de travail
         "work_time_mode": ui_work_time_mode, 
         "work_time_regime": work_time_regime,     # "temps_complet" | "temps_partiel"
@@ -1033,6 +1121,7 @@ async def cdi_generate(
         "schedule_info": schedule_info,
         "forfait_hours_per_year": forfait_hours_per_year,
         "forfait_days_per_year": forfait_days_per_year,
+        "m2_days_cap": m2_days_cap,
         "ref_period_desc": ref_period_desc,
         # Essai
         "contract_start": contract_start,
@@ -1043,6 +1132,10 @@ async def cdi_generate(
         "has_13th_month": has_13th_flag,
         "remuneration_accessories": remuneration_accessories,
         "expense_policy": expense_policy,
+        "bonus13_when": bonus13_when,
+        "bonus13_when_free": bonus13_when_free,
+        "bonus13_base": bonus13_base,
+        "bonus13_base_free": bonus13_base_free,
         # Rémunération (bornes appliquées pour l'annexe)
         "salary_min_base": sal_bounds.get("base_min_eur"),
         "salary_min_applied": sal_bounds.get("monthly_min_eur"),
@@ -1051,6 +1144,11 @@ async def cdi_generate(
         "workplace_base": workplace_base,
         "work_area": work_area,
         "mobility_clause": mobility_clause,
+        # Employeur — compléments
+        "employer_postal_code": employer_postal_code,
+        "employer_city": employer_city,
+        "legal_form": legal_form,
+        "siren_number": siren_number,
         # Congés / organismes
         "cp_days_number": cp_days_number,
         "cp_unit": cp_unit,

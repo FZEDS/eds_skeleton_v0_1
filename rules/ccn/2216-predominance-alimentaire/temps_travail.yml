@@ -1,0 +1,30 @@
+# rules/ccn/2216-predominance-alimentaire/temps_travail.yml
+
+meta:
+  idcc: 2216
+  theme: "temps_travail"
+  source:
+    label: "CCN Commerce de détail & de gros à prédominance alimentaire — Durée du travail"
+
+# Rappels:
+# - Les plafonds généraux (hebdomadaire 48h, moyenne 44h/12 sem) et le plancher temps partiel 24h/sem
+#   proviennent du Code du travail (déjà pris en charge par rules/code_travail/temps_travail.yml).
+
+rules:
+  - key: "forfait_jours"
+    scope: { work_time_mode: "forfait_days" }
+    constraint:
+      days_per_year_max: 216
+    source_ref: "Cadres au forfait‑jours — plafond usuel 216 j/an (SMAG 216)"
+
+  - key: "part_time"
+    scope: { work_time_mode: "part_time" }
+    constraint:
+      weekly_hours_min: 26
+      weekly_hours_max: 34.9
+      # Spécificités branche: coupures & amplitude
+      break_threshold_hours: 2              # si une coupure > 2h → amplitude limitée
+      daily_amplitude_max_if_break: 12      # amplitude max 12h si coupure > 2h
+      daily_amplitude_max_inventory: 13     # amplitude max 13h en cas d’inventaire comptable
+      min_halfday_hours: 3.5                # repère demi‑journée minimale (≈ 3h30)
+    source_ref: "Temps partiel — durée minimale 26 h/sem (vérifier dispositions étendues)"

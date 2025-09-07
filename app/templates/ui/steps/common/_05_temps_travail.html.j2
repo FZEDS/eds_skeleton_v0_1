@@ -6,6 +6,11 @@
   <!-- Slots “pédagogie” injectés par l’API (explain[]) -->
   <div id="slot_step5_block"  class="callout" data-slot="step5.block"  style="display:none"></div>
 
+  <!-- Hintbar discrète (rappel légal/contrat) -->
+  <div class="hintbar" role="note" aria-live="polite">
+    💡 L'entreprise devra s'assurer que le temps de travail réel du salarié ne dépasse pas ce qui est prévu dans son contrat. À défaut, le salarié peut réclamer le paiement d'heures supplémentaires.
+  </div>
+
   <!-- Régime -->
   <div class="fieldset flow-12">
     <div class="label-inline">
@@ -35,8 +40,21 @@
     <div id="regime_hint" class="note"></div>
   </div>
 
-    <!-- Bandeau de conformité par régime (TC/TP) -->
-  <div id="regime_conformity_card" class="callout mt-12" style="display:none"></div>
+    <!-- Bandeau de conformité par régime (supprimé au profit des hints dynamiques) -->
+
+  <!-- Rappels légaux (journée / repos) -->
+  <details class="callout callout-info zoom-card mt-12">
+    <summary>Rappels légaux (journée et repos)</summary>
+    <div class="body">
+      <ul>
+        <li>Durée quotidienne maximale usuelle&nbsp;: <strong>10&nbsp;heures</strong> (dérogations possibles sous conditions).</li>
+        <li>Repos quotidien obligatoire&nbsp;: <strong>11&nbsp;heures consécutives</strong>.</li>
+        <li>Repos hebdomadaire&nbsp;: <strong>24&nbsp;heures</strong> + repos quotidien (soit <strong>35&nbsp;heures</strong> consécutives).</li>
+        <li>Hebdomadaire&nbsp;: plafond absolu <strong>48&nbsp;heures</strong> et moyenne <strong>44&nbsp;heures</strong> sur 12&nbsp;semaines.</li>
+        <li>En cas d’amplitudes et de coupures, respecter les plafonds et prévoir les contreparties le cas échéant.</li>
+      </ul>
+    </div>
+  </details>
 
 
   <hr class="divider">
@@ -151,8 +169,11 @@
         <small id="m2_err" class="error-msg" aria-live="polite"></small>
       </div>
       <div>
-        <label>Plafond annuel en jours (si applicable)</label>
-        <input type="number" min="1" max="230" id="m2_days_cap" placeholder="selon CCN/accord" readonly>
+        <label>
+          Plafond annuel en jours (si applicable)
+          <span class="help" title="Sous Syntec (modalité 2), un plafond annuel en jours peut exister par accord. Vous pouvez prévoir contractuellement un plafond inférieur au maximum conventionnel, sous réserve de respecter les garanties de la CCN et du Code du travail.">i</span>
+        </label>
+        <input type="number" min="1" max="230" id="m2_days_cap" name="m2_days_cap" placeholder="selon CCN/accord">
       </div>
     </div>
     <div id="m2_card" class="callout mt-12" data-slot="step5.block.m2" style="display:none"></div>
@@ -212,12 +233,7 @@
       <!-- Slot optionnel si l’API veut compléter -->
       <div id="pt_fixed_card" class="callout" data-slot="step5.part_time.fixed" style="display:none"></div>
 
-      <details class="callout callout-info zoom-card mt-24">
-        <summary>Rappel sur l’organisation déterminée par jour</summary>
-        <div class="body">
-          Placeholder.
-        </div>
-      </details>
+      
 
     </div>
 
@@ -241,10 +257,20 @@
       </div>
     </div>
 
+    <!-- Rappel commun (hebdomadaire par jour OU mensuelle par semaine) -->
+    <details class="callout callout-info zoom-card mt-24">
+      <summary>Rappel sur l’organisation déterminée par jour ou semaine</summary>
+      <div class="body">
+        <p><strong>Répartition hebdomadaire déterminée par jour</strong> : préciser les <em>jours travaillés</em> et la <em>durée quotidienne</em>. Le total hebdomadaire calculé alimente « Heures/semaine ». Les modifications ponctuelles respectent un <em>délai de prévenance</em> raisonnable et les règles applicables (repos quotidien 11 h, repos hebdomadaire, durées maximales).</p>
+        <p><strong>Répartition mensuelle par semaine</strong> : renseigner les heures pour les semaines <em>1 à 4</em>. La <em>moyenne hebdomadaire</em> (total/4) alimente « Heures/semaine ». Les planchers/plafonds de temps partiel s’apprécient sur cette moyenne. Communiquer le planning à l’avance.</p>
+        <p>En temps partiel, les <em>heures complémentaires</em> et le cas échéant les <em>avenants de compléments d’heures</em> obéissent aux limites prévues par la loi/CCN.</p>
+      </div>
+    </details>
+
 
     <!-- C. Règles communes (coupures journalières / cadre / slots API) -->
     <div id="pt_common_box" class="flow-12" style="display:none">
-      <p class="subtle-label mt-12">
+      <p class="subtle-label mt-24">
         Coupures journalières : fixer un plafond (nombre/durée) et les contreparties éventuelles prévues par l’accord.
       </p>
 
@@ -281,14 +307,7 @@
       <div id="pt_flex_card" class="callout" data-slot="step5.part_time.flex" style="display:none"></div>
       <div id="pt_coupures_card" class="callout" data-slot="step5.part_time.coupures" style="display:none"></div>
 
-      <details class="callout callout-info zoom-card mt-24">
-        <summary>Rappel sur l’organisation souple via accord</summary>
-        <div class="body">
-          La date des jours de travail, ainsi que les heures d’arrivée et de sortie et la durée journalière de travail,
-          dans le respect du repos obligatoire de 11 heures, sont fixées librement, en tenant compte des besoins de
-          l’entreprise et des missions du salarié.
-        </div>
-      </details>
+      
 
     </div>
 
@@ -298,7 +317,7 @@
     <div class="flow-12">
       <h4 class="mb-4">
         Modification de la répartition
-        <span class="help" title="placeholder.">i</span>
+        <span class="help" title="La répartition peut être modifiée pour des motifs objectifs (ex. variation d’activité, réorganisation des horaires d’ouverture, remplacement d’un collègue), dans le respect du délai de prévenance et des garanties prévues par la loi/CCN.">i</span>
       </h4>
 
       <p class="subtle-label">Lister les cas permettant le changement et indiquer le délai de prévenance.</p>
@@ -329,7 +348,7 @@
     <div class="flow-12">
       <h4 class="mb-4">
         Priorité d’affectation
-        <span class="help" title="placeholder.">i</span>
+        <span class="help" title="Le salarié à temps partiel bénéficie d’une priorité pour occuper un emploi correspondant à sa catégorie professionnelle ou équivalent permettant d’augmenter sa durée de travail, sous réserve des postes disponibles et des conditions prévues par la loi/CCN.">i</span>
       </h4>
 
       <label>Délai maximal de réponse aux candidatures internes</label>

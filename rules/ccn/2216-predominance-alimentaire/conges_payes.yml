@@ -1,0 +1,14 @@
+meta:
+  source:
+    label: "Titre VII — Congés annuels (jours d’ancienneté)"
+    note: "Jours supplémentaires en fonction de l’ancienneté (ouvrables)."
+
+rules:
+  - key: "anciennete_bonus_ouvres"
+    # en 'ouvrés' pour coller à compute_leave_minimum
+    unit: "ouvres"
+    bonus_schedule:
+      # équivalence simple : 1 jour ouvrable ≈ 0,83 ouvré → on garde l’arrondi protecteur
+      10: 1
+      15: 2
+      20: 3

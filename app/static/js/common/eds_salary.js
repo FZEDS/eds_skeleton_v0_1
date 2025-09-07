@@ -14,8 +14,8 @@
   // Brancher les slots additionnels de la step 6 (si renderExplain est utilisé ailleurs)
   window.SLOT_TARGETS = window.SLOT_TARGETS || {};
   window.SLOT_TARGETS['step6.footer'] = '#salary_card';
-  window.SLOT_TARGETS['step6.more']   = '#salary_more_body';
-  window.SLOT_TARGETS['step6.primes'] = '#salary_primes_body';
+  window.SLOT_TARGETS['step6.more.minima'] = '#salary_more_minima_body';
+  window.SLOT_TARGETS['step6.more.ccn_primes'] = '#salary_more_primes_body';
 
   // ---------- Contexte ----------
   function getIdcc(){ const v = parseInt($('#idcc')?.value || '', 10); return Number.isNaN(v) ? null : v; }
@@ -30,7 +30,16 @@
   }
   function getWeeklyHours(){
     const ui = getUiWorkTimeRaw();
-    if (ui === 'standard_35h')  return parseNum($('#weekly_hours_std')?.value);
+    if (ui === 'standard_35h'){
+      // Si l'étape 5 est en mode temps partiel « mensuel », le champ visible est mensuel
+      // et l'input caché (#weekly_hours_hidden) porte la moyenne hebdomadaire (name='weekly_hours').
+      const hid = document.getElementById('weekly_hours_hidden');
+      if (hid && hid.name === 'weekly_hours' && typeof hid.value === 'string'){
+        const hv = parseNum(hid.value);
+        if (hv != null) return hv;
+      }
+      return parseNum($('#weekly_hours_std')?.value);
+    }
     if (ui === 'forfait_hours') return parseNum($('#weekly_hours_fh')?.value);
     if (ui === 'modalite_2')    return parseNum($('#weekly_hours_m2')?.value);
     return null;
@@ -48,6 +57,11 @@
     return all.length ? Math.max(...all) : null;
   }
   function getAsOf(){ return $('#contract_start')?.value || new Date().toISOString().slice(0,10); }
+  function getSeniorityMonths(){
+    const y = parseInt($('#seniority_years')?.value || '0', 10) || 0;
+    const m = parseInt($('#seniority_months')?.value || '0', 10) || 0;
+    return (y*12)+m;
+  }
 
   // ---------- Ciblage tolérant (deux conventions d'IDs) ----------
   const inpMonthly = ()=> document.getElementById('salary_gross_monthly') || document.getElementById('salary_monthly');
@@ -229,6 +243,8 @@
       const cl = $('#classification_level')?.value || '';
       if (cl) q.append('classification_level', cl);
       q.append('has_13th_month', has13th() ? 'true' : 'false'); // pris en compte par l'engine (ratios CCN)
+      // Ancienneté (utile pour certains paliers — ex. SMAG 216 j/an 2216)
+      try{ q.append('anciennete_months', String(getSeniorityMonths())); }catch(_){ }
 
       const r = await fetch('/api/salaire/bounds?'+q.toString());
       const js = await r.json();
@@ -284,6 +300,9 @@
     $('#classification_level')?.addEventListener('input', refreshSalaire);
     $('#idcc')?.addEventListener('input', refreshSalaire);
     $('#idcc')?.addEventListener('change', refreshSalaire);
+    // Ancienneté (étape 8) influe sur certains paliers (ex. SMAG 216 j/an 2216)
+    $('#seniority_years')?.addEventListener('input', refreshSalaire);
+    $('#seniority_months')?.addEventListener('input', refreshSalaire);
   }
 
   // ---------- Boot ----------

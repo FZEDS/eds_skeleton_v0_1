@@ -1,0 +1,45 @@
+meta:
+  label: "Convention collective nationale du commerce de détail et de gros à prédominance alimentaire (IDCC 2216)"
+  mapping:
+    # Le backend attend 'cadre' / 'non-cadre' (hors Syntec). Clés = clés des catégories ci‑dessous.
+    categorie_to_backend:
+      ouvriers_employes: "non-cadre"
+      am_techniciens: "non-cadre"
+      cadres: "cadre"
+      # Synonymes tolérés (au cas où)
+      ouvrier: "non-cadre"
+      employe: "non-cadre"
+      am: "non-cadre"
+      technicien: "non-cadre"
+      cadre: "cadre"
+    # Format d'affichage de la chaîne finale (utilise {text} et/ou {coeff})
+    classification_format: "{text} — Coef {coeff}"
+
+categories:
+  - key: "ouvriers_employes"
+    label: "Ouvriers – Employés"
+    cat_code: "non-cadre"
+    positions:
+      - { pos: "1A", coeff: 101, label: "Niv. 1A", tooltip: "Début de grille — tâches simples, encadrement proche, application de consignes." }
+      - { pos: "1B", coeff: 102, label: "Niv. 1B", tooltip: "Débutant confirmé — mêmes tâches avec un peu plus d’autonomie et de polyvalence." }
+      - { pos: "2A", coeff: 201, label: "Niv. 2A", tooltip: "Exécution qualifiée — techniques de base maîtrisées, prise d’initiatives limitée." }
+      - { pos: "2B", coeff: 202, label: "Niv. 2B", tooltip: "Exécution qualifiée + relation client — adaptation aux aléas courants." }
+      - { pos: "3A", coeff: 301, label: "Niv. 3A", tooltip: "Maîtrise du poste — opérations plus complexes, autonomie accrue dans le périmètre." }
+      - { pos: "3B", coeff: 302, label: "Niv. 3B", tooltip: "Maîtrise confirmée — résolution de cas variés, appui ponctuel auprès des pairs." }
+      - { pos: "4A", coeff: 401, label: "Niv. 4A", tooltip: "Expérimenté — coordination simple, contribution à l’amélioration des pratiques." }
+      - { pos: "4B", coeff: 402, label: "Niv. 4B", tooltip: "Expérimenté + référent — polyvalence large, coordination opérationnelle fréquente." }
+
+  - key: "am_techniciens"
+    label: "Agents de maîtrise – Techniciens"
+    cat_code: "non-cadre"
+    positions:
+      - { pos: "5", coeff: 500, label: "Niv. 5", tooltip: "Premier niveau d’encadrement/technique — organise le travail et suit l’exécution." }
+      - { pos: "6", coeff: 600, label: "Niv. 6", tooltip: "Encadrement/technique confirmé — résolution de problèmes complexes, tutorat possible." }
+      - { pos: "7", coeff: 700, label: "Niv. 7", tooltip: "Encadrement/technique expérimenté — coordination d’équipes, contribution aux plans d’action." }
+
+  - key: "cadres"
+    label: "Cadres"
+    cat_code: "cadre"
+    positions:
+      - { pos: "8", coeff: 800, label: "Niv. 8", tooltip: "Pilotage opérationnel — objectifs, organisation, management d’équipe, indicateurs." }
+      - { pos: "9", coeff: 900, label: "Niv. 9", tooltip: "Pilotage élargi/stratégique — responsabilités étendues, coordination multi‑sites/services." }

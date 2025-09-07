@@ -65,7 +65,18 @@
   }
 
   function setIdccFromInput(){
-    commitIdccIfChanged(parseCCN(ccnInput?.value || ''));
+    const parsed = parseCCN(ccnInput?.value || '');
+    if (parsed != null) {
+      // Un ID détecté → on commit
+      commitIdccIfChanged(parsed);
+    } else {
+      // Pas d'ID dans le champ visible :
+      // - si "Pas de CCN" est coché, on efface
+      // - sinon on ne touche pas à l'idcc existant (ne pas l'écraser par vide)
+      if (noCcn && noCcn.checked) {
+        commitIdccIfChanged(null);
+      }
+    }
   }
 
   function refreshNoCcnUI(){
@@ -144,7 +155,28 @@
 
   // Compat éventuelle
   window.EDS_CCN_AE = window.EDS_CCN_AE || {};
-  window.EDS_CCN_AE.refresh = ()=>{ refreshAdhesionNote(); refreshNoCcnUI(); };
+  // Restaure l'input visible (#ccn_search) à partir du hidden #idcc si nécessaire
+  async function restoreCcnInputFromHidden(){
+    const hid = idccHidden?.value || '';
+    if (!ccnInput || !hid || ccnInput.value) return; // rien à faire
+    try{
+      // Essaye de récupérer le label via l'API pour afficher "NNNN - Libellé"
+      const r = await fetch('/api/ccn/list?q=' + encodeURIComponent(hid));
+      const js = await r.json();
+      const items = js?.items || [];
+      const match = items.find(it => String(it.idcc) === String(hid));
+      if (match){
+        ccnInput.value = `${String(match.idcc).padStart(4,'0')} - ${match.label}`;
+      } else {
+        ccnInput.value = String(hid).padStart(4,'0');
+      }
+    } catch(e){
+      // fallback: au moins afficher l'ID
+      ccnInput.value = String(hid).padStart(4,'0');
+    }
+  }
+
+  window.EDS_CCN_AE.refresh = ()=>{ refreshAdhesionNote(); refreshNoCcnUI(); restoreCcnInputFromHidden(); };
   window.setIdccFromInput = setIdccFromInput;
   window.EDS_CCN_AE = window.EDS_CCN_AE || {};
   window.EDS_CCN_AE.commitFromInput = setIdccFromInput;

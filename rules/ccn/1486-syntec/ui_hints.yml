@@ -70,6 +70,7 @@ hints:
   - theme: temps_travail
     slot: step5.block.fd.info
     kind: ccn
+    when: { work_time_mode: "forfait_days" }
     text: >
       💡 Pour bénéficier d'un forfait jours, la convention collective des Bureaux d'études techniques (SYNTEC) précise que le salarié doit être autonome dans la gestion de son emploi du temps et répondre aux conditions suivantes:
       - soit relever du statut Cadre Position 3 et bénéficier de 120% du minimum conventionnel applicable à sa classification;
@@ -85,6 +86,7 @@ hints:
   - theme: temps_travail
     slot: step5.block.m2
     kind: ccn
+    when: { work_time_mode: "forfait_hours_mod2" }
     text: >
       Modalité 2 (réalisation de missions) : plafond hebdomadaire usuel ~38h30 et plafond annuel en jours lorsque prévu.
       💡 Cette modalité est spécifique à la convention collective des Bureaux d'études techniques. Elle est réservée aux salariés de statut cadre percevant a minima un salaire annuel équivalent à 115% du minima conventionnel, sans pourvoir être inférieur au montant du PASS. Elle est ouverte aux non cadres uniquement si un accord d'entreprise le prévoit.
@@ -97,6 +99,7 @@ hints:
   - theme: temps_travail
     slot: step5.part_time.header
     kind: ccn
+    when: { theme: "temps_travail" }
     text: >
       Temps partiel — Rappels de la convention : seuils minimaux, coupures, prévenance. Vérifier aussi les accords d’entreprise.
 
@@ -152,8 +155,9 @@ hints:
   - theme: "periode_essai"
     slot: "step7.renewal"
     kind: "ccn"
+    when: { theme: "periode_essai" }
     text: "Syntec : le renouvellement de la période d’essai n’est possible que dans les cas prévus par la branche et doit faire l’objet d’un avenant écrit signé durant l’essai initial."
-    ref: { label: "Syntec — Titre II (ex.)", url: "https://..." }
+    ref: { label: "Syntec — Titre II", url: null }
 
   # --- Step 8 : Préavis ---
 

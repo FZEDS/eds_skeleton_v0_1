@@ -1,0 +1,39 @@
+meta:
+  label: "Convention collective nationale de la restauration rapide (IDCC 1501)"
+  mapping:
+    categorie_to_backend:
+      employe: "non-cadre"
+      maîtrise: "non-cadre"
+      maitrise: "non-cadre"
+      cadre: "cadre"
+    classification_format: "{text}"
+
+categories:
+  - key: "employe"
+    label: "Employé·e (Niveaux I à III)"
+    tooltip: "Personnel d’exécution et employé·e·s qualifié·e·s – Niveaux I, II et III"
+    positions:
+      - { pos: "I-A",  coeff: 101, label: "Niveau I — Échelon A (code 101)" }
+      - { pos: "I-B",  coeff: 102, label: "Niveau I — Échelon B (code 102)" }
+      - { pos: "II-A", coeff: 201, label: "Niveau II — Échelon A (code 201)" }
+      - { pos: "II-B", coeff: 202, label: "Niveau II — Échelon B (code 202)" }
+      - { pos: "III-A", coeff: 301, label: "Niveau III — Échelon A (code 301)" }
+      - { pos: "III-B", coeff: 302, label: "Niveau III — Échelon B (code 302)" }
+      - { pos: "III-C", coeff: 303, label: "Niveau III — Échelon C (code 303)" }
+
+  - key: "maitrise"
+    label: "Maîtrise (Niveau IV)"
+    tooltip: "Agents de maîtrise — Niveau IV (A à D)"
+    positions:
+      - { pos: "IV-A", coeff: 401, label: "Niveau IV — Échelon A (code 401)" }
+      - { pos: "IV-B", coeff: 402, label: "Niveau IV — Échelon B (code 402)" }
+      - { pos: "IV-C", coeff: 403, label: "Niveau IV — Échelon C (code 403)" }
+      - { pos: "IV-D", coeff: 404, label: "Niveau IV — Échelon D (code 404)" }
+
+  - key: "cadre"
+    label: "Cadres (Niveau V)"
+    tooltip: "Cadres — Niveau V (A à C)"
+    positions:
+      - { pos: "V-A", coeff: 501, label: "Niveau V — Échelon A (code 501)" }
+      - { pos: "V-B", coeff: 502, label: "Niveau V — Échelon B (code 502)" }
+      - { pos: "V-C", coeff: 503, label: "Niveau V — Échelon C (code 503)" }
