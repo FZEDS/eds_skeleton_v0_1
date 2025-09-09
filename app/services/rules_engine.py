@@ -888,14 +888,25 @@ def compute_leave_minimum(
                 considered.append(sch)
                 schedule = sch.get("bonus_schedule") or {}
                 years = (anciennete_months or 0) // 12
-                eligible = [int(y) for y in schedule.keys() if years >= int(y)]
+                # Tolérant: clés int ou str dans le YAML
                 bonus_ouvres = 0
-                if eligible:
-                    k = str(max(eligible))  # clé string
-                    try:
-                        bonus_ouvres = int(schedule.get(k, 0))
-                    except Exception:
-                        bonus_ouvres = 0
+                try:
+                    eligible_ints = [int(k) for k in schedule.keys() if years >= int(k)]
+                except Exception:
+                    eligible_ints = []
+                if eligible_ints:
+                    kmax = max(eligible_ints)
+                    # récupère avec clé int puis str selon ce qui est présent
+                    if kmax in schedule:
+                        try:
+                            bonus_ouvres = int(schedule[kmax])
+                        except Exception:
+                            bonus_ouvres = 0
+                    elif str(kmax) in schedule:
+                        try:
+                            bonus_ouvres = int(schedule[str(kmax)])
+                        except Exception:
+                            bonus_ouvres = 0
 
                 src_meta = ((extras.get("meta") or {}).get("source") or {})
                 src_label = src_meta.get("article") or sch.get("source_ref") or "CCN — Congés"
