@@ -304,6 +304,21 @@
   </div>
 </div>
 
+<!-- Overlay confirmation finale (avant génération définitive) -->
+<div class="overlay" id="confirm-overlay" style="display:none">
+  <div class="panel">
+    <header>
+      <strong>Vérification finale</strong>
+      <button class="btn" id="close-confirm">Annuler</button>
+    </header>
+    <div id="confirm-body" class="muted"></div>
+    <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
+      <button class="btn" id="confirm-fix">Corriger</button>
+      <button class="btn-primary" id="confirm-submit">Confirmer et générer</button>
+    </div>
+  </div>
+</div>
+
 
 <script>
 (function(){
@@ -502,13 +517,27 @@
       node.setAttribute('role', variant==='warn' ? 'alert' : 'region');
       node.setAttribute('aria-label', variant==='warn' ? 'Avertissement' : (variant==='ccn' ? 'Information CCN' : 'Information'));
 
-      node.innerHTML = items.map(x=>{
-        const emote = (x._kind==='warn' ? '⚠️' : (x._kind==='ccn' ? '📘' : '💡'));
-        const ref = (x.url) ? `<small><a href="${x.url}" target="_blank" rel="noopener">${escapeHtml2(x.ref||'Réf.')}</a></small>`
-                            : (x.ref ? `<small>${escapeHtml2(x.ref)}</small>` : '');
-        const body = renderRich(x.text||'');
-        return `<div class="co-line" style="margin:8px 0"><span class="co-chip ${x._kind}">${emote}</span><div class="co-body">${body}${ref?'<br>'+ref:''}</div></div>`;
-      }).join('');
+      // Fusion ciblée pour step5.header : regrouper plusieurs hints en un bloc plus lisible
+      if (slot === 'step5.header' && items.length > 1){
+        const kindRanked = items.map(x=>x._kind).sort((a,b)=>rank(b)-rank(a))[0] || 'info';
+        const emote = (kindRanked==='warn' ? '⚠️' : (kindRanked==='ccn' ? '📘' : '💡'));
+        const body = items.map(x=> renderRich(x.text||'')).join('<br>');
+        const refs = items.map(x=>{
+          if (x.url) return `<a href="${x.url}" target="_blank" rel="noopener">${escapeHtml2(x.ref||'Réf.')}</a>`;
+          if (x.ref) return escapeHtml2(x.ref);
+          return null;
+        }).filter(Boolean).join(' · ');
+        const refHtml = refs ? `<br><small>${refs}</small>` : '';
+        node.innerHTML = `<div class="co-line" style="margin:8px 0"><span class="co-chip ${kindRanked}">${emote}</span><div class="co-body">${body}${refHtml}</div></div>`;
+      } else {
+        node.innerHTML = items.map(x=>{
+          const emote = (x._kind==='warn' ? '⚠️' : (x._kind==='ccn' ? '📘' : '💡'));
+          const ref = (x.url) ? `<small><a href="${x.url}" target="_blank" rel="noopener">${escapeHtml2(x.ref||'Réf.')}</a></small>`
+                              : (x.ref ? `<small>${escapeHtml2(x.ref)}</small>` : '');
+          const body = renderRich(x.text||'');
+          return `<div class="co-line" style="margin:8px 0"><span class="co-chip ${x._kind}">${emote}</span><div class="co-body">${body}${ref?'<br>'+ref:''}</div></div>`;
+        }).join('');
+      }
 
       node.style.display = 'block';
       const det = node.closest('details'); if (det) det.style.display = 'block';
@@ -904,40 +933,10 @@
       // Auto‑sélection clause TP (2216) si régime temps partiel
       try{
         const regime = document.querySelector('input[name="work_time_regime"]:checked')?.value || null;
-        if (idcc === 2216 && regime === 'temps_partiel'){
-          const has = items.some(it => it.key === 'tp_coupures_amplitude_2216');
-          if (has && !selectedClauses.has('tp_coupures_amplitude_2216')){
-            selectedClauses.add('tp_coupures_amplitude_2216');
-            // Paramètres par défaut depuis les capabilities exposées par le backend (si présents)
-            const rules = (GLOBAL_CAPABILITIES?.part_time_rules) || {};
-            const p = {};
-            if (rules.break_threshold_hours != null)       p.break_threshold_hours = rules.break_threshold_hours;
-            if (rules.daily_amplitude_max_if_break != null) p.daily_amplitude_max_if_break = rules.daily_amplitude_max_if_break;
-            if (rules.daily_amplitude_max_inventory != null) p.daily_amplitude_max_inventory = rules.daily_amplitude_max_inventory;
-            if (rules.min_halfday_hours != null)           p.min_halfday_hours = rules.min_halfday_hours;
-            // Nb max de coupures : reprendre le champ de l’étape 5 si saisi, sinon 1
-            const bmVal = parseInt(document.getElementById('pt_breaks_max')?.value || '1', 10);
-            if (!Number.isNaN(bmVal)) p.breaks_max = bmVal;
-            clauseParamsByKey['tp_coupures_amplitude_2216'] = p;
-          }
-        }
+        // 2216 — traité désormais via les paramètres génériques Step 5 (plus de clause dédiée)
 
-        // Auto‑sélection des clauses CCN 1501 (temps partiel & programme de travail)
+        // 1501 — coupures & amplitude désormais gérées côté Step 5 (capabilities). On garde le programme de travail si présent.
         if (idcc === 1501){
-          // Clause coupures/amplitude (temps partiel)
-          if (regime === 'temps_partiel'){
-            const has1501 = items.some(it => it.key === 'tp_coupures_1501');
-            if (has1501 && !selectedClauses.has('tp_coupures_1501')){
-              selectedClauses.add('tp_coupures_1501');
-              const rules = (GLOBAL_CAPABILITIES?.part_time_rules) || {};
-              const p = {};
-              ['breaks_per_day_max','breaks_per_week_max','max_break_duration_hours','min_sequence_hours','daily_amplitude_max','break_premium_mg_ratio','break_premium_min_eur','forbid_breaks_if_weekly_hours_lt','forbid_breaks_if_monthly_hours_lt'].forEach(k=>{
-                if (rules[k] != null) p[k] = rules[k];
-              });
-              clauseParamsByKey['tp_coupures_1501'] = p;
-            }
-          }
-          // Clause programme de travail (J‑10 / J‑3)
           const hasWP = items.some(it => it.key === 'work_program_prevenance_1501');
           if (hasWP && !selectedClauses.has('work_program_prevenance_1501')){
             selectedClauses.add('work_program_prevenance_1501');
@@ -1326,6 +1325,47 @@
     updateProgressUI();
   }
 
+  // Rendre le sommaire cliquable et utilisable au clavier
+  (function makeSummaryInteractive(){
+    const list = document.getElementById('steps');
+    if (!list) return;
+    const lis = Array.from(list.querySelectorAll('li'));
+    lis.forEach(li => li.setAttribute('tabindex','0'));
+
+    function tryGoto(stepIdx){
+      try{
+        const doneFlags = computeStepCompletion();
+        const firstIncomplete = doneFlags.indexOf(false);
+        const allowed = (firstIncomplete === -1) ? true : (stepIdx <= firstIncomplete);
+        if (!allowed){
+          const items = Array.from(document.querySelectorAll('#steps li'));
+          const target = items[firstIncomplete]?.textContent || `Étape ${firstIncomplete+1}`;
+          alert(`Complétez d'abord l'étape :\n- ${target}`);
+          return;
+        }
+      }catch(_){ /* fail‑soft */ }
+      i = stepIdx;
+      setState();
+    }
+
+    list.addEventListener('click', (e)=>{
+      const li = e.target.closest('li');
+      if (!li || !list.contains(li)) return;
+      const step = parseInt(li.getAttribute('data-step')||'0', 10);
+      if (!Number.isInteger(step) || step<=0) return;
+      tryGoto(step-1);
+    });
+    list.addEventListener('keydown', (e)=>{
+      if (!['Enter',' '].includes(e.key)) return;
+      const li = e.target.closest('li');
+      if (!li || !list.contains(li)) return;
+      const step = parseInt(li.getAttribute('data-step')||'0', 10);
+      if (!Number.isInteger(step) || step<=0) return;
+      e.preventDefault();
+      tryGoto(step-1);
+    });
+  })();
+
   // Navigation
   document.querySelectorAll('[data-next]').forEach(btn=>{
     btn.addEventListener('click', (e)=>{
@@ -1435,82 +1475,189 @@
         const overrides = new Set(Array.from(window.EDS_OVERRIDES_STEPS || []));
         const items = Array.from(document.querySelectorAll('#steps li'));
         const incompleteIdx = doneFlags.map((ok, idx)=> ok ? null : idx).filter(idx=> idx!==null);
-        // Filtre : les étapes explicitement overridées ne bloquent pas la génération
-        const blockingIdx = incompleteIdx.filter(idx => !overrides.has(idx+1));
+        // Étapes incomplètes qui ne sont PAS explicitement overridées
+        let blockingIdx = incompleteIdx.filter(idx => !overrides.has(idx+1));
         if (blockingIdx.length){
-          const missing = blockingIdx.map(idx => (items[idx]?.textContent||`Étape ${idx+1}`));
-          alert(`Veuillez compléter les champs essentiels avant de générer le PDF.\nÉtapes incomplètes :\n- ${missing.join('\n- ')}`);
-          // Redirige l’utilisateur vers la première étape bloquante (non overridée)
-          i = blockingIdx[0];
-          setState();
-          return;
+          // Cas particulier: toutes les étapes "bloquantes" correspondent en réalité à des non‑conformités (override conscient)
+          const issueSteps = new Set(Array.from(window.EDS_NON_COMPLIANCES?.values?.() || window.EDS_NON_COMPLIANCES || []).map(it=> parseInt(it.step||0,10)).filter(Boolean));
+          const stillBlocking = blockingIdx.filter(idx => !issueSteps.has(idx+1));
+          if (stillBlocking.length){
+            const missing = stillBlocking.map(idx => (items[idx]?.textContent||`Étape ${idx+1}`));
+            alert(`Veuillez compléter les champs essentiels avant de générer le PDF.\nÉtapes incomplètes :\n- ${missing.join('\n- ')}`);
+            // Redirige l’utilisateur vers la première étape réellement bloquante (non overridée et sans non‑conformité assumée)
+            i = stillBlocking[0];
+            setState();
+            return;
+          }
+          // Sinon: uniquement des non‑conformités assumées → laisser passer vers la confirmation finale
         }
       }catch(_){ /* si la validation jette, on laisse passer la soumission classique */ }
 
-      const form = document.createElement('form');
-      form.method='post';
-      form.action='/cdi/generate';
-
-      document.querySelectorAll('input,select,textarea').forEach(function(src){
-        if(!src.name) return;
-        if (src.name === 'anciennete_months') return;
-        if(src.type==='radio' && !src.checked) return;
-        if(src.type==='checkbox' && !src.checked) return;
-
-        let val = src.value;
-        if (src.type==='number' && typeof val==='string'){ val = val.replace(',', '.'); }
-
-        const forceInclude = (src.name === 'ssn') || ALWAYS_INCLUDE.has(src.name);
-        const isRequired = src.required || src.dataset.required==='true';
-        if(!forceInclude && !isRequired && (val==='' || val==null)) return;
-
-        const hidden = document.createElement('input');
-        hidden.type='hidden'; hidden.name=src.name; hidden.value=val ?? '';
-        form.appendChild(hidden);
-      });
-
-      // ancienneté
-      const ancField = $('#anciennete_months');
-      let ancVal = ancField?.value;
-      if (ancVal == null || ancVal === '') {
-        const y = parseInt($('#seniority_years')?.value || '0', 10) || 0;
-        const m = parseInt($('#seniority_months')?.value || '0', 10) || 0;
-        ancVal = String((y*12) + m);
+      // S'il y a des overrides/alertes, afficher la confirmation finale
+      const issuesCount = (EDS_NON_COMPLIANCES?.size || 0);
+      const overridesCount = (EDS_OVERRIDES_STEPS?.size || 0);
+      if (issuesCount || overridesCount){
+        const cBody = document.getElementById('confirm-body');
+        if (cBody){ cBody.innerHTML = buildConfirmSummaryHTML(); }
+        document.getElementById('confirm-overlay').style.display = 'block';
+        return;
       }
-      const ancHidden = document.createElement('input');
-      ancHidden.type = 'hidden'; ancHidden.name = 'anciennete_months'; ancHidden.value = ancVal;
-      form.appendChild(ancHidden);
 
-      const hNc = document.createElement('input');
-      hNc.type='hidden'; hNc.name='non_compliance_json'; hNc.value = JSON.stringify(Array.from(EDS_NON_COMPLIANCES.values()));
-      form.appendChild(hNc);
-
-      const hOv = document.createElement('input');
-      hOv.type='hidden'; hOv.name='overrides_steps'; hOv.value = JSON.stringify(Array.from(EDS_OVERRIDES_STEPS));
-      form.appendChild(hOv);
-
-      const hCap = document.createElement('input');
-      hCap.type='hidden'; hCap.name='capabilities_json'; hCap.value = JSON.stringify(GLOBAL_CAPABILITIES || {});
-      form.appendChild(hCap);
-
-      document.body.appendChild(form);
-      form.submit();
+      // sinon: soumission directe
+      buildAndSubmitForm();
     });
   }
+
+  function buildAndSubmitForm(){
+    const form = document.createElement('form');
+    form.method='post';
+    form.action='/cdi/generate';
+
+    document.querySelectorAll('input,select,textarea').forEach(function(src){
+      if(!src.name) return;
+      if (src.name === 'anciennete_months') return;
+      if(src.type==='radio' && !src.checked) return;
+      if(src.type==='checkbox' && !src.checked) return;
+
+      let val = src.value;
+      if (src.type==='number' && typeof val==='string'){ val = val.replace(',', '.'); }
+
+      const forceInclude = (src.name === 'ssn') || ALWAYS_INCLUDE.has(src.name);
+      const isRequired = src.required || src.dataset.required==='true';
+      if(!forceInclude && !isRequired && (val==='' || val==null)) return;
+
+      const hidden = document.createElement('input');
+      hidden.type='hidden'; hidden.name=src.name; hidden.value=val ?? '';
+      form.appendChild(hidden);
+    });
+
+    // ancienneté
+    const ancField = $('#anciennete_months');
+    let ancVal = ancField?.value;
+    if (ancVal == null || ancVal === '') {
+      const y = parseInt($('#seniority_years')?.value || '0', 10) || 0;
+      const m = parseInt($('#seniority_months')?.value || '0', 10) || 0;
+      ancVal = String((y*12) + m);
+    }
+    const ancHidden = document.createElement('input');
+    ancHidden.type = 'hidden'; ancHidden.name = 'anciennete_months'; ancHidden.value = ancVal;
+    form.appendChild(ancHidden);
+
+    const hNc = document.createElement('input');
+    hNc.type='hidden'; hNc.name='non_compliance_json'; hNc.value = JSON.stringify(Array.from(EDS_NON_COMPLIANCES.values()));
+    form.appendChild(hNc);
+
+    const hOv = document.createElement('input');
+    hOv.type='hidden'; hOv.name='overrides_steps'; hOv.value = JSON.stringify(Array.from(EDS_OVERRIDES_STEPS));
+    form.appendChild(hOv);
+
+    const hCap = document.createElement('input');
+    hCap.type='hidden'; hCap.name='capabilities_json'; hCap.value = JSON.stringify(GLOBAL_CAPABILITIES || {});
+    form.appendChild(hCap);
+
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  function buildConfirmSummaryHTML(){
+    const issues = Array.from(EDS_NON_COMPLIANCES.values() || []);
+    const overrides = Array.from(EDS_OVERRIDES_STEPS || []);
+    const steps = Array.from(document.querySelectorAll('#steps li'));
+    const stepLabel = (n)=> (steps.find(li => parseInt(li.getAttribute('data-step')||'0',10)===n)?.textContent || `Étape ${n}`);
+
+    const warnHard = issues.some(it => (it.severity||'').toLowerCase()==='hard');
+    const lines = [];
+
+    lines.push(`<div class="callout ${warnHard?'callout-warn':'callout-info'}">${warnHard ? 'Certaines valeurs s’écartent des bornes minimales/maximales.' : 'Vérifiez votre saisie avant génération.'}</div>`);
+
+    if (overrides.length){
+      const list = overrides.sort((a,b)=>a-b).map(n=> `<li>${escapeHtml(stepLabel(n))}</li>`).join('');
+      lines.push(`<div><strong>Étapes avec override</strong><ul>${list}</ul></div>`);
+    }
+    if (issues.length){
+      const rows = issues.map(it=>{
+        const st = parseInt(it.step||0,10);
+        const label = stepLabel(st);
+        const sev = (it.severity||'info').toLowerCase();
+        const icon = sev==='hard' ? '⚠️' : '💡';
+        const msg = escapeHtml(it.message||'Valeur hors borne');
+        const sug = (it.suggested!=null) ? ` → suggéré: <b>${escapeHtml(String(it.suggested))}</b>` : '';
+        return `<li>${icon} ${escapeHtml(label)} — ${msg}${sug}</li>`;
+      }).join('');
+      lines.push(`<div><strong>Alertes</strong><ul>${rows}</ul></div>`);
+    }
+
+    // Accords d’entreprise déclarés (si existants)
+    try{
+      const aeRaw = document.getElementById('ae_json')?.value || '';
+      if (aeRaw){
+        const ae = JSON.parse(aeRaw);
+        const items = Array.isArray(ae?.items) ? ae.items : [];
+        if (items.length){
+          const rows = items.map((it)=> `<li>${escapeHtml(it.title||'Accord d’entreprise')}${it.date?` (<i>${escapeHtml(it.date)}</i>)`:''}</li>`).join('');
+          lines.push(`<div><strong>Accords d’entreprise déclarés</strong><ul>${rows}</ul></div>`);
+        }
+      }
+    }catch(_){ /* ignore */ }
+
+    return lines.join('');
+  }
+
+  // Boutons overlay confirmation
+  document.getElementById('close-confirm')?.addEventListener('click', ()=>{
+    document.getElementById('confirm-overlay').style.display = 'none';
+  });
+  document.getElementById('confirm-fix')?.addEventListener('click', ()=>{
+    let targetStep = null;
+    const issues = Array.from(EDS_NON_COMPLIANCES.values() || []);
+    if (issues.length){ targetStep = Math.min(...issues.map(it=> parseInt(it.step||0,10)).filter(Boolean)); }
+    if (!targetStep && EDS_OVERRIDES_STEPS.size){ targetStep = Math.min(...Array.from(EDS_OVERRIDES_STEPS)); }
+    if (targetStep){ i = targetStep-1; setState(); }
+    document.getElementById('confirm-overlay').style.display = 'none';
+  });
+  document.getElementById('confirm-submit')?.addEventListener('click', ()=>{
+    document.getElementById('confirm-overlay').style.display = 'none';
+    buildAndSubmitForm();
+  });
 
   /* ==========================
      INIT
   ===========================*/
 
   function syncRepName(){
-    const last = ($('input[name="rep_last_name"]')?.value || '').trim();
-    const first = ($('input[name="rep_first_name"]')?.value || '').trim();
+    const kind = document.querySelector('input[name="rep_signatory_kind"]:checked')?.value || 'physique';
     const hidden = $('#rep_name_hidden');
-    if(hidden){ hidden.value = [first, last].filter(Boolean).join(' '); }
+    if (!hidden) return;
+    if (kind === 'morale'){
+      const last = ($('input[name="rep_entity_rep_last_name"]')?.value || '').trim();
+      const first = ($('input[name="rep_entity_rep_first_name"]')?.value || '').trim();
+      hidden.value = [first, last].filter(Boolean).join(' ');
+    } else {
+      const last = ($('input[name="rep_last_name"]')?.value || '').trim();
+      const first = ($('input[name="rep_first_name"]')?.value || '').trim();
+      hidden.value = [first, last].filter(Boolean).join(' ');
+    }
     updateProgressUI();
   }
-  ['input[name="rep_last_name"]','input[name="rep_first_name"]']
+  function toggleRepKind(){
+    const kind = document.querySelector('input[name="rep_signatory_kind"]:checked')?.value || 'physique';
+    const phys = (kind === 'physique');
+    const boxPhys = document.getElementById('rep_phys_box');
+    const boxMor  = document.getElementById('rep_moral_box');
+    if (boxPhys) boxPhys.style.display = phys ? '' : 'none';
+    if (boxMor)  boxMor.style.display  = phys ? 'none' : '';
+    // Required toggles
+    ['rep_civility','rep_last_name','rep_first_name','rep_title'].forEach(n=>{
+      const el = document.querySelector(`[name="${n}"]`); if (el){ if (phys) el.setAttribute('data-required','true'); else el.removeAttribute('data-required'); }
+    });
+    ['rep_entity_name','rep_entity_legal_form','rep_entity_rep_last_name','rep_entity_rep_first_name','rep_entity_rep_title'].forEach(n=>{
+      const el = document.querySelector(`[name="${n}"]`); if (el){ if (!phys) el.setAttribute('data-required','true'); else el.removeAttribute('data-required'); }
+    });
+    syncRepName();
+  }
+  ;['input[name="rep_last_name"]','input[name="rep_first_name"]','input[name="rep_entity_rep_last_name"]','input[name="rep_entity_rep_first_name"]']
     .forEach(sel=>{ $(sel)?.addEventListener('input', syncRepName); });
+  ;['#rep_kind_phys','#rep_kind_moral'].forEach(sel=> $(sel)?.addEventListener('change', toggleRepKind));
 
   function syncEmployeeName(){
     const last = ($('input[name="employee_last_name"]')?.value || '').trim();
@@ -1535,6 +1682,7 @@
   })();
 
   normalizeStaticLabels();
+  toggleRepKind();
 
   // (si défini ailleurs)
   window.refreshMissionBlocks?.();

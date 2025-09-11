@@ -617,6 +617,15 @@ async def cdi_generate(
     rep_name: str = Form(...),
     rep_title: str = Form(...),
     rep_civility: Optional[str] = Form(None),
+    # Signataire personne morale (optionnel)
+    rep_signatory_kind: Optional[str] = Form(None),
+    rep_entity_name: Optional[str] = Form(None),
+    rep_entity_legal_form: Optional[str] = Form(None),
+    rep_entity_siren: Optional[str] = Form(None),
+    rep_entity_rep_civility: Optional[str] = Form(None),
+    rep_entity_rep_last_name: Optional[str] = Form(None),
+    rep_entity_rep_first_name: Optional[str] = Form(None),
+    rep_entity_rep_title: Optional[str] = Form(None),
 
     # --- Salarié
     employee_civility: str = Form(...),
@@ -654,7 +663,9 @@ async def cdi_generate(
     weekly_hours: Optional[float] = Form(None),
     schedule_info: Optional[str] = Form(None),
     forfait_hours_per_year: Optional[int] = Form(None),
+    forfait_hours_ref: Optional[str] = Form(None),
     forfait_days_per_year: Optional[int] = Form(None),
+    forfait_days_ref: Optional[str] = Form(None),
     m2_days_cap: Optional[int] = Form(None),
     ref_period_desc: Optional[str] = Form(None),
 
@@ -693,6 +704,9 @@ async def cdi_generate(
     # --- Préavis saisis
     notice_dismissal_months: Optional[float] = Form(None),
     notice_resignation_months: Optional[float] = Form(None),
+
+    # --- Entretien professionnel (périodicité)
+    entretien_periodicity: Optional[str] = Form(None),
 
     # --- Clauses (Step 9)
     clauses_selected_json: Optional[str] = Form(None),
@@ -1089,6 +1103,13 @@ async def cdi_generate(
         "rep_name": rep_name_fmt or rep_name,
         "rep_title": rep_title,
         "rep_civility": rep_civility,
+        # Signataire personne morale (chaînage)
+        "rep_signatory_kind": rep_signatory_kind,
+        "rep_entity_name": rep_entity_name,
+        "rep_entity_legal_form": rep_entity_legal_form,
+        "rep_entity_siren": rep_entity_siren,
+        "rep_entity_rep_civility": rep_entity_rep_civility,
+        "rep_entity_rep_title": rep_entity_rep_title,
         # Salarié
         "employee_civility": employee_civility,
         "employee_name": employee_name_fmt or employee_name,
@@ -1120,7 +1141,9 @@ async def cdi_generate(
         "weekly_hours": weekly_hours,
         "schedule_info": schedule_info,
         "forfait_hours_per_year": forfait_hours_per_year,
+        "forfait_hours_ref": forfait_hours_ref,
         "forfait_days_per_year": forfait_days_per_year,
+        "forfait_days_ref": forfait_days_ref,
         "m2_days_cap": m2_days_cap,
         "ref_period_desc": ref_period_desc,
         # Essai
@@ -1155,6 +1178,8 @@ async def cdi_generate(
         "retirement_org": retirement_org,
         "health_org": health_org,
         "welfare_org": welfare_org,
+        # Entretien professionnel
+        "entretien_periodicity": entretien_periodicity,
         # Préavis (saisis)
         "notice_dismissal_months": notice_dismissal_months,
         "notice_resignation_months": notice_resignation_months,

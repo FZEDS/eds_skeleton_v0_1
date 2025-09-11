@@ -118,28 +118,28 @@ python scripts/lint_rules.py --legifrance --idcc 1486
 Notes:
 - En mode offline (sans credentials), contrôle de forme uniquement (pattern des URLs, cohérence des IDs). Avec credentials, les identifiants KALI (KALITEXT/KALIARTI/KALICONT) sont vérifiés via l’API.
 - Les URLs JORF sont vérifiées de façon basique (forme), pas via l’API.
-+
-+> En **mode strict**, fais échouer la CI pour bloquer un merge tant que les YAML ne sont pas revus : `python -m scripts.watch_legifrance --strict`.
-+
-+### 7) Bonnes pratiques de saisie YAML
-+
-+- **Dates** ISO (`YYYY-MM-DD`) pour `effective.from/to` et `meta.effective_from`.  
-+- **Types** numériques pour bornes/ratios/grilles.  
-+- `meta.idcc` **=** dossier (ex. `rules/ccn/1486-syntec/…`).  
-+- **Références** au niveau **règle** (URL `KALIARTI*` préférée).  
-+- Le résolveur renvoie `rule.url` + `rule.source_ref` (ID KALI/LEGI) pour la **traçabilité** (UI & PDF & snapshot).
-+
+
+> En **mode strict**, fais échouer la CI pour bloquer un merge tant que les YAML ne sont pas revus : `python -m scripts.watch_legifrance --strict`.
+
+### 7) Bonnes pratiques de saisie YAML
+
+- **Dates** ISO (`YYYY-MM-DD`) pour `effective.from/to` et `meta.effective_from`.  
+- **Types** numériques pour bornes/ratios/grilles.  
+- `meta.idcc` **=** dossier (ex. `rules/ccn/1486-syntec/…`).  
+- **Références** au niveau **règle** (URL `KALIARTI*` préférée).  
+- Le résolveur renvoie `rule.url` + `rule.source_ref` (ID KALI/LEGI) pour la **traçabilité** (UI & PDF & snapshot).
+
 +### 8) Dépannage express
-+
-+| Symptôme | Cause probable | Solution |
-+|---|---|---|
-+| `invalid_client` à l’OAuth | mélange PROD/SANDBOX ou `scope` manquant | vérifier `PISTE_OAUTH_URL`/`PISTE_API_URL` & ajouter `scope=openid` |
-+| `400 ... Unable to find token` | `$TOKEN` vide | ré-extraire le token (ex. via Python `json.load(...)`) |
-+| `500` sur `/list/ping` | en‑têtes inadaptés (`Content-Type`, `X-API-Key`) | utiliser `python -m scripts.piste_ping` (GET minimal) |
-+| `405` sur `/list/ping` | POST au lieu de GET | utiliser GET |
+
+| Symptôme | Cause probable | Solution |
+|---|---|---|
+| `invalid_client` à l’OAuth | mélange PROD/SANDBOX ou `scope` manquant | vérifier `PISTE_OAUTH_URL`/`PISTE_API_URL` & ajouter `scope=openid` |
+| `400 ... Unable to find token` | `$TOKEN` vide | ré-extraire le token (ex. via Python `json.load(...)`) |
+| `500` sur `/list/ping` | en‑têtes inadaptés (`Content-Type`, `X-API-Key`) | utiliser `python -m scripts.piste_ping` (GET minimal) |
+| `405` sur `/list/ping` | POST au lieu de GET | utiliser GET |
 | `offline` dans validate/watch | API KO ou creds absents | relancer plus tard ou passer `--strict` en CI si tu veux bloquer |
 
-+### 9) Sécurité & limites
+### 9) Sécurité & limites
 
 - **Aucune interprétation automatique** des contenus juridiques : on détecte des **changements** et on **pointe les YAML** concernés.  
 - **Zéro scraping HTML** : uniquement l’API officielle DILA/PISTE.  

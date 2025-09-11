@@ -51,7 +51,12 @@
   La Société {{ employer_name }}<br/>
   Adresse : {{ employer_address }}<br/>
   Numéro Urssaf : {{ urssaf_number }}<br/>
-  Représentée par {{ rep_name }}, en qualité de {{ rep_title }},<br/>
+  {% if rep_entity_name %}
+    Représentée par {{ rep_entity_name }}{% if rep_entity_legal_form %} ({{ rep_entity_legal_form }}){% endif %}{% if rep_entity_siren %}, SIREN {{ rep_entity_siren }}{% endif %},<br/>
+    elle‑même représentée par {{ rep_name }}, en qualité de {{ rep_title }},<br/>
+  {% else %}
+    Représentée par {{ rep_name }}, en qualité de {{ rep_title }},<br/>
+  {% endif %}
   d'une part,
   <br/><br/>
   {{ employee_civility }} {{ employee_name }}<br/>
@@ -121,9 +126,18 @@
 
 <h2>Article 6 — Durée du travail</h2>
 <div class="sec">
-  {% if work_time_mode == 'standard' %}
+  {% if work_time_mode in ['standard','standard_35h'] %}
     La durée de travail est fixée à {{ weekly_hours }} heures par semaine.
     {% if schedule_info %} Organisation indicative : {{ schedule_info }}.{% endif %}
+    {% if work_time_regime == 'temps_complet' %}
+      <br/>La durée du travail de {{ employee_civility }} {{ employee_name }} ainsi que ses modalités d’aménagement sont celles appliquées dans son service, à la catégorie professionnelle à laquelle il appartient.
+      {% if schedule_info %}
+        <br/>Ces précisions n’ont qu’une valeur indicative et pourront être adaptées en fonction des impératifs d’exploitation, dans le respect des règles applicables.
+      {% else %}
+        <br/>Les horaires de {{ employee_civility }} {{ employee_name }} et leur aménagement pourront être modifiés en fonction des impératifs de production, dans le respect des règles applicables.
+      {% endif %}
+      <br/>Il pourra par ailleurs être demandé au salarié d’effectuer des heures supplémentaires si nécessaire, conformément aux dispositions légales et conventionnelles.
+    {% endif %}
   {% set fhv = fh_variant or '' %}
   {% if work_time_mode == 'forfait_hours' %}
     {% if fhv == 'repos' %}
@@ -135,10 +149,16 @@
       seront rémunérées avec les majorations applicables conformément aux
       dispositions légales et conventionnelles.</p>
     {% endif %}
+    {% if forfait_hours_per_year %}
+      <p>Forfait annuel en heures&nbsp;: <strong>{{ forfait_hours_per_year }}</strong> h.{% if forfait_hours_ref %} Référence&nbsp;: {{ forfait_hours_ref }}.{% endif %}</p>
+      <p class="small">Sous réserve des dispositions d’ordre public (repos quotidien/hebdomadaire et durées maximales), ainsi que des garanties prévues par la convention ou l’accord applicable.</p>
+    {% endif %}
   {% endif %}
   {% elif work_time_mode == 'forfait_days' %}
     Le salarié relève d’un <strong>forfait annuel en jours</strong> de <strong>{{ forfait_days_per_year }}</strong> jours par an.
     {% if ref_period_desc %}Période de référence : {{ ref_period_desc }}.{% endif %}
+    {% if forfait_days_ref %}<br/>Référence conventionnelle/AE&nbsp;: {{ forfait_days_ref }}.{% endif %}
+    <br/><span class="small">Sous réserve des dispositions d’ordre public du forfait en jours (suivi de la charge, entretien, repos).</span>
   {% endif %}
 
   {# Modalité 2 (Syntec) — Forfait heures sur la semaine avec plafond annuel en jours #}
@@ -162,12 +182,38 @@
       {% endfor %}
     </ul>
     <p>Total hebdomadaire : <strong>{{ '%.2f'|format(part_time.fixed.total_hours) }} h</strong></p>
+  {% elif part_time.organization == 'monthly' %}
+    <p>Répartition mensuelle par semaine : la moyenne hebdomadaire (total/4) alimente « Heures/semaine ».</p>
   {% elif part_time.organization == 'flex' %}
     <p>Organisation souple : jours et heures fixés librement dans le cadre choisi ({{ part_time.flex.frame }}).</p>
     {% if part_time.flex.breaks_max or part_time.flex.break_max_hours %}
       <p>Coupures : au plus {{ part_time.flex.breaks_max or '—' }} coupure(s) par jour,
          durée max {{ part_time.flex.break_max_hours or '—' }} h. {{ part_time.flex.counterparties or '' }}</p>
     {% endif %}
+  {% endif %}
+  {# Bloc générique coupures & amplitude si fourni par l'UI/CCN/AE #}
+  {% set fx = part_time.flex or {} %}
+  {% if fx.breaks_max or fx.break_max_hours or fx.breaks_per_week_max or fx.min_sequence_hours or fx.daily_amplitude_max or fx.break_threshold_hours or fx.daily_amplitude_max_if_break or fx.daily_amplitude_max_inventory or fx.break_premium_mg_ratio or fx.break_premium_min_eur or fx.forbid_breaks_if_weekly_hours_lt or fx.forbid_breaks_if_monthly_hours_lt %}
+    <p>
+      <strong>Coupures et amplitude (temps partiel)</strong> —
+      {% if fx.breaks_max %}au plus <b>{{ fx.breaks_max }}</b> coupure(s) par jour{% endif %}
+      {% if fx.break_max_hours %}{% if fx.breaks_max %}, {% endif %}d’une durée n’excédant pas <b>{{ fx.break_max_hours }}</b> h{% endif %}
+      {% if fx.breaks_per_week_max %}{% if fx.breaks_max or fx.break_max_hours %}, {% endif %}limite de <b>{{ fx.breaks_per_week_max }}</b> coupures par semaine{% endif %}.
+      {% if fx.min_sequence_hours %} Chaque séquence a une durée minimale de <b>{{ fx.min_sequence_hours }}</b> h.{% endif %}
+      {% if fx.daily_amplitude_max %} Amplitude journalière maximale : <b>{{ fx.daily_amplitude_max }}</b> h.{% endif %}
+      {% if fx.break_threshold_hours and fx.daily_amplitude_max_if_break %}
+        Si une coupure dépasse <b>{{ fx.break_threshold_hours }}</b> h, l’amplitude ne peut excéder <b>{{ fx.daily_amplitude_max_if_break }}</b> h.
+      {% endif %}
+      {% if fx.daily_amplitude_max_inventory %} En cas d’inventaire : amplitude max <b>{{ fx.daily_amplitude_max_inventory }}</b> h.{% endif %}
+      {% if fx.forbid_breaks_if_weekly_hours_lt or fx.forbid_breaks_if_monthly_hours_lt %}
+        {% if fx.forbid_breaks_if_weekly_hours_lt %}Sans demande écrite du Salarié, aucune coupure lorsque la durée est < <b>{{ fx.forbid_breaks_if_weekly_hours_lt }}</b> h/sem{% if fx.forbid_breaks_if_monthly_hours_lt %} ou {% endif %}{% endif %}
+        {% if fx.forbid_breaks_if_monthly_hours_lt %}< <b>{{ fx.forbid_breaks_if_monthly_hours_lt }}</b> h/mois{% endif %}.
+      {% endif %}
+      {% if fx.break_premium_mg_ratio or fx.break_premium_min_eur %}
+        Prime de coupure : {% if fx.break_premium_mg_ratio %}au moins <b>{{ '%.2f'|format(fx.break_premium_mg_ratio) }}</b> du Minimum Garanti (MG){% endif %}{% if fx.break_premium_min_eur %}, plancher <b>{{ '%.2f'|format(fx.break_premium_min_eur) }} €</b>{% endif %}.
+      {% endif %}
+      {% if part_time.flex.counterparties %} Contreparties complémentaires : {{ part_time.flex.counterparties }}.{% endif %}
+    </p>
   {% endif %}
   {% if part_time.modif.reasons %}
     <p>Modification possible de la répartition pour les motifs suivants : {{ part_time.modif.reasons }}.
@@ -204,8 +250,18 @@
 
 <h2>Article 10 — Obligations professionnelles</h2>
 <div class="sec">
-  Respect des règles internes (discipline, hygiène et sécurité), des directives de l’employeur et des obligations de discrétion.
-  Information en cas d’absence et mise à jour des informations personnelles.
+  {{ employee_civility }} {{ employee_name }} sera tenu(e) d’observer les dispositions réglementant les conditions de travail applicables à l’ensemble des salariés de l’entreprise, ainsi que les règles générales concernant la discipline et la sécurité du travail telles qu’elles figurent dans le règlement intérieur de l’entreprise qui lui a été communiqué.
+  <br/>
+  {{ employee_civility }} {{ employee_name }} s’engage par ailleurs :
+  <ul>
+    <li>à se conformer aux directives et instructions émanant de la direction ou de son représentant ;</li>
+    <li>à observer une discrétion professionnelle absolue pour tout ce qui concerne les faits ou informations dont il/elle aura connaissance dans l’exercice ou à l’occasion de ses fonctions ;</li>
+    <li>à informer la société {{ employer_name }} en cas d’exercice d’une activité professionnelle complémentaire ;</li>
+    <li>à informer immédiatement la société {{ employer_name }} en cas d’absence, quel qu’en soit le motif, et à produire dans les 48 heures les justificatifs appropriés ;</li>
+    <li>à faire connaître sans délai tout changement de situation le/la concernant (domicile, situation familiale, enfants à charge, etc.).</li>
+  </ul>
+  <p class="small">Le cas échéant, et notamment avant l’expiration de la période d’essai, {{ employee_civility }} {{ employee_name }} se soumettra à la visite d’information et de prévention auprès du service de prévention et de santé au travail.</p>
+  <p>{{ employee_civility }} {{ employee_name }} déclare être libre de tout engagement.</p>
 </div>
 
 <h2>Article 11 — Préavis</h2>
@@ -235,9 +291,13 @@
 {% endif %}
 
 
-<h2>Article 12 — Formalités</h2>
+<h2>Article 12 — Formalités et entretien professionnel</h2>
 <div class="sec">
-  DPAE réalisée auprès de l’Urssaf de {{ dpae_urssaf_city }} le {{ dpae_date }}.
+  Le recrutement de {{ employee_civility }} {{ employee_name }} a fait l’objet d’une déclaration auprès de l’Urssaf de {{ dpae_urssaf_city }} en date du {{ dpae_date }} par le biais de la déclaration préalable à l’embauche (DPAE).
+  <br/>
+  En outre, conformément aux dispositions du Code du travail, {{ employee_civility }} {{ employee_name }} bénéficiera
+  {% set ep = entretien_periodicity if entretien_periodicity and entretien_periodicity|length>0 else 'tous les deux ans' %}
+  {{ ep }} d’un entretien professionnel consacré à l’examen de ses perspectives d’évolution professionnelle, notamment en termes de qualifications et d’emploi.
 </div>
 
 <div class="sec">

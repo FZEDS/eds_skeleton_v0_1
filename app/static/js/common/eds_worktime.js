@@ -679,6 +679,7 @@
     // Applique localement (Step 5) et propage globalement (pour éviter qu'un autre module ne réaffiche des options masquées)
     const caps = payload.capabilities || {};
     applyCapabilities(caps);
+    ptApplyAdvancedFromCaps(caps);
     if (typeof window.mergeCapabilities === 'function') {
       window.mergeCapabilities(caps);
     }
@@ -805,7 +806,19 @@
       frame: $('#pt_flex_frame')?.value || 'code',
       breaks_max: parseInt($('#pt_breaks_max')?.value || '',10) || null,
       break_max_hours: parseFloat(String($('#pt_break_max_hours')?.value || '').replace(',','.')) || null,
-      counterparties: $('#pt_break_counterparties')?.value || ''
+      counterparties: $('#pt_break_counterparties')?.value || '',
+      // avancés (si saisis)
+      breaks_per_week_max: parseInt($('#pt_breaks_week_max')?.value || '',10) || null,
+      min_sequence_hours: parseFloat(String($('#pt_min_sequence_hours')?.value || '').replace(',','.')) || null,
+      daily_amplitude_max: parseFloat(String($('#pt_daily_amplitude_max')?.value || '').replace(',','.')) || null,
+      break_premium_mg_ratio: parseFloat(String($('#pt_break_prem_mg_ratio')?.value || '').replace(',','.')) || null,
+      break_premium_min_eur: parseFloat(String($('#pt_break_prem_min_eur')?.value || '').replace(',','.')) || null,
+      forbid_breaks_if_weekly_hours_lt: parseInt($('#pt_forbid_breaks_weekly_lt')?.value || '',10) || null,
+      forbid_breaks_if_monthly_hours_lt: parseInt($('#pt_forbid_breaks_monthly_lt')?.value || '',10) || null,
+      break_threshold_hours: parseFloat(String($('#pt_break_threshold_hours')?.value || '').replace(',','.')) || null,
+      daily_amplitude_max_if_break: parseFloat(String($('#pt_daily_amplitude_max_if_break')?.value || '').replace(',','.')) || null,
+      daily_amplitude_max_inventory: parseFloat(String($('#pt_daily_amplitude_max_inventory')?.value || '').replace(',','.')) || null,
+      min_halfday_hours: parseFloat(String($('#pt_min_halfday_hours')?.value || '').replace(',','.')) || null,
     };
 
     // E) Modifs de répartition
@@ -823,6 +836,50 @@
     const payload = { organization: org, fixed, monthly, flex, modif, priority };
     $('#part_time_payload')?.setAttribute('value', JSON.stringify(payload));
     return payload;
+  }
+
+  // Montre/masque les champs avancés selon capabilities.part_time_rules et fixe les placeholders
+  function ptApplyAdvancedFromCaps(caps){
+    try{
+      const rules = (caps && caps.part_time_rules) || {};
+      const adv = document.getElementById('pt_adv_box');
+      let any = false;
+      // Fixe les placeholders des champs généraux si la CCN en fournit
+      try{
+        if (rules['breaks_per_day_max'] != null){
+          const i = document.getElementById('pt_breaks_max');
+          if (i && !i.value) i.placeholder = String(rules['breaks_per_day_max']);
+        }
+        if (rules['max_break_duration_hours'] != null){
+          const i2 = document.getElementById('pt_break_max_hours');
+          if (i2 && !i2.value) i2.placeholder = String(rules['max_break_duration_hours']);
+        }
+      }catch(_){/* no-op */}
+      function onoff(rowId, inputId, key){
+        const row = document.getElementById(rowId);
+        const input = document.getElementById(inputId);
+        if (!row || !input) return;
+        if (rules[key] != null){
+          row.style.display = '';
+          if (!input.value) input.placeholder = String(rules[key]);
+          any = true;
+        } else {
+          row.style.display = 'none';
+        }
+      }
+      onoff('row_pt_breaks_week_max','pt_breaks_week_max','breaks_per_week_max');
+      onoff('row_pt_min_sequence_hours','pt_min_sequence_hours','min_sequence_hours');
+      onoff('row_pt_daily_amplitude_max','pt_daily_amplitude_max','daily_amplitude_max');
+      onoff('row_pt_break_prem_mg_ratio','pt_break_prem_mg_ratio','break_premium_mg_ratio');
+      onoff('row_pt_break_prem_min_eur','pt_break_prem_min_eur','break_premium_min_eur');
+      onoff('row_pt_forbid_breaks_weekly_lt','pt_forbid_breaks_weekly_lt','forbid_breaks_if_weekly_hours_lt');
+      onoff('row_pt_forbid_breaks_monthly_lt','pt_forbid_breaks_monthly_lt','forbid_breaks_if_monthly_hours_lt');
+      onoff('row_pt_break_threshold_hours','pt_break_threshold_hours','break_threshold_hours');
+      onoff('row_pt_daily_amplitude_max_if_break','pt_daily_amplitude_max_if_break','daily_amplitude_max_if_break');
+      onoff('row_pt_daily_amplitude_max_inventory','pt_daily_amplitude_max_inventory','daily_amplitude_max_inventory');
+      onoff('row_pt_min_halfday_hours','pt_min_halfday_hours','min_halfday_hours');
+      if (adv) adv.style.display = any ? 'block' : 'none';
+    }catch(_){ /* no-op */ }
   }
 
   function ptApplyTotalsToWeekly(){
@@ -958,6 +1015,9 @@
         clearError(std, err);
         const hint = $('#pt_floor_hint'); if (hint) hint.style.display = 'none';
       }
+      // Masquer l'organisation des horaires (doublon avec bloc TP)
+      const sched = document.getElementById('std_schedule_row');
+      if (sched) sched.style.display = 'none';
 
       // Côté API on reste sur "35h" pour pointer le mode 'part_time'
       const r35 = $('#wt_35'); if (r35) r35.checked = true;
@@ -989,6 +1049,8 @@
         const hint = $('#pt_floor_hint'); if (hint) hint.style.display = 'none';
         setHiddenWeeklyValue('');
       }
+      const sched = document.getElementById('std_schedule_row');
+      if (sched) sched.style.display = '';
 
       // Si aucune modalité n’est cochée, force 35h par défaut
       if (!step.querySelector('input[name="work_time_mode"]:checked')) {

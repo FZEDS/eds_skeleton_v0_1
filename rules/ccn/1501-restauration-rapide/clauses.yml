@@ -14,30 +14,3 @@ clauses:
     source_ref: "Art. 29.5 (programme de travail, prévenance) ; renvoi TP art. 4.9 (avenant temps partiel)"
     text_html: |
       <p><strong>Programme de travail.</strong> L’Employeur affiche et notifie le programme de travail (début et fin de service) au moins <strong>10</strong> jours calendaires avant la semaine concernée. Toute modification sera possible jusqu’à <strong>J‑3</strong> seulement avec l’accord du Salarié. Les échanges de créneau entre Salariés sont autorisés pour des volumes d’heures équivalents, sous réserve d’une inscription au programme et du respect des garanties applicables (repos, amplitudes, durées maximales).</p>
-
-  - key: tp_coupures_1501
-    label: "Temps partiel — Coupures, amplitude & prime (1501)"
-    synopsis: "Coupures limitées, amplitude max 12 h, prime > 2 h indexée MG."
-    learn_more_html: |
-      <ul>
-        <li><strong>Coupures</strong> : 1 interruption max/jour (≤ 5 h), 4/semaine max ; chaque séquence ≥ 2 h ; si ≤ 4 h/jour, heures consécutives (sauf demande du Salarié).</li>
-        <li><strong>Amplitude</strong> : 12 h max (repos & pauses conformes).</li>
-        <li><strong>Prime coupure</strong> : ≥ 80 % du <em>MG</em> par interruption > 2 h (min. 3,50 €), indexée sur le Minimum Garanti.</li>
-        <li><strong>Garde‑fous</strong> : si contrat &lt; 12 h/sem ou &lt; 52 h/mois, pas de coupures sauf demande écrite du Salarié.</li>
-      </ul>
-    source_ref: "Avenant temps partiel (art. 5) ; Avenant n° 24 / 44 (temps partiel)"
-    flags: { needs_parameters: true }
-    params:
-      - { key: breaks_per_day_max,          label: "Coupures max/jour",          type: number, min: 0, step: 1, default: 1 }
-      - { key: breaks_per_week_max,         label: "Coupures max/semaine",       type: number, min: 0, step: 1, default: 4 }
-      - { key: max_break_duration_hours,    label: "Durée max d’une coupure (h)", type: number, min: 0, step: 0.1, default: 5 }
-      - { key: min_sequence_hours,          label: "Durée min d’une séquence (h)", type: number, min: 0, step: 0.1, default: 2 }
-      - { key: daily_amplitude_max,         label: "Amplitude journalière max (h)", type: number, min: 0, step: 0.1, default: 12 }
-      - { key: break_premium_mg_ratio,      label: "Prime coupure (% du MG)",     type: percent, min: 0, step: 0.01, default: 0.8, help: "0,8 = 80 % du MG" }
-      - { key: break_premium_min_eur,       label: "Prime coupure — plancher (€)", type: money, min: 0, step: 0.01, default: 3.5 }
-      - { key: forbid_breaks_if_weekly_hours_lt,   label: "Interdire coupures si < heures/sem", type: number, min: 0, step: 1, default: 12 }
-      - { key: forbid_breaks_if_monthly_hours_lt,  label: "Interdire coupures si < heures/mois", type: number, min: 0, step: 1, default: 52 }
-    text_html: |
-      <p><strong>Temps partiel — Coupures & amplitude.</strong> Les Parties conviennent que la répartition du temps de travail respectera les bornes suivantes : (i) au plus <strong>[[breaks_per_day_max]]</strong> interruption(s) par jour (d’une durée n’excédant pas <strong>[[max_break_duration_hours]]</strong> heures), dans la limite de <strong>[[breaks_per_week_max]]</strong> coupures par semaine ; (ii) chaque séquence de travail aura une durée minimale de <strong>[[min_sequence_hours]]</strong> heures ; (iii) la durée journalière ne dépassera pas une amplitude de <strong>[[daily_amplitude_max]]</strong> heures.</p>
-      <p><strong>Prime de coupure.</strong> Toute interruption supérieure à 2 heures ouvre droit à une prime d’au moins <strong>[[break_premium_mg_ratio]]</strong> du MG par coupure, avec un plancher de <strong>[[break_premium_min_eur]]</strong> €. Ces montants seront adaptés aux revalorisations du Minimum Garanti.</p>
-      <p><strong>Garde‑fous.</strong> En l’absence de demande écrite du Salarié, aucune coupure ne pourra être prévue lorsque la durée contractuelle est inférieure à <strong>[[forbid_breaks_if_weekly_hours_lt]]</strong> heures par semaine ou à <strong>[[forbid_breaks_if_monthly_hours_lt]]</strong> heures par mois.</p>

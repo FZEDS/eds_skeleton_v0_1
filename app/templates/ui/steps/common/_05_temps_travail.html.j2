@@ -123,6 +123,15 @@
         <small id="std_err" class="error-msg" aria-live="polite"></small>
       </div>
     </div>
+    <div class="row" id="std_schedule_row">
+      <div>
+        <label>
+          Organisation des horaires (facultatif)
+          <span class="help" title="Ex. Lundi–Vendredi, 9h–12h / 13h–17h ; ou renvoi au planning affiché avec un délai de prévenance interne.">i</span>
+        </label>
+        <textarea name="schedule_info" id="schedule_info" rows="2" placeholder="Ex. Lundi–Vendredi, 9h–12h / 13h–17h"></textarea>
+      </div>
+    </div>
     <div id="std_card" class="callout mt-12" data-slot="step5.block.std" style="display:none"></div>
     <div id="slot_step5_header" class="callout" data-slot="step5.header" style="display:none"></div>
   </div>
@@ -131,11 +140,29 @@
     <div class="row">
       <div>
         <label>
-          Quelle est la durée hebdomadaire de travail ?
+          Durée hebdomadaire du travail
           <span class="help" title="Valeur de référence de ton forfait heures (ex. 37,5h, 39h…).">i</span>
         </label>
         <input type="number" step="0.1" min="35" name="weekly_hours" id="weekly_hours_fh" placeholder="Ex. 37.5">
         <small id="fh_err" class="error-msg" aria-live="polite"></small>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>
+          Forfait annuel (heures)
+          <span class="help" title="Facultatif : total d'heures annuel si prévu par la CCN/AE.">i</span>
+        </label>
+        <input type="number" min="1" step="1" name="forfait_hours_per_year" id="forfait_hours_per_year" placeholder="Ex. 1607">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>
+          Référence conventionnelle / AE (facultatif)
+          <span class="help" title="Ex. Accord d’entreprise du … ; CCN — article …">i</span>
+        </label>
+        <input name="forfait_hours_ref" id="forfait_hours_ref" placeholder="Ex. Accord du 10/01/2025 — art. …">
       </div>
     </div>
     <div id="fh_card" class="callout mt-12" data-slot="step5.block.fh" style="display:none"></div>
@@ -152,6 +179,15 @@
         </label>
         <input type="number" min="1" max="230" name="forfait_days_per_year" id="forfait_days_per_year" placeholder="218 par défaut">
         <small id="fd_err" class="error-msg" aria-live="polite"></small>
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>
+          Référence conventionnelle / AE (facultatif)
+          <span class="help" title="Ex. Accord d’entreprise du … ; CCN — article …">i</span>
+        </label>
+        <input name="forfait_days_ref" id="forfait_days_ref" placeholder="Ex. CCN — art. …">
       </div>
     </div>
 
@@ -270,30 +306,19 @@
 
     <!-- C. Règles communes (coupures journalières / cadre / slots API) -->
     <div id="pt_common_box" class="flow-12" style="display:none">
-      <p class="subtle-label mt-24">
-        Coupures journalières : fixer un plafond (nombre/durée) et les contreparties éventuelles prévues par l’accord.
-      </p>
+      <h4 class="mb-4">
+        Coupures journalières
+        <span class="help" title="Fixer un plafond (nombre/durée) et les contreparties éventuelles prévues par l’accord.">i</span>
+      </h4>
 
-      <div class="grid2">
-        <div>
-          <label>Cadre choisi</label>
-          <select id="pt_flex_frame">
-            <option value="code">À défaut d’accord (cadre légal par défaut)</option>
-            <option value="ccn_ae">Selon convention/accord (branche ou entreprise)</option>
-          </select>
-        </div>
-        <div>
-          <label>Repos quotidien (rappel)</label>
-          <input id="pt_flex_rest" value="11 heures consécutives (rappel légal)" readonly>
-        </div>
-      </div>
+    
 
       <div class="grid3">
-        <div>
+        <div id="row_pt_breaks_max">
           <label>Nb max de coupures / jour</label>
           <input type="number" id="pt_breaks_max" min="0" max="5" placeholder="1">
         </div>
-        <div>
+        <div id="row_pt_break_max_hours">
           <label>Durée max coupure (heures)</label>
           <input type="number" step="0.1" id="pt_break_max_hours" min="0" max="6" placeholder="2">
         </div>
@@ -302,6 +327,64 @@
           <input id="pt_break_counterparties" placeholder="ex. prime, repos…">
         </div>
       </div>
+
+      <!-- Paramètres avancés (affichés si fournis par la CCN/AE via capabilities.part_time_rules) -->
+      <details id="pt_adv_box" class="zoom-card" style="display:none; margin-top:12px">
+        <summary>Paramètres avancés (selon CCN/AE)</summary>
+        <div class="grid3" style="margin-top:8px">
+          <div id="row_pt_breaks_week_max" style="display:none">
+            <label>Coupures max / semaine</label>
+            <input type="number" id="pt_breaks_week_max" min="0" max="14" placeholder="4">
+          </div>
+          <div id="row_pt_min_sequence_hours" style="display:none">
+            <label>Durée min d’une séquence (h)</label>
+            <input type="number" step="0.1" id="pt_min_sequence_hours" min="0" max="8" placeholder="2">
+          </div>
+          <div id="row_pt_daily_amplitude_max" style="display:none">
+            <label>Amplitude journalière max (h)</label>
+            <input type="number" step="0.1" id="pt_daily_amplitude_max" min="0" max="24" placeholder="12">
+          </div>
+        </div>
+        <div class="grid3" style="margin-top:8px">
+          <div id="row_pt_break_prem_mg_ratio" style="display:none">
+            <label>Prime coupure (% du MG)</label>
+            <input type="number" step="0.01" id="pt_break_prem_mg_ratio" min="0" max="5" placeholder="0.8">
+          </div>
+          <div id="row_pt_break_prem_min_eur" style="display:none">
+            <label>Prime coupure — plancher (€)</label>
+            <input type="number" step="0.01" id="pt_break_prem_min_eur" min="0" placeholder="3.5">
+          </div>
+          <div id="row_pt_forbid_breaks_weekly_lt" style="display:none">
+            <label>Interdire coupures si &lt; heures/sem</label>
+            <input type="number" id="pt_forbid_breaks_weekly_lt" min="0" placeholder="12">
+          </div>
+        </div>
+        <div class="grid3" style="margin-top:8px">
+          <div id="row_pt_forbid_breaks_monthly_lt" style="display:none">
+            <label>Interdire coupures si &lt; heures/mois</label>
+            <input type="number" id="pt_forbid_breaks_monthly_lt" min="0" placeholder="52">
+          </div>
+          <div id="row_pt_break_threshold_hours" style="display:none">
+            <label>Seuil coupure déclenchant amplitude (h)</label>
+            <input type="number" step="0.1" id="pt_break_threshold_hours" min="0" max="8" placeholder="2">
+          </div>
+          <div id="row_pt_daily_amplitude_max_if_break" style="display:none">
+            <label>Amplitude max si coupure (h)</label>
+            <input type="number" step="0.1" id="pt_daily_amplitude_max_if_break" min="0" max="24" placeholder="12">
+          </div>
+        </div>
+        <div class="grid3" style="margin-top:8px">
+          <div id="row_pt_daily_amplitude_max_inventory" style="display:none">
+            <label>Amplitude max inventaire (h)</label>
+            <input type="number" step="0.1" id="pt_daily_amplitude_max_inventory" min="0" max="24" placeholder="13">
+          </div>
+          <div id="row_pt_min_halfday_hours" style="display:none">
+            <label>Durée repère 1/2 journée (h)</label>
+            <input type="number" step="0.1" id="pt_min_halfday_hours" min="0" max="8" placeholder="3.5">
+          </div>
+          <div></div>
+        </div>
+      </details>
 
       <!-- Slots optionnels API -->
       <div id="pt_flex_card" class="callout" data-slot="step5.part_time.flex" style="display:none"></div>
