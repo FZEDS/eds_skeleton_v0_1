@@ -6,6 +6,18 @@
 | Transports routiers et activités auxiliaires du transport | 21/12/1950  | 01/02/1955  | JORF du 26/02/1955 |          3085 |     16 |
 
 
+- **Sommaire CCN**: https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624
+- **Clauses communes / durée & heures supp** (maj. 25/50%): https://www.legifrance.gouv.fr/conv_coll/article/KALIARTI000005849334
+- **Ouvriers (Annexe I) — Période d'essai**: https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005723162
+- **Employés (Annexe II) — Période d'essai & préavis** (Articles 11 & 13): https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000005678903
+- **TAM (Annexe III) — Période d'essai**: https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005723100
+- **TAM — Préavis**: https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000005849262
+- **Cadres (Annexe IV) — Période d’essai (Art. 8)**: https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000005849560
+- **Cadres — Recherche d’emploi pendant préavis**: https://www.legifrance.gouv.fr/conv_coll/article/KALIARTI000031584435
+- **Dimanches / jours fériés TRV — indemnité forfaitaire** (Accord du 19 juin 2023): https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000048051713
+- **Forfait-jours (cadres)**: https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000026563173
+- **Frais de déplacement (ouvriers) — barèmes 2025** (Avenant n° 80 du 20 mars 2025): https://www.legifrance.gouv.fr/conv_coll/id/KALITEXT000051786971
+
 ## Dernière mise à jour de la convention collective le 9 août 2025 :
 
 Avenant n° 8 du 6 mai 2025 à l'accord du 16 février 2004 relatif aux rémunérations conventionnelles des personnels ambulanciers des entreprises de transport sanitaire, étendu par arrêté du 22 juillet 2025 (JORF n°0174 du 29 juillet 2025)
