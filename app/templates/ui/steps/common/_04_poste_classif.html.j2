@@ -108,7 +108,24 @@
   <input type="hidden" name="categorie" id="categorie" value="non-cadre">
   <input type="hidden" name="classification_level" id="classification_level">
 
-    <hr class="divider">
+  <hr class="divider">
+
+  <!-- Ancienneté (déplacée depuis l’étape 8 pour alimenter tous les thèmes) -->
+  <h4 style="margin:0 0 6px">Ancienneté
+    <span class="help" title="0 si embauche initiale. Renseignez uniquement s’il y a reprise d’ancienneté (ou pour simuler des règles dépendant d’un palier).">i</span>
+  </h4>
+  <div class="grid2" style="margin-top:8px">
+    <div>
+      <label>Ancienneté — années</label>
+      <input id="seniority_years" type="number" min="0" step="1" value="0">
+    </div>
+    <div>
+      <label>Ancienneté — mois</label>
+      <input id="seniority_months" type="number" min="0" max="11" step="1" value="0">
+    </div>
+  </div>
+
+  <hr class="divider">
 
       {# ---- HINTS (classification) ---- #}
   <div id="step4_header_card" class="callout" data-slot="step4.header" style="display:none"></div>

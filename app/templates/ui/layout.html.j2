@@ -13,5 +13,20 @@
     </header>
     {% block content %}{% endblock %}
   </div>
+
+  <!-- Modale Q&A à la volée (AskOnDemand) -->
+  <div id="askOnDemandModal" class="modal" style="display:none" aria-hidden="true" role="dialog" aria-labelledby="askOnDemandTitle">
+    <div class="modal-content">
+      <h3 id="askOnDemandTitle" style="margin-bottom:8px">Informations manquantes</h3>
+      <form id="askOnDemandForm">
+        <div id="askQuestionsContainer" class="flow-12">
+          <!-- Questions dynamiques insérées ici via JS -->
+        </div>
+        <div class="modal-actions" style="margin-top:12px; display:flex; justify-content:flex-end; gap:8px;">
+          <button type="button" class="btn-primary" id="askSubmitBtn">Valider</button>
+        </div>
+      </form>
+    </div>
+  </div>
 </body>
 </html>

@@ -222,8 +222,20 @@
       const idcc = getIdcc();
       const q = new URLSearchParams({ theme: 'temps_travail', categorie: getCategorie(), as_of: getAsOf() });
       if (idcc) q.append('idcc', String(idcc));
+      // Contexte additionnel (issu de la modale AskOnDemand)
+      try{
+        const ctx = (window.EDS_CTX || {});
+        if (ctx.work_time_mode) q.append('work_time_mode', String(ctx.work_time_mode));
+        if (ctx.segment)        q.append('segment', String(ctx.segment));
+        if (ctx.statut)         q.append('statut', String(ctx.statut));
+      }catch(_){ }
       const r = await fetch('/api/resolve?'+q.toString());
       res = await r.json();
+      // Détection des questions à la volée (pending_inputs)
+      if (res && Array.isArray(res.pending_inputs) && res.pending_inputs.length > 0){
+        try{ if (typeof window.handlePendingInputs === 'function') window.handlePendingInputs(res.pending_inputs); }catch(_){ }
+        return; // suspend le flux normal en attendant les réponses
+      }
     }catch(e){ res = {}; }
 
     const items = Array.isArray(res.explain) ? res.explain.filter(x => x.slot === 'step5.zoom.category') : [];
@@ -1132,6 +1144,8 @@
     step = document.querySelector('.step[data-step="5"]');
     if (!step) return;
     _inited = true;
+    // Recalcule quand le contexte demandé par le backend a été collecté
+    document.addEventListener('eds:ctx_updated', ()=>{ refreshZoomByCategory(); }, false);
 
     // Écouteurs directs
     $$('#reg_full, #reg_part').forEach(r => on(r, 'change', onRegimeChange));

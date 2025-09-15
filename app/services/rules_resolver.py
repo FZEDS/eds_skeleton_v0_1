@@ -13,6 +13,7 @@ from app.services.rules_engine import (
     compute_salary_minimum,
     compute_worktime_bounds,
     compute_leave_minimum,
+    _find_ccn_dir,
 )
 from app.services.ui_hints import load_ui_hints, build_rule_explain
 
@@ -22,6 +23,33 @@ RULES_DIR = APP_DIR.parent / "rules"            # .../rules
 
 SYNTEC_IDCC = 1486
 
+
+# -------------------- Questions génériques (Phase 1) --------------------
+# Réutilisables par plusieurs thèmes pour le Q&A progressif.
+GENERIC_QUESTIONS = {
+    "work_time_mode": {
+        "id": "work_time_mode",
+        "label": "Régime du temps de travail",
+        "type": "enum",
+        "options": [
+            {"value": "standard", "label": "35h/hebdo"},
+            {"value": "part_time", "label": "Temps partiel"},
+            {"value": "forfait_hours", "label": "Forfait heures"},
+            {"value": "forfait_days", "label": "Forfait jours"}
+        ],
+        "writes": ["work_time_mode"],
+        "required": True,
+        "reason": "worktime.mode_required"
+    },
+    "anciennete_months": {
+        "id": "anciennete_months",
+        "label": "Ancienneté (mois)",
+        "type": "number",
+        "writes": ["anciennete_months"],
+        "required": True,
+        "reason": "salary.seniority_required"
+    }
+}
 
 # -------------------- utils locaux --------------------
 
@@ -89,6 +117,23 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     capabilities: Dict[str, Any] = {}
     trace: Dict[str, Any] = {"inputs": ctx}
 
+    # Chargement des questions CCN (classification.yml) — Phase 1
+    # Indexe par identifiant pour un accès direct (ex: q_index["annexe"]).
+    q_index: Dict[str, Dict[str, Any]] = {}
+    try:
+        if idcc:
+            dccn_dir = _find_ccn_dir(idcc)  # depuis rules_engine
+            if dccn_dir:
+                classif_data = _load_yaml(dccn_dir / "classification.yml") or {}
+                questions = classif_data.get("questions") or []
+                if isinstance(questions, list):
+                    for q in questions:
+                        if isinstance(q, dict) and q.get("id"):
+                            q_index[str(q["id"])]= q
+    except Exception:
+        # En cas d'erreur d'I/O YAML, on continue sans questions CCN
+        q_index = {}
+
     # ---- CLASSIFICATION ----------------------------------------------------
     if theme in {"classification", "classif"}:
         explain = load_ui_hints(idcc, "classification", {
@@ -155,7 +200,32 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         if idcc == 1979:
             capabilities["work_time_modes"]["forfait_hours_mod2"] = False
 
-        return {
+        # -------------------- pending_inputs (Phase 1) --------------------
+        pending_inputs: List[Dict[str, Any]] = []
+
+        # 1) Work time mode manquant
+        if ctx.get("work_time_mode") is None:
+            try:
+                q = dict(GENERIC_QUESTIONS.get("work_time_mode") or {})
+                if q:
+                    pending_inputs.append(q)
+            except Exception:
+                pass
+
+        # 2) Statut manquant pour certains segments de la CCN 0016
+        if idcc == 16:
+            seg = ctx.get("segment")
+            if seg in {"TRM_AAT", "TRV", "SANITAIRE"} and ctx.get("statut") is None:
+                if "statut" in q_index:
+                    try:
+                        q = dict(q_index["statut"])  # copie défensive
+                        q["required"] = True
+                        q.setdefault("reason", "worktime.statut_required")
+                        pending_inputs.append(q)
+                    except Exception:
+                        pass
+
+        res = {
             "theme": "temps_travail",
             "bounds": bounds,
             "rule": _safe_rule(rule),
@@ -164,6 +234,9 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             "suggest": suggest,
             "trace": trace,
         }
+        if pending_inputs:
+            res["pending_inputs"] = pending_inputs
+        return res
 
     # ---- PÉRIODE D’ESSAI ---------------------------------------------------
     if theme in {"periode_essai", "essai", "probation"}:
@@ -233,7 +306,28 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         explain.extend(build_rule_explain("preavis", notice, rule, ctx))
         explain.extend(load_ui_hints(idcc, "preavis", {"idcc": idcc, "categorie": categorie, "coeff": coeff}))
 
-        return {
+        # -------------------- pending_inputs (Phase 1) --------------------
+        pending_inputs: List[Dict[str, Any]] = []
+        # Annexe manquante (si question disponible côté CCN)
+        if ("annexe" in q_index) and (ctx.get("annexe") is None):
+            try:
+                q = dict(q_index["annexe"])  # copie défensive
+                q["required"] = True
+                q["reason"] = "notice.annexe_required"
+                pending_inputs.append(q)
+            except Exception:
+                pass
+        # Coefficient manquant (si question group_coeff disponible)
+        if ctx.get("coeff") is None and ("group_coeff" in q_index):
+            try:
+                q = dict(q_index["group_coeff"])  # copie défensive
+                q["required"] = True
+                q["reason"] = "notice.coeff_missing"
+                pending_inputs.append(q)
+            except Exception:
+                pass
+
+        res = {
             "theme": "preavis",
             "notice": notice,
             "rule": _safe_rule(rule),
@@ -242,6 +336,9 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             "suggest": suggest,
             "trace": trace,
         }
+        if pending_inputs:
+            res["pending_inputs"] = pending_inputs
+        return res
 
    # ---- RÉMUNÉRATION ------------------------------------------------------
     if theme in {"remuneration", "salaire"}:
@@ -299,7 +396,54 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         except Exception:
             pass
 
-        return {
+        # -------------------- pending_inputs (Phase 1) --------------------
+        pending_inputs: List[Dict[str, Any]] = []
+
+        # 1) Coefficient manquant
+        if ctx.get("coeff") is None:
+            if "group_coeff" in q_index:
+                try:
+                    q = dict(q_index["group_coeff"])  # copie défensive
+                    q["required"] = True
+                    q["reason"] = "salary.coeff_missing"
+                    pending_inputs.append(q)
+                except Exception:
+                    pass
+            else:
+                pending_inputs.append({
+                    "id": "coeff",
+                    "label": "Coefficient",
+                    "type": "number",
+                    "writes": ["coeff"],
+                    "required": True,
+                    "reason": "salary.coeff_missing",
+                })
+
+        # 2) Segment manquant (si question disponible dans la CCN)
+        if ("segment" in q_index) and (ctx.get("segment") is None):
+            try:
+                q = dict(q_index["segment"])  # copie défensive
+                q["required"] = True
+                q["reason"] = "salary.segment_required"
+                pending_inputs.append(q)
+            except Exception:
+                pass
+
+        # 3) Ancienneté manquante — forfait-jours (2216)
+        if (
+            idcc == 2216
+            and (str(work_time_mode or "").lower() == "forfait_days")
+            and (str(categorie or "").lower() in {"cadre", "ic"})
+            and (ctx.get("anciennete_months") is None)
+        ):
+            try:
+                q = dict(GENERIC_QUESTIONS.get("anciennete_months") or {})
+                if q:
+                    pending_inputs.append(q)
+            except Exception:
+                pass
+
+        res = {
             "theme": "remuneration",
             "minima": minima,
             "rule": _safe_rule(rule),
@@ -308,6 +452,9 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             "suggest": suggest,
             "trace": {"inputs": ctx},
         }
+        if pending_inputs:
+            res["pending_inputs"] = pending_inputs
+        return res
 
     # ---- CONGÉS PAYÉS ------------------------------------------------------
     if theme in {"conges_payes", "conges"}:
