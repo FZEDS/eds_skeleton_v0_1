@@ -1,0 +1,9 @@
+meta:
+  idcc: 16
+  theme: "conges_payes"
+  source:
+    label: "Congés payés — CCN 0016"
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624"
+
+rules: []
+

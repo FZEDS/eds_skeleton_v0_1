@@ -1,0 +1,16 @@
+meta:
+  idcc: 16
+  theme: "periode_essai"
+  source:
+    label: "Période d’essai — CCN 0016 (Annexes I à IV)"
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624"
+  notes:
+    - "Squelette: à compléter par annexe/groupe si la CCN diffère du Code. À défaut, le moteur retient l’ordre public (Code)."
+
+rules: []
+
+defaults:
+  fallback:
+    non-cadre: { max_months: 2, max_total_months: 4 }
+    cadre: { max_months: 4, max_total_months: 8 }
+

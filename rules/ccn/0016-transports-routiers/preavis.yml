@@ -1,0 +1,11 @@
+meta:
+  idcc: 16
+  theme: "preavis"
+  source:
+    label: "Préavis — CCN 0016 (Annexes)"
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624"
+  notes:
+    - "Squelette: à compléter par annexe/ancienneté. À défaut, renvoi au Code (L1234‑1 s.)."
+
+rules: []
+

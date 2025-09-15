@@ -1,0 +1,64 @@
+meta:
+  idcc: 16
+  label: "Transports routiers et activités auxiliaires du transport"
+  version: "0.1 (squelette)"
+  source:
+    label: "Sommaire CCN — Légifrance"
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624"
+  mapping:
+    # utilisé par le front/moteur pour quelques normalisations génériques
+    categorie_to_backend: { cadre: "cadre", noncadre: "non-cadre" }
+    classification_format: "{text}"
+
+# Questionnaire progressif (v2) — non bloquant pour l’existant
+# Chaque question écrit une ou plusieurs clés dans le contexte (write_keys)
+# 'when' permet de n’afficher la question que si nécessaire
+questions:
+  - id: annexe
+    label: "Population (Annexe)"
+    type: enum
+    options:
+      - { value: I,  label: "Annexe I — Ouvriers" }
+      - { value: II, label: "Annexe II — Employés" }
+      - { value: III,label: "Annexe III — Techniciens & Agents de maîtrise" }
+      - { value: IV, label: "Annexe IV — Ingénieurs & Cadres" }
+    writes: [annexe]
+
+  - id: segment
+    label: "Segment d’activité"
+    type: enum
+    options:
+      - { value: TRM_AAT,     label: "Transport routier de marchandises & AAT" }
+      - { value: TRV,         label: "Transport routier de voyageurs" }
+      - { value: EPL,         label: "Entreprises de prestations logistiques (EPL)" }
+      - { value: SANITAIRE,   label: "Transport sanitaire / ambulancier" }
+      - { value: DEMENAGEMENT,label: "Déménagement" }
+    writes: [segment]
+    when: { any: [ { isset: annexe } ] }
+
+  - id: statut
+    label: "Statut d’activité"
+    type: enum
+    options:
+      - { value: roulant,   label: "Roulant" }
+      - { value: sédentaire, label: "Sédentaire" }
+    writes: [statut]
+    when: { all: [ { isset: segment }, { in: { key: segment, values: [TRM_AAT, TRV, SANITAIRE] } } ] }
+
+  - id: group_coeff
+    label: "Groupe / Coefficient"
+    type: text
+    placeholder: "Ex. Groupe 5 — 138M / 150M …"
+    help: "Renseignez le coefficient si vous le connaissez. Sinon, sélectionnez un emploi repère pour pré-remplir."
+    writes: [classification_level]
+
+  - id: job_suggest
+    label: "Emploi repère (optionnel, aide au classement)"
+    type: search
+    placeholder: "Livreur, conducteur PL, ambulancier, cariste…"
+    writes: [job_family]
+    when: { any: [ { isset: annexe } ] }
+
+# Catégories d’affichage (compat UI existante)
+# Laisser vide pour activer la saisie libre (fallback) dans l’UI actuelle
+categories: []
