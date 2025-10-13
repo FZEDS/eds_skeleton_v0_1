@@ -1,64 +1,225 @@
 meta:
   idcc: 16
-  label: "Transports routiers et activités auxiliaires du transport"
-  version: "0.1 (squelette)"
+  label: Convention collective des Transports routiers (IDCC 16)
+  version: '0.2'
   source:
-    label: "Sommaire CCN — Légifrance"
-    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624"
+    label: Sommaire CCN — Légifrance
+    url: https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624
   mapping:
-    # utilisé par le front/moteur pour quelques normalisations génériques
-    categorie_to_backend: { cadre: "cadre", noncadre: "non-cadre" }
-    classification_format: "{text}"
-
-# Questionnaire progressif (v2) — non bloquant pour l’existant
-# Chaque question écrit une ou plusieurs clés dans le contexte (write_keys)
-# 'when' permet de n’afficher la question que si nécessaire
+    categorie_to_backend:
+      I: non-cadre
+      II: non-cadre
+      III: non-cadre
+      IV: cadre
+    classification_format: '{annexe} – {segment_label}, {statut_label} — {classification_level}'
+  ui:
+    vlist_for:
+      - annexe
+      - segment
+      - statut
 questions:
   - id: annexe
-    label: "Population (Annexe)"
+    label: Population (Annexe)
     type: enum
+    prompt: Quelle est la catégorie socio‑professionnelle du salarié ?
     options:
-      - { value: I,  label: "Annexe I — Ouvriers" }
-      - { value: II, label: "Annexe II — Employés" }
-      - { value: III,label: "Annexe III — Techniciens & Agents de maîtrise" }
-      - { value: IV, label: "Annexe IV — Ingénieurs & Cadres" }
-    writes: [annexe]
-
+      - value: I
+        label: Annexe I — Ouvriers
+      - value: II
+        label: Annexe II — Employés
+      - value: III
+        label: Annexe III — Techniciens & Agents de maîtrise
+      - value: IV
+        label: Annexe IV — Ingénieurs & Cadres
+    writes:
+      - annexe
   - id: segment
-    label: "Segment d’activité"
+    label: Segment d’activité
     type: enum
+    prompt: Dans quel secteur d’activité de la branche opère l’entreprise ?
     options:
-      - { value: TRM_AAT,     label: "Transport routier de marchandises & AAT" }
-      - { value: TRV,         label: "Transport routier de voyageurs" }
-      - { value: EPL,         label: "Entreprises de prestations logistiques (EPL)" }
-      - { value: SANITAIRE,   label: "Transport sanitaire / ambulancier" }
-      - { value: DEMENAGEMENT,label: "Déménagement" }
-    writes: [segment]
-    when: { any: [ { isset: annexe } ] }
-
+      - value: TRM_AAT
+        label: Transport routier de marchandises & AAT
+      - value: TRV
+        label: Transport routier de voyageurs
+      - value: EPL
+        label: Entreprises de prestations logistiques (EPL)
+      - value: SANITAIRE
+        label: Transport sanitaire / ambulancier
+      - value: DEMENAGEMENT
+        label: Déménagement
+    writes:
+      - segment
+    when:
+      in:
+        key: annexe
+        values:
+          - I
+          - II
+          - III
+          - IV
   - id: statut
-    label: "Statut d’activité"
+    label: Statut d’activité
     type: enum
+    prompt: Le poste est‑il roulant (conducteur/travailleur mobile) ou sédentaire ?
     options:
-      - { value: roulant,   label: "Roulant" }
-      - { value: sédentaire, label: "Sédentaire" }
-    writes: [statut]
-    when: { all: [ { isset: segment }, { in: { key: segment, values: [TRM_AAT, TRV, SANITAIRE] } } ] }
-
-  - id: group_coeff
-    label: "Groupe / Coefficient"
-    type: text
-    placeholder: "Ex. Groupe 5 — 138M / 150M …"
-    help: "Renseignez le coefficient si vous le connaissez. Sinon, sélectionnez un emploi repère pour pré-remplir."
-    writes: [classification_level]
-
-  - id: job_suggest
-    label: "Emploi repère (optionnel, aide au classement)"
-    type: search
-    placeholder: "Livreur, conducteur PL, ambulancier, cariste…"
-    writes: [job_family]
-    when: { any: [ { isset: annexe } ] }
-
-# Catégories d’affichage (compat UI existante)
-# Laisser vide pour activer la saisie libre (fallback) dans l’UI actuelle
+      - value: roulant
+        label: Roulant
+      - value: sedentaire
+        label: Sédentaire
+    writes:
+      - statut
+    when:
+      equals:
+        key: annexe
+        value: I
+  # Questions génériques filtrées pour 0016 :> pas de champ libre ni de recherche, la sélection de coeff est proposée après les questions.
 categories: []
+coeff_catalog:
+  - match: { annexe: I, segment: TRM_AAT }
+    options:
+      - { value: 110M, label: "110M — Ouvrier TRM/AAT (niveau débutant)", tooltip: "Débutant polyvalent : manutention/chargement, aide au conducteur, respect des consignes sécurité/qualité." }
+      - { value: 115M, label: "115M — Ouvrier TRM/AAT polyvalent", tooltip: "Polyvalence quai/tournées : tri, préparation, arrimage simple, autonomie croissante." }
+      - { value: 118M, label: "118M — Ouvrier TRM/AAT", tooltip: "Opérateur formé sur activités récurrentes (quai, tri, arrimage), vigilance sécurité." }
+      - { value: 120M, label: "120M — Ouvrier TRM/AAT", tooltip: "Opérateur confirmé sur chaîne de chargement/déchargement, fiabilité et rythme." }
+      - { value: 128M, label: "128M — Ouvrier qualifié TRM/AAT", tooltip: "Ouvrier qualifié : engins légers autorisés, contrôle des flux, application des procédures." }
+      - { value: 138M, label: "138M — Ouvrier confirmé TRM/AAT", tooltip: "Ouvrier confirmé : autonomie opérationnelle, qualité, transmission des bonnes pratiques." }
+      - { value: 150M, label: "150M — Ouvrier hautement qualifié TRM/AAT", tooltip: "Hautement qualifié / relais d’équipe : organisation des tâches, sécurité, accompagnement des nouveaux." }
+  - match: { annexe: I, segment: TRV }
+    options:
+      - { value: 110V, label: "110V — Personnel roulant TRV débutant", tooltip: "Conduite voyageurs : respect itinéraires/horaires, information clients, sécurité embarquée." }
+      - { value: 115V, label: "115V — Conducteur TRV", tooltip: "Conduite TRV : adaptation au service, gestion des aléas simples, relation usagers." }
+      - { value: 120V, label: "120V — Conducteur TRV", tooltip: "Itinéraires variés, autonomie opérationnelle, application stricte des procédures." }
+      - { value: 123V, label: "123V — Conducteur TRV", tooltip: "Services réguliers/occasionnels, ponctualité, conduite souple, sûreté des circulations." }
+      - { value: 128V, label: "128V — Conducteur TRV polyvalent", tooltip: "Polyvalence service (régulier/urbain/interurbain), qualité de service, gestion clients." }
+      - { value: 131V, label: "131V — Conducteur TRV", tooltip: "Conduite confirmée : réseaux denses, conditions difficiles, gestion incidents de premier niveau." }
+      - { value: 136V, label: "136V — Conducteur TRV", tooltip: "Conduite confirmée : longues distances ou urbain complexe, coordination ponctuelle." }
+      - { value: 137V, label: "137V — Conducteur TRV", tooltip: "Conduite confirmée : sûreté, accueil, image, appui régulation si besoin." }
+      - { value: 138V, label: "138V — Conducteur TRV confirmé", tooltip: "Conducteur confirmé : fiabilité, sécurité, accompagnement des nouveaux conducteurs." }
+      - { value: 140V, label: "140V — Conducteur TRV", tooltip: "Conduite exigeante, respect des normes, gestion des flux passagers sensibles." }
+      - { value: 142V, label: "142V — Conducteur TRV", tooltip: "Conduite sur lignes à enjeux, contacts clients et remontées d’informations qualité." }
+      - { value: 145V, label: "145V — Conducteur encadrant TRV", tooltip: "Relais d’encadrement terrain, appui formation/conduite, gestion d’équipe restreinte." }
+      - { value: 150V, label: "150V — Conducteur TRV", tooltip: "Conducteur référent, missions spéciales, haut niveau de fiabilité et d’exemplarité." }
+      - { value: 155V, label: "155V — Conducteur expert TRV", tooltip: "Expert : formation/conduite sensible, gestion incidents majeurs, ambassadeur sécurité." }
+  - match: { annexe: I, segment: DEMENAGEMENT }
+    options:
+      - { value: 1A_DEM, label: "1A DEM — Manœuvre déménagement", tooltip: "Préparation, portage, protection des meubles, manutention simple sous encadrement." }
+      - { value: 1B_DEM, label: "1B DEM — Aide‑déménageur", tooltip: "Manutention, aide au démontage simple, assistance chauffeur, respect consignes sécurité." }
+      - { value: 1C_DEM, label: "1C DEM — Déménageur qualifié", tooltip: "Emballage, démontage/remontage courant, port de charges, relation client basique." }
+      - { value: 1D_DEM, label: "1D DEM — Chef d’équipe déménagement", tooltip: "Organisation du chantier, répartition des tâches, relation client, sécurité équipe." }
+  - match: { annexe: I, segment: SANITAIRE }
+    options:
+      - { value: SAN_1, label: "Niveau 1 — Ambulancier débutant", tooltip: "Prise en charge, hygiène, sécurité, portage, application des protocoles de base." }
+      - { value: SAN_2, label: "Niveau 2 — Ambulancier confirmé", tooltip: "Gestes adaptés, aide au brancardage, liaison avec équipe soignante, traçabilité." }
+      - { value: SAN_3, label: "Niveau 3 — Conducteur ambulancier", tooltip: "Conduite adaptée, sécurité patient, gestion trajet/urgence, communication patient." }
+  - match: { annexe: I, segment: EPL }
+    options:
+      - { value: 110L, label: "110L — Opérateur/emballeur logistique", tooltip: "Préparation/emballage, contrôle basique, respect des modes opératoires." }
+      - { value: 115L, label: "115L — Préparateur de commandes", tooltip: "Prélèvement, filmage, étiquetage, qualité visuelle et traçabilité." }
+      - { value: 120L, label: "120L — Contrôleur / maintenance entrepôt", tooltip: "Contrôle visuel, réglages simples, maintenance de premier niveau." }
+      - { value: 125L, label: "125L — Cariste prestations logistiques", tooltip: "Réception/stockage, gerbage, conduite engins, sécurité et signalisation." }
+      - { value: 138L, label: "138L — Opérateur de ligne logistique", tooltip: "Pilotage de flux, polyvalence postes, qualité et cadence." }
+  - match: { annexe: II, segment: TRM_AAT }
+    options:
+      - { value: 105, label: "105 — Employé TRM/AAT niveau d’entrée", tooltip: "GAR annuelle 22 664,41 € (35 h)." }
+      - { value: 125, label: "125 — Employé TRM/AAT polyvalent", tooltip: "GAR annuelle 22 683,16 € (35 h)." }
+      - { value: "132.5", label: "132,5 — Employé/agent administratif", tooltip: "GAR annuelle 22 720,65 € (35 h)." }
+      - { value: 140, label: "140 — Employé confirmé", tooltip: "GAR annuelle 22 776,89 € (35 h)." }
+      - { value: "148.5", label: "148,5 — Employé principal", tooltip: "GAR annuelle 23 301,79 € (35 h)." }
+  - match: { annexe: II, segment: TRV }
+    options:
+      - { value: 105, label: "105 — Employé TRV (groupe 2)", tooltip: "Salaire mensuel garanti 1 895,83 € (151,67 h)." }
+      - { value: 120, label: "120 — Employé administratif TRV", tooltip: "Salaire mensuel garanti 1 896,63 € (151,67 h)." }
+      - { value: "132.5", label: "132,5 — Employé coordinateur TRV", tooltip: "Salaire mensuel garanti 1 915,02 € (151,67 h)." }
+      - { value: 140, label: "140 — Employé principal TRV", tooltip: "Salaire mensuel garanti 1 932,26 € (151,67 h)." }
+      - { value: "148.5", label: "148,5 — Employé expert TRV", tooltip: "Salaire mensuel garanti 2 050,06 € (151,67 h)." }
+  - match: { annexe: II, segment: DEMENAGEMENT }
+    options:
+      - { value: 2A_DEM, label: "2A DEM — Employé déménagement", tooltip: "Taux horaire 11,89 € (base 35 h)." }
+      - { value: 2B_DEM, label: "2B DEM — Employé qualifié", tooltip: "Taux horaire 11,97 € (base 35 h)." }
+      - { value: 2C_DEM, label: "2C DEM — Employé confirmé", tooltip: "Taux horaire 12,29 € (base 35 h)." }
+      - { value: 2D_DEM, label: "2D DEM — Employé chef d’équipe", tooltip: "Taux horaire 12,70 € (base 35 h)." }
+  - match: { annexe: II, segment: EPL }
+    options:
+      - { value: 110L, label: "110L — Assistant inventaire / EPL", tooltip: "GAR annuelle 23 326,58 € (35 h)." }
+      - { value: 120L, label: "120L — Employé ordonnancement / EPL", tooltip: "GAR annuelle 23 463,48 € (35 h)." }
+  - match: { annexe: II, segment: SANITAIRE }
+    options:
+      - { value: 105, label: "105 — Employé sanitaire (niveau d’entrée)", tooltip: "Barème SANITAIRE employés — à confirmer selon avenant applicable." }
+      - { value: 120, label: "120 — Employé administratif sanitaire", tooltip: "Barème SANITAIRE employés — à confirmer selon avenant applicable." }
+      - { value: "132.5", label: "132,5 — Employé coordinateur sanitaire", tooltip: "Barème SANITAIRE employés — à confirmer selon avenant applicable." }
+      - { value: 140, label: "140 — Employé principal sanitaire", tooltip: "Barème SANITAIRE employés — à confirmer selon avenant applicable." }
+      - { value: "148.5", label: "148,5 — Employé expert sanitaire", tooltip: "Barème SANITAIRE employés — à confirmer selon avenant applicable." }
+  - match: { annexe: III, segment: TRM_AAT }
+    options:
+      - { value: 150, label: "150 — TAM TRM/AAT niveau 1", tooltip: "Coordination d’équipe restreinte/quai, exécution/contrôle, sécurité et qualité." }
+      - { value: 157.5, label: "157,5 — TAM TRM/AAT", tooltip: "Planification simple, suivi d’activité, montée en autonomie encadrement." }
+      - { value: 165, label: "165 — TAM TRM/AAT confirmé", tooltip: "Pilotage d’équipe, indicateurs opérationnels, qualité/sûreté." }
+      - { value: 175, label: "175 — TAM TRM/AAT coordinateur", tooltip: "Animation opérationnelle, relais management, interface exploitation." }
+      - { value: 185, label: "185 — TAM TRM/AAT expert", tooltip: "Expertise process, sécurité, formation, amélioration continue." }
+      - { value: 200, label: "200 — TAM TRM/AAT encadrant", tooltip: "Encadrement d’unité, organisation et priorisation, reporting." }
+      - { value: 215, label: "215 — TAM TRM/AAT", tooltip: "Supervision élargie, performance, coordination inter‑équipes." }
+      - { value: 225, label: "225 — TAM TRM/AAT", tooltip: "Responsable d’unité, management élargi, contribution aux résultats." }
+  - match: { annexe: III, segment: TRV }
+    options:
+      - { value: 150, label: "150 — TAM TRV niveau 1", tooltip: "Encadrement terrain TRV, coordination de conducteurs/quai, suivi qualité." }
+      - { value: 157.5, label: "157,5 — TAM TRV", tooltip: "Planification/affectations simples, co‑animation des équipes." }
+      - { value: 165, label: "165 — TAM TRV confirmé", tooltip: "Pilotage d’équipe, suivi régulation/ponctualité, sécurité voyageurs." }
+      - { value: 175, label: "175 — TAM TRV coordinateur", tooltip: "Coordination des lignes/équipes, interface exploitation, qualité de service." }
+      - { value: 185, label: "185 — TAM TRV expert", tooltip: "Expertise terrain, audit sécurité, formation conducteurs." }
+      - { value: 200, label: "200 — TAM TRV encadrant", tooltip: "Encadrement d’unité TRV, objectifs opérationnels, reporting." }
+      - { value: 215, label: "215 — TAM TRV", tooltip: "Supervision multi‑équipes, indicateurs de performance, amélioration continue." }
+      - { value: 225, label: "225 — TAM TRV", tooltip: "Responsable d’exploitation TRV, management élargi, relation acteurs locaux." }
+  - match: { annexe: III, segment: DEMENAGEMENT }
+    options:
+      - { value: 3A_DEM, label: "3A DEM — TAM déménagement", tooltip: "Encadrement léger d’équipe, organisation des tâches, préparation chantier." }
+      - { value: 3B_DEM, label: "3B DEM — TAM confirmé", tooltip: "Répartition du travail, contrôle qualité, interface chauffeur." }
+      - { value: 3C_DEM, label: "3C DEM — TAM coordinateur", tooltip: "Organisation du chantier, relation client, sécurité de l’équipe." }
+      - { value: 3D_DEM, label: "3D DEM — TAM chef d’équipe", tooltip: "Animation d’équipe, sécurité, livrables et satisfaction client." }
+  - match: { annexe: III, segment: EPL }
+    options:
+      - { value: 150L, label: "150L — Technicien maintenance logistique", tooltip: "Entretien des équipements, diagnostic de base, sécurité des interventions." }
+      - { value: 157.5L, label: "157,5L — Chef d’équipe logistique", tooltip: "Répartition, suivi d’activité, gestion des priorités et qualité." }
+      - { value: 165L, label: "165L — Chef de quai logistique", tooltip: "Pilotage quai/expéditions, coordination des flux, sûreté." }
+      - { value: 200L, label: "200L — Responsable exploitation logistique", tooltip: "Management de l’activité, performance, coordination inter‑services." }
+  - match: { annexe: III, segment: SANITAIRE }
+    options:
+      - { value: 150, label: "150 — TAM sanitaire (niveau 1)", tooltip: "Barème SANITAIRE TAM — à confirmer selon avenant applicable." }
+      - { value: 165, label: "165 — TAM sanitaire confirmé", tooltip: "Barème SANITAIRE TAM — à confirmer selon avenant applicable." }
+      - { value: 175, label: "175 — TAM sanitaire coordinateur", tooltip: "Barème SANITAIRE TAM — à confirmer selon avenant applicable." }
+      - { value: 185, label: "185 — TAM sanitaire expert", tooltip: "Barème SANITAIRE TAM — à confirmer selon avenant applicable." }
+      - { value: 200, label: "200 — TAM sanitaire encadrant", tooltip: "Barème SANITAIRE TAM — à confirmer selon avenant applicable." }
+  - match: { annexe: IV, segment: TRM_AAT }
+    options:
+      - { value: 100, label: "100 — Cadre TRM/AAT (groupe 1)", tooltip: "Cadre débutant : pilotage opérationnel, suivi d’indicateurs, coordination équipes." }
+      - { value: 106.5, label: "106,5 — Cadre TRM/AAT", tooltip: "Organisation de l’activité, coordination inter‑services, amélioration continue." }
+      - { value: 113, label: "113 — Cadre TRM/AAT confirmé", tooltip: "Management d’équipe, budget, performance opérationnelle, sécurité." }
+      - { value: 119, label: "119 — Cadre TRM/AAT", tooltip: "Responsabilités élargies : projets, process, relation clients/partenaires." }
+      - { value: 132, label: "132 — Cadre TRM/AAT expérimenté", tooltip: "Direction de service/site, stratégie opérationnelle, objectifs RSA/qualité." }
+      - { value: 145, label: "145 — Cadre TRM/AAT dirigeant", tooltip: "Cadre dirigeant : pilotage P&L, stratégie, transformation et sécurité." }
+  - match: { annexe: IV, segment: TRV }
+    options:
+      - { value: 100, label: "100 — Cadre TRV (groupe 1)", tooltip: "Cadre TRV : exploitation, sécurité, qualité, coordination règlements/autorités." }
+      - { value: 106, label: "106 — Cadre TRV", tooltip: "Régulation/planification, coordination inter‑équipes, résolution d’aléas." }
+      - { value: 113, label: "113 — Cadre TRV confirmé", tooltip: "Management conducteurs/planification, performance lignes, sécurité voyageurs." }
+      - { value: 119, label: "119 — Cadre TRV", tooltip: "Responsabilités élargies : contrats, relation autorités organisatrices." }
+      - { value: 126, label: "126 — Cadre TRV encadrement", tooltip: "Encadrement supérieur : multi‑sites, performance, qualité de service." }
+      - { value: 132, label: "132 — Cadre TRV direction", tooltip: "Direction : stratégie commerciale/exploitation, budget, sûreté." }
+  - match: { annexe: IV, segment: DEMENAGEMENT }
+    options:
+      - { value: 4A_DEM, label: "4A DEM — Cadre déménagement", tooltip: "Cadre : organisation chantiers, pilotage équipes, relation client clé." }
+      - { value: 4B_DEM, label: "4B DEM — Cadre confirmé", tooltip: "Management confirmé : optimisation ressources, qualité/sécurité chantier." }
+      - { value: 4C_DEM, label: "4C DEM — Cadre dirigeant", tooltip: "Direction : stratégie commerciale/exploitation, performance et sécurité." }
+  - match: { annexe: IV, segment: EPL }
+    options:
+      - { value: 100L, label: "100L — Responsable qualité logistique", tooltip: "Système qualité, audits, analyses causes, plans d’amélioration." }
+      - { value: 106.5L, label: "106,5L — Chef de projet logistique", tooltip: "Projets d’optimisation des flux, outils, process, conduite du changement." }
+      - { value: 113L, label: "113L — Directeur méthodes logistiques", tooltip: "Méthodes/process, amélioration continue, standardisation." }
+      - { value: 119L, label: "119L — Directeur de site", tooltip: "Pilotage global du site, budget, sécurité/qualité, RH." }
+      - { value: 132L, label: "132L — Direction logistique senior", tooltip: "Stratégie réseau/logistique, performance et transformation." }
+  - match: { annexe: IV, segment: SANITAIRE }
+    options:
+      - { value: 100, label: "100 — Cadre sanitaire (groupe 1)", tooltip: "Organisation des équipes, conformité sanitaire, gestion des plannings." }
+      - { value: 113, label: "113 — Cadre sanitaire confirmé", tooltip: "Projets, coordination inter‑services, suivi qualité/sécurité." }
+      - { value: 126, label: "126 — Cadre sanitaire encadrement", tooltip: "Encadrement d’unité sanitaire, performance, sécurité patients." }
+      - { value: 132, label: "132 — Cadre sanitaire direction", tooltip: "Direction : budget, stratégie sanitaire, partenariats." }

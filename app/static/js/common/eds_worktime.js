@@ -56,6 +56,41 @@
     return raw; // 'forfait_hours' | 'forfait_days'
   }
 
+  // ---------- Standard temps complet par CCN/contexte ----------
+  function computeStdFulltimeHours(){
+    try{
+      const idcc = getIdcc();
+      const ctx = (window.EDS_CTX || {});
+      const seg = String(ctx.segment||'').trim().toUpperCase();
+      const st  = String(ctx.statut ||'').trim().toUpperCase();
+      // CCN 0016 — roulants TRM/TRV : équivalence ≈ 39h/sem (durée "normale" sans surcoût)
+      if (idcc === 16 && st === 'ROULANT' && (seg === 'TRM_AAT' || seg === 'TRV')){
+        return 39;
+      }
+    }catch(_){ /* ignore */ }
+    return 35;
+  }
+
+  function applyStdFulltimeDefaults(){
+    const reg = getRegime();
+    const mode = getUiModeRaw();
+    if (reg !== 'temps_complet' || mode !== 'standard_35h') return;
+    const h = computeStdFulltimeHours();
+    const std = $('#weekly_hours_std');
+    if (std){
+      setStdHoursUnit('week');
+      std.setAttribute('readonly','');
+      std.min = String(h);
+      std.max = String(h);
+      std.value = String(h);
+      const err = ensureErrNode('std_err', std.parentElement);
+      clearError(std, err);
+      const hint = $('#pt_floor_hint'); if (hint) hint.style.display = 'none';
+    }
+    const lbl = document.querySelector('label[for="wt_35"]');
+    if (lbl){ lbl.textContent = `${h} heures par semaine`; }
+  }
+
   // ---------- Unité / nommage (hebdo ↔ mensuel) ----------
   function isPartTimeMonthly(){
     return !!$('#pt_org_month')?.checked;
@@ -150,6 +185,7 @@
       ovrBtn.classList.add('is-on');
       setNextDisabled(false);
       input.setCustomValidity?.('');
+      try{ const sn = parseInt(step?.getAttribute('data-step')||'0',10); if (!Number.isNaN(sn) && window.EDS_OVERRIDES_STEPS) window.EDS_OVERRIDES_STEPS.add(sn); }catch(_){ }
     });
 
     // par défaut on bloque le bouton Suivant tant qu’on n’a pas corrigé/overridé
@@ -231,11 +267,10 @@
       }catch(_){ }
       const r = await fetch('/api/resolve?'+q.toString());
       res = await r.json();
-      // Détection des questions à la volée (pending_inputs)
-      if (res && Array.isArray(res.pending_inputs) && res.pending_inputs.length > 0){
-        try{ if (typeof window.handlePendingInputs === 'function') window.handlePendingInputs(res.pending_inputs); }catch(_){ }
-        return; // suspend le flux normal en attendant les réponses
-      }
+      // Ancien système de questions à la volée désactivé pour l'étape 5.
+      // On n'ouvre plus la modale "Informations manquantes" ici car
+      // l'étape 4 collecte déjà les informations nécessaires (annexe/segment/statut).
+      // if (res && Array.isArray(res.pending_inputs) && res.pending_inputs.length > 0) { ... }
     }catch(e){ res = {}; }
 
     const items = Array.isArray(res.explain) ? res.explain.filter(x => x.slot === 'step5.zoom.category') : [];
@@ -662,7 +697,8 @@
         std.min = '1';
         std.max = (wMax!=null) ? String(wMax) : (std.max||'');
       } else {
-        // temps complet → 35 fixes (géré ailleurs)
+        // temps complet → fixé par contexte (35h par défaut, 39h pour roulants TRM/TRV CCN 0016)
+        applyStdFulltimeDefaults();
       }
     }
   }
@@ -679,6 +715,11 @@
     try{
       const q = new URLSearchParams({ work_time_mode: mode, as_of, categorie: cat });
       if (idcc) q.append('idcc', String(idcc));
+      try{
+        const ctx = (window.EDS_CTX || {});
+        if (ctx.statut)  q.append('statut', String(ctx.statut));
+        if (ctx.segment) q.append('segment', String(ctx.segment));
+      }catch(_){ }
       const r = await fetch('/api/temps/bounds?' + q.toString());
       payload = await r.json();
     }catch(e){
@@ -1050,15 +1091,8 @@
 
       const std = $('#weekly_hours_std');
       if (std){
-        // Standard 35h = valeur fixée à 35, non éditable
-        setStdHoursUnit('week');
-        std.setAttribute('readonly','');
-        std.min = '35';
-        std.max = '35';
-        std.value = '35';
-        const err = ensureErrNode('std_err', std.parentElement);
-        clearError(std, err);
-        const hint = $('#pt_floor_hint'); if (hint) hint.style.display = 'none';
+        // Standard temps complet : valeur fixée selon contexte (35h par défaut ; 39h pour roulants TRM/TRV CCN 0016)
+        applyStdFulltimeDefaults();
         setHiddenWeeklyValue('');
       }
       const sched = document.getElementById('std_schedule_row');
@@ -1102,14 +1136,7 @@
     const std = $('#weekly_hours_std');
     if (std && m === 'standard_35h'){
       if (reg === 'temps_complet'){
-        setStdHoursUnit('week');
-        std.setAttribute('readonly','');
-        std.min = '35';
-        std.max = '35';
-        std.value = '35';
-        const err = ensureErrNode('std_err', std.parentElement);
-        clearError(std, err);
-        const hint = $('#pt_floor_hint'); if (hint) hint.style.display = 'none';
+        applyStdFulltimeDefaults();
       } else {
         // temps partiel + "35h" coché côté UI → champ éditable
         setStdHoursUnit( isPartTimeMonthly() ? 'month' : 'week' );
@@ -1145,7 +1172,7 @@
     if (!step) return;
     _inited = true;
     // Recalcule quand le contexte demandé par le backend a été collecté
-    document.addEventListener('eds:ctx_updated', ()=>{ refreshZoomByCategory(); }, false);
+    document.addEventListener('eds:ctx_updated', ()=>{ refreshZoomByCategory(); applyStdFulltimeDefaults(); }, false);
 
     // Écouteurs directs
     $$('#reg_full, #reg_part').forEach(r => on(r, 'change', onRegimeChange));
@@ -1245,3 +1272,17 @@
   }
 
 })();
+    // Toggle "forfait annuel (heures)" activable/désactivable
+    const fhTgl = $('#fh_toggle_year');
+    const fhInp = $('#forfait_hours_per_year');
+    if (fhTgl && fhInp){
+      on(fhTgl, 'change', ()=>{
+        if (fhTgl.checked){
+          fhInp.disabled = false;
+          fhInp.focus();
+        } else {
+          fhInp.value = '';
+          fhInp.disabled = true;
+        }
+      });
+    }

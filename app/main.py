@@ -15,6 +15,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from io import BytesIO
+import yaml
 
 from app.schemas import (
     WorktimeResponse, SalaryResponse, EssaiResponse, PreavisResponse, CongesResponse
@@ -274,17 +275,79 @@ async def document_form(request: Request, dockey: str):
 # ========== API — Classification ==========
 
 @app.get("/api/classif/schema")
-async def api_classif_schema(idcc: Optional[int] = None):
-    if load_classification_schema is None:
-        return JSONResponse({"schema": {
+async def api_classif_schema(idcc: Optional[int] = None, debug: Optional[bool] = False):
+    def _generic_schema():
+        return {
             "meta": {"label": "Générique", "mapping":{
                 "categorie_to_backend": {"cadre": "cadre", "noncadre": "non-cadre"},
                 "classification_format": "{text}"
             }},
             "categories": []
-        }})
-    schema = load_classification_schema(idcc)
-    return JSONResponse({"schema": schema})
+        }
+
+    def _fallback_load_schema(idcc_val: Optional[int]):
+        try:
+            root = (APP_DIR.parent / "rules" / "ccn")
+            d = None
+            if root.exists():
+                for sub in root.iterdir():
+                    if not sub.is_dir():
+                        continue
+                    prefix = str(sub.name).split('-')[0]
+                    try:
+                        if int(prefix) == int(idcc_val):
+                            d = sub; break
+                    except Exception:
+                        if prefix.lstrip('0') == str(idcc_val).lstrip('0'):
+                            d = sub; break
+            if not d:
+                return _generic_schema(), {"used": "fallback", "dir": None, "file": None, "has_questions": False}
+            p = d / 'classification.yml'
+            if not p.exists():
+                return _generic_schema(), {"used": "fallback", "dir": str(d), "file": None, "has_questions": False}
+            y = yaml.safe_load(p.read_text(encoding='utf-8')) or {}
+            ok = isinstance(y, dict)
+            meta = {"used": "fallback", "dir": str(d), "file": str(p), "has_questions": bool(ok and y.get('questions'))}
+            if not ok:
+                return _generic_schema(), meta
+            return y, meta
+        except Exception as e:
+            logger.warning("fallback classif schema failed: %s", e)
+            return _generic_schema(), {"used": "fallback", "error": str(e)}
+
+    dbg = {"idcc": idcc}
+    try:
+        if load_classification_schema is None:
+            raise RuntimeError('loader_unavailable')
+        schema = load_classification_schema(idcc)
+        if not isinstance(schema, dict):
+            schema = _generic_schema()
+        # Si le loader retourne un schéma trop vide pour une CCN précise,
+        # tenter une lecture directe du YAML afin de récupérer `questions:`.
+        if idcc and (
+            (not isinstance(schema, dict)) or (
+                not schema.get('questions') and not schema.get('categories')
+            )
+        ):
+            fb, meta = _fallback_load_schema(idcc)
+            dbg.update(meta)
+            if isinstance(fb, dict) and (fb.get('questions') or fb.get('categories')):
+                schema = fb
+            else:
+                dbg.setdefault('used', 'native')
+                dbg['has_questions'] = bool(schema.get('questions'))
+    except Exception as e:
+        logger.warning("api_classif_schema loader failed (%s) — using fallback", e)
+        schema, meta = _fallback_load_schema(idcc)
+        dbg.update(meta)
+    payload = {"schema": schema}
+    if debug:
+        # Infos utiles pour diagnostiquer la source et le fichier retenu
+        if 'used' not in dbg:
+            dbg['used'] = 'native'
+            dbg['has_questions'] = bool(schema.get('questions'))
+        payload['debug'] = dbg
+    return JSONResponse(payload)
 
 
 # ========== API — Temps de travail ==========
@@ -296,6 +359,8 @@ def _temps_bounds_payload(
     forfait_days_per_year: Optional[int],
     as_of: Optional[str],
     categorie: Optional[str] = None,
+    statut: Optional[str] = None,
+    segment: Optional[str] = None,
 ) -> Dict[str, Any]:
     # ⚙️ mapping UI→API systématique
     mapped_mode = _map_worktime_mode_ui_to_api(work_time_mode or "standard")
@@ -306,6 +371,8 @@ def _temps_bounds_payload(
         "weekly_hours": weekly_hours,
         "forfait_days_per_year": forfait_days_per_year,
         "as_of": as_of or _today_iso(),
+        "statut": (statut or None),
+        "segment": (segment or None),
     }
     res = _call_resolver("temps_travail", ctx)
 
@@ -340,8 +407,10 @@ async def api_temps_bounds(
     forfait_days_per_year: Optional[int] = None,
     as_of: Optional[str] = None,
     categorie: Optional[str] = None,
+    statut: Optional[str] = None,
+    segment: Optional[str] = None,
 ):
-    payload = _temps_bounds_payload(idcc, work_time_mode, weekly_hours, forfait_days_per_year, as_of, categorie)
+    payload = _temps_bounds_payload(idcc, work_time_mode, weekly_hours, forfait_days_per_year, as_of, categorie, statut, segment)
     return payload
 
 # Alias (pour compat éventuelle)
@@ -353,8 +422,10 @@ async def api_temps_travail_bounds(
     forfait_days_per_year: Optional[int] = None,
     as_of: Optional[str] = None,
     categorie: Optional[str] = None,
+    statut: Optional[str] = None,
+    segment: Optional[str] = None,
 ):
-    payload = _temps_bounds_payload(idcc, work_time_mode, weekly_hours, forfait_days_per_year, as_of, categorie)
+    payload = _temps_bounds_payload(idcc, work_time_mode, weekly_hours, forfait_days_per_year, as_of, categorie, statut, segment)
     return payload
 
 
@@ -366,12 +437,16 @@ async def api_essai_bounds(
     categorie: str = "non-cadre",
     date: Optional[str] = None,
     coeff: Optional[int] = None,
+    annexe: Optional[str] = None,
+    statut: Optional[str] = None,
 ):
     ctx = {
         "idcc": idcc,
         "categorie": categorie,
         "coeff": coeff,
         "as_of": date or _today_iso(),
+        "annexe": annexe,
+        "statut": statut,
     }
     res = _call_resolver("periode_essai", ctx)
     bounds = res.get("bounds") or {}
@@ -402,6 +477,10 @@ async def api_preavis_bounds(
     anciennete_months: Optional[int] = None,
     coeff: Optional[int] = None,
     as_of: Optional[str] = None,
+    annexe: Optional[str] = None,
+    segment: Optional[str] = None,
+    statut: Optional[str] = None,
+    coeff_key: Optional[str] = None,
 ):
     ctx = {
         "idcc": idcc,
@@ -409,6 +488,10 @@ async def api_preavis_bounds(
         "anciennete_months": anciennete_months,
         "coeff": coeff,
         "as_of": as_of or _today_iso(),
+        "annexe": annexe,
+        "segment": segment,
+        "statut": statut,
+        "coeff_key": coeff_key,
     }
     res = _call_resolver("preavis", ctx)
     # ✅ le resolver renvoie "notice"
@@ -446,6 +529,7 @@ async def api_salaire_bounds(
     idcc: Optional[int] = None,
     categorie: str = "non-cadre",
     coeff: Optional[int] = None,
+    coeff_key: Optional[str] = None,
     work_time_mode: Optional[str] = None,
     weekly_hours: Optional[float] = None,
     forfait_days_per_year: Optional[int] = None,
@@ -453,11 +537,15 @@ async def api_salaire_bounds(
     has_13th_month: bool = False,
     as_of: Optional[str] = None,
     anciennete_months: Optional[int] = None,
+    annexe: Optional[str] = None,
+    segment: Optional[str] = None,
+    statut: Optional[str] = None,
 ):
     ctx = {
         "idcc": idcc,
         "categorie": categorie,
         "coeff": coeff,
+        "coeff_key": coeff_key,
         # ✅ mapping UI→API
         "work_time_mode": _map_worktime_mode_ui_to_api(work_time_mode or "standard"),
         "weekly_hours": weekly_hours,
@@ -466,6 +554,10 @@ async def api_salaire_bounds(
         "has_13th_month": has_13th_month,
         "as_of": as_of or _today_iso(),
         "anciennete_months": anciennete_months,
+        # Dimensions de classification CCN (0016, etc.)
+        "annexe": annexe,
+        "segment": segment,
+        "statut": statut,
     }
     # 1) Resolver principal
     res = _call_resolver("remuneration", ctx)
@@ -485,6 +577,9 @@ async def api_salaire_bounds(
                     forfait_days_per_year=forfait_days_per_year,
                     classification_level=classification_level,
                     as_of=ctx["as_of"],
+                    annexe=ctx.get("annexe"),
+                    segment=ctx.get("segment"),
+                    statut=ctx.get("statut"),
                 )
             except TypeError:
                 m2, r2, _ = _compute_salary_min_legacy(
@@ -493,6 +588,9 @@ async def api_salaire_bounds(
                     coeff=coeff,
                     work_time_mode=ctx["work_time_mode"],
                     as_of=ctx["as_of"],
+                    annexe=ctx.get("annexe"),
+                    segment=ctx.get("segment"),
+                    statut=ctx.get("statut"),
                 )
             if m2:
                 minima = _norm_minima(m2)
@@ -562,8 +660,25 @@ async def api_conges_bounds(
 # ========== API — Clauses ==========
 
 @app.get("/api/clauses/catalog")
-async def api_clauses_catalog(idcc: Optional[int] = None):
-    cat = load_clauses_catalog(idcc)
+async def api_clauses_catalog(
+    idcc: Optional[int] = None,
+    categorie: Optional[str] = None,
+    work_time_mode: Optional[str] = None,
+    coeff: Optional[int] = None,
+    annexe: Optional[str] = None,
+    segment: Optional[str] = None,
+    statut: Optional[str] = None,
+):
+    ctx = {
+        "idcc": idcc,
+        "categorie": categorie,
+        "work_time_mode": work_time_mode,
+        "coeff": coeff,
+        "annexe": annexe,
+        "segment": segment,
+        "statut": statut,
+    }
+    cat = load_clauses_catalog(idcc, ctx)
     return JSONResponse(cat)
 
 
@@ -642,6 +757,11 @@ async def cdi_generate(
     idcc: Optional[int] = Form(None),
     categorie: str = Form(...),
     classification_level: Optional[str] = Form(None),
+    # Dimensions de classification CCN (ex. 0016 Transports routiers)
+    annexe: Optional[str] = Form(None),
+    segment: Optional[str] = Form(None),
+    statut: Optional[str] = Form(None),
+    coeff_key: Optional[str] = Form(None),
     adhesion_syndicat: Optional[str] = Form(None),
     # --- Accords d'entreprise (optionnel)
     ae_exists: Optional[str] = Form(None),
@@ -785,6 +905,8 @@ async def cdi_generate(
         "categorie": categorie,
         "coeff": coeff,
         "as_of": contract_start,
+        "annexe": annexe,
+        "statut": statut,
         "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
     }
     ess_res = _call_resolver("periode_essai", ess_ctx)
@@ -811,6 +933,10 @@ async def cdi_generate(
         "coeff": coeff,
         "anciennete_months": anciennete_months,
         "as_of": contract_start,
+        "annexe": annexe,
+        "segment": segment,
+        "statut": statut,
+        "coeff_key": coeff_key,
         "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
     }
     prv_res = _call_resolver("preavis", prv_ctx)
@@ -873,9 +999,13 @@ async def cdi_generate(
         "weekly_hours": weekly_hours,
         "forfait_days_per_year": forfait_days_per_year,
         "classification_level": classification_level,
+        "coeff_key": coeff_key,
         "has_13th_month": has_13th_flag,
         "as_of": contract_start,
         "anciennete_months": anciennete_months,
+        "annexe": annexe,
+        "segment": segment,
+        "statut": statut,
         "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
     }
 
@@ -907,6 +1037,8 @@ async def cdi_generate(
         "weekly_hours": weekly_hours,
         "forfait_days_per_year": forfait_days_per_year,
         "as_of": contract_start,
+        "segment": segment,
+        "statut": statut,
         "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
     }
 
@@ -1124,6 +1256,10 @@ async def cdi_generate(
         "idcc": idcc,
         "categorie": categorie,
         "classification_level": classification_level,
+        "annexe": annexe,
+        "segment": segment,
+        "statut": statut,
+        "coeff_key": coeff_key,
         "adhesion_syndicat": adhesion_syndicat,
         "ae_exists": ae_exists_flag,
         "ae_count": ae_count_val,

@@ -104,9 +104,27 @@
     </div>
   </div>
 
+  <!-- Q&A classification (inline) si la CCN déclare des questions -->
+  <div id="classif_questions" class="fieldset" style="margin-top:10px; display:none">
+    <h4 style="margin:0 0 6px">
+      Affiner la classification (CCN)
+      <span class="help" title="Répondez aux questions ci‑dessous pour préciser le segment/statut et le groupe/coefficient si nécessaire.">i</span>
+    </h4>
+    <div id="classif_questions_box" class="vlist"></div>
+  </div>
+
+  <div id="classif_coeff_block" class="fieldset" style="margin-top:10px; display:none">
+    <h4 style="margin:0 0 6px">Coefficient / groupe</h4>
+    <div class="muted" style="margin-top:2px; margin-bottom:6px">
+      Sélectionnez le coefficient correspondant au poste. Les libellés résument la position conventionnelle.
+    </div>
+    <div id="classif_coeff_container" class="vlist" role="radiogroup" aria-label="Coefficient CCN"></div>
+  </div>
+
   <!-- Requis backend -->
   <input type="hidden" name="categorie" id="categorie" value="non-cadre">
   <input type="hidden" name="classification_level" id="classification_level">
+  <input type="hidden" name="coeff" id="coeff_value">
 
   <hr class="divider">
 

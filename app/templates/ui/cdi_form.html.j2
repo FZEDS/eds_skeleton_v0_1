@@ -927,9 +927,32 @@
     const box = document.getElementById('clauses_catalog'); if (box) box.innerHTML = '<div class="muted">Chargement…</div>';
     try{
       const q = new URLSearchParams(); const idcc = getIdcc(); if (idcc) q.set('idcc', String(idcc));
+      // Contexte pour un catalogue conditionnel (qualif pertinente)
+      try{
+        const cat = getCategorie(); if (cat) q.set('categorie', cat);
+        // Mode temps de travail (API)
+        const apiMode = (typeof getWorkTimeModeForApi === 'function') ? getWorkTimeModeForApi() : null;
+        if (apiMode) q.set('work_time_mode', apiMode);
+        // Coefficient
+        const c = (typeof coeffFromClassif === 'function') ? coeffFromClassif() : null;
+        if (c!=null) q.set('coeff', String(c));
+        // Dimensions de classification (posées via AskOnDemand)
+        const ctx = (window.EDS_CTX || {});
+        if (ctx.annexe)  q.set('annexe', String(ctx.annexe));
+        if (ctx.segment) q.set('segment', String(ctx.segment));
+        if (ctx.statut)  q.set('statut', String(ctx.statut));
+      }catch(_){ }
       const r = await fetch('/api/clauses/catalog?'+q.toString());
       const js = await r.json();
       const items = js?.items || [];
+      // Auto‑sélection des clauses à inclure par défaut (flags.auto_include)
+      try{
+        items.forEach(it=>{
+          if (it?.flags?.auto_include && it.key && !selectedClauses.has(it.key)){
+            selectedClauses.add(it.key);
+          }
+        });
+      }catch(_){ }
       // Auto‑sélection clause TP (2216) si régime temps partiel
       try{
         const regime = document.querySelector('input[name="work_time_regime"]:checked')?.value || null;
@@ -985,6 +1008,16 @@
 
       fd.append(src.name, val ?? '');
     });
+
+    // Dimensions de classification (CCN 0016 etc.) pour l'aperçu PDF
+    try{
+      const ctx = (window.EDS_CTX || {});
+      if (ctx.annexe)  fd.append('annexe', String(ctx.annexe));
+      if (ctx.segment) fd.append('segment', String(ctx.segment));
+      if (ctx.statut)  fd.append('statut', String(ctx.statut));
+      const ck = ctx.coeff_key || ctx.coeff; // coeff_key exact si dispo
+      if (ck) fd.append('coeff_key', String(ck));
+    }catch(_){ /* ignore */ }
 
     // ancienneté (même calcul que pour le submit)
     const ancField = $('#anciennete_months');
@@ -1150,6 +1183,13 @@
 
   function computeStepCompletion(){
     const done = new Array(steps.length).fill(false);
+    const overridesSet = new Set((window.EDS_OVERRIDES_STEPS ? Array.from(window.EDS_OVERRIDES_STEPS).map(n=> parseInt(n,10)) : []));
+    const hasOverride = (stepNumber)=>{
+      if (overridesSet.has(parseInt(stepNumber,10))) return true;
+      const idx = parseInt(stepNumber,10) - 1;
+      const node = steps[idx];
+      return !!(node && node.dataset && node.dataset.override === 'on');
+    };
 
     // 1. Employeur
     done[0] = allRequiredFilled(0) && !hasVisibleError(0);
@@ -1198,16 +1238,19 @@
       ttOk = false;
     }
     done[4] = ttOk;
+    if (hasOverride(5)) done[4] = true; // Étape 5 overridée → considérer comme complète
 
     // 6. Rémunération
     const sal = $('#salary_gross_monthly')?.value;
     const salErrVisible = $('#salary_err') && getComputedStyle($('#salary_err')).display!=='none';
     done[5] = !!sal && !salErrVisible && !hasVisibleError(5);
+    if (hasOverride(6)) done[5] = true; // Étape 6 overridée → considérer comme complète
 
     // 7. Essai
     const essai = $('#probation_months')?.value;
     const essErr = $('#probation_err'); const essErrVisible = essErr && getComputedStyle(essErr).display!=='none';
     done[6] = (essai!=='' && essai!=null) && !essErrVisible && !hasVisibleError(6);
+    if (hasOverride(7)) done[6] = true; // Étape 7 overridée → considérer comme complète
 
     // 8. Préavis & Congés
     const dem = $('#notice_dem')?.value;
@@ -1216,6 +1259,7 @@
     const licErrV = $('#notice_lic_err') && getComputedStyle($('#notice_lic_err')).display!=='none';
     const cpErrV  = $('#cp_err') && getComputedStyle($('#cp_err')).display!=='none';
     done[7] = !!dem && !!lic && !demErrV && !licErrV && !cpErrV && !hasVisibleError(7);
+    if (hasOverride(8)) done[7] = true; // Étape 8 overridée → considérer comme complète
 
     // 9. Clauses
     const selRaw = $('#clauses_selected_json')?.value || '[]';
@@ -1286,6 +1330,9 @@
     window.scrollTo({top:0,behavior:'smooth'});
 
     if (i === 3) {
+      // En entrant dans l'étape 4, s'assurer que l'IDCC tapé à l'étape 3
+      // est bien commité même si l'utilisateur a sauté via le sommaire.
+      try{ if (typeof window.setIdccFromInput === 'function') window.setIdccFromInput(); }catch(_){ }
       if (window.EDS_CLASSIF?.refresh) window.EDS_CLASSIF.refresh();
       (async ()=>{
         try{
@@ -1531,6 +1578,19 @@
       form.appendChild(hidden);
     });
 
+    // Dimensions de classification (CCN 0016 etc.) maintenues en mémoire (EDS_CTX)
+    try{
+      const ctx = (window.EDS_CTX || {});
+      [ 'annexe', 'segment', 'statut', 'coeff_key' ].forEach((k)=>{
+        const v = ctx[k];
+        if (v != null && String(v).trim() !== ''){
+          const h = document.createElement('input');
+          h.type = 'hidden'; h.name = k; h.value = String(v);
+          form.appendChild(h);
+        }
+      });
+    }catch(_){ /* ignore */ }
+
     // ancienneté
     const ancField = $('#anciennete_months');
     let ancVal = ancField?.value;
@@ -1713,9 +1773,9 @@
 <script>window.EDS_DOC = 'cdi';</script>
 
 <script src="{{ url_for('static', path='js/cdi.js') }}"></script>  {# spécifique au formulaire CDI #}
-<script src="{{ url_for('static', path='js/common/eds_pending.js') }}"></script>
 <script src="{{ url_for('static', path='js/common/eds_ccn_ae.js') }}"></script>
-<script src="{{ url_for('static', path='js/common/eds_classif.js') }}"></script>
+{# cache-busting simple pour forcer le rechargement du JS #}
+<script src="{{ url_for('static', path='js/common/eds_classif.js') }}?v=0016-ui-coeff"></script>
 <script src="{{ url_for('static', path='js/common/eds_step4.js') }}"></script>
 <script src="{{ url_for('static', path='js/common/eds_worktime.js') }}"></script>
 <script src="{{ url_for('static', path='js/common/eds_salary.js') }}"></script>

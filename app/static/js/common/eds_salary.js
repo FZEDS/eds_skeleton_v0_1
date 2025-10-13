@@ -56,6 +56,16 @@
     const all = Array.from(raw.matchAll(/\b(\d{2,3})\b/g)).map(m => parseInt(m[1], 10));
     return all.length ? Math.max(...all) : null;
   }
+  function getCoeff(){
+    const c = coeffFromClassif();
+    if (c!=null) return c;
+    try{
+      const v = (window.EDS_CTX && window.EDS_CTX.coeff!=null) ? window.EDS_CTX.coeff : null;
+      if (v==null || v==='') return null;
+      const n = parseInt(String(v), 10);
+      return Number.isNaN(n) ? null : n;
+    }catch(_){ return null; }
+  }
   function getAsOf(){ return $('#contract_start')?.value || new Date().toISOString().slice(0,10); }
   function getSeniorityMonths(){
     const y = parseInt($('#seniority_years')?.value || '0', 10) || 0;
@@ -109,7 +119,10 @@
         clearError(input, errNode);
       });
       const overrideBtn = $('#'+errNode.id+'_override');
-      if (overrideBtn) overrideBtn.addEventListener('click', ()=> setNextDisabled(false));
+      if (overrideBtn) overrideBtn.addEventListener('click', ()=> {
+        try{ if (window.EDS_OVERRIDES_STEPS) window.EDS_OVERRIDES_STEPS.add(6); }catch(_){ }
+        setNextDisabled(false);
+      });
     },0);
   }
 
@@ -220,6 +233,9 @@
 
   // ---------- API + validation ----------
   async function refreshSalaire(){
+    // Ne rien faire si l'étape 6 (Rémunération) n'est pas l'étape visible
+    const isStep6Visible = !!document.querySelector('.step[data-step="6"][aria-hidden="false"]');
+    if (!isStep6Visible) return;
     // nettoyage erreurs
     clearError(inpMonthly(), errMonthly());
     clearError(inpYearly(),  errYearly());
@@ -227,13 +243,14 @@
 
     const idcc  = getIdcc();
     const cat   = getCategorie();
-    const coeff = coeffFromClassif();
+    const coeff = getCoeff();
     const mode  = getWorkTimeModeForApi();
     const wh    = getWeeklyHours();
     const fj    = getForfaitDays();
     const as_of = getAsOf();
 
     let minima = {}, rule = {};
+    // plus de pré‑check via /api/resolve: l'étape 4 collecte déjà les infos nécessaires
     try{
       const q = new URLSearchParams({ categorie: cat, work_time_mode: mode, as_of });
       if(idcc) q.append('idcc', String(idcc));
@@ -245,6 +262,21 @@
       q.append('has_13th_month', has13th() ? 'true' : 'false'); // pris en compte par l'engine (ratios CCN)
       // Ancienneté (utile pour certains paliers — ex. SMAG 216 j/an 2216)
       try{ q.append('anciennete_months', String(getSeniorityMonths())); }catch(_){ }
+
+      // Dimensions de classification (issues de l'étape 4)
+      try{
+        const ctx = (window.EDS_CTX || {});
+        if (ctx.annexe)  q.append('annexe', String(ctx.annexe));
+        if (ctx.segment) q.append('segment', String(ctx.segment));
+        if (ctx.statut)  q.append('statut', String(ctx.statut));
+      }catch(_){ }
+
+      // transmettre la clé exacte du coefficient (ex. SAN_1, 3A_DEM) si disponible
+      try{
+        const ctx = (window.EDS_CTX || {});
+        const ck = ctx.coeff_key || ctx.coeff;
+        if (ck) q.append('coeff_key', String(ck));
+      }catch(_){ }
 
       const r = await fetch('/api/salaire/bounds?'+q.toString());
       const js = await r.json();
@@ -309,9 +341,14 @@
   document.addEventListener('DOMContentLoaded', ()=>{
     toggle13thBoxes();
     fromMonthly();         // initialise annuel/horaire si mensuel présent
-    refreshSalaire();
+    // Ne pas déclencher de calcul tant que l'étape 6 n'est pas visible
+    if (document.querySelector('.step[data-step="6"][aria-hidden="false"]')){
+      refreshSalaire();
+    }
   });
   attachListeners();
+  // Recalcul quand le contexte (AskOnDemand) évolue
+  document.addEventListener('eds:ctx_updated', refreshSalaire, false);
 
   // API externe minimale
   window.EDS_SAL = window.EDS_SAL || {};

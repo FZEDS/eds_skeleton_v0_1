@@ -2,5 +2,109 @@ meta:
   idcc: 16
   label: "Clauses additionnelles — CCN 0016"
 
-clauses: []
+clauses:
+  # Indemnité de panier / repas — roulants TRM/TRV
+  - key: allowance_meal_trm
+    label: "Indemnité de repas (personnel roulant)"
+    synopsis: "Rappel de l’indemnité de repas due aux roulants lorsque les conditions de déplacement le justifient."
+    when: { annexe: "I", segment: ["TRM_AAT","TRV"], statut: "roulant" }
+    flags: { auto_include: true }
+    text_html: >
+      Lorsque les conditions de déplacement le justifient, le Salarié perçoit une <strong>indemnité de repas</strong>
+      conformément aux dispositions applicables (branche/entreprise). Les montants et modalités sont fixés par les
+      accords en vigueur.
+    source_ref: "CCN 16 — Indemnités roulants (repas)"
 
+  # Découcher (nuit à l’extérieur)
+  - key: allowance_sleep_out_trm
+    label: "Indemnité de découcher (nuit à l’extérieur)"
+    synopsis: "Indemnité due en cas de nuit passée à l’extérieur dans le cadre d’une mission."
+    when: { annexe: "I", segment: "TRM_AAT", statut: "roulant" }
+    params:
+      - { key: amount_eur, label: "Montant indicatif (€)", type: money, required: false }
+      - { key: conditions, label: "Conditions particulières", type: text, required: false }
+    text_html: >
+      En cas de nuit passée à l’extérieur dans le cadre d’une mission, le Salarié bénéficie d’une <strong>indemnité de découcher</strong>
+      selon les barèmes applicables. {% if amount_eur %}Montant indicatif&nbsp;: <strong>{{ amount_eur }} €</strong>.{% endif %}
+      {% if conditions %}Conditions particulières&nbsp;: {{ conditions }}.{% endif %}
+    source_ref: "CCN 16 — Indemnités de déplacement (découcher)"
+
+  # Dimanche / férié — voyageurs (information clause)
+  - key: premium_sunday_trv
+    label: "Dimanches et jours fériés (TRV)"
+    synopsis: "Rappel du traitement des dimanches et jours fériés pour le transport voyageurs."
+    when: { segment: "TRV" }
+    text_html: >
+      Lorsque l’activité l’exige, le travail le <strong>dimanche</strong> et les <strong>jours fériés</strong> peut donner lieu à des
+      contreparties spécifiques (prime/indemnité/RC) selon les accords applicables. Les modalités exactes sont fixées par
+      les dispositions de branche et/ou d’entreprise.
+    source_ref: "CCN 16 — Transport voyageurs (dimanches et fériés)"
+  # Travail de nuit (générique — à paramétrer selon l'organisation)
+  - key: work_night_0016
+    label: "Travail de nuit"
+    synopsis: "Définition locale des horaires de nuit et contreparties (repos/majorations)."
+    when: { idcc: 16 }
+    flags: { needs_parameters: true }
+    params:
+      - { key: night_from, label: "Heure début (ex. 21:00)", type: text }
+      - { key: night_to, label: "Heure fin (ex. 06:00)", type: text }
+      - { key: compensation, label: "Contrepartie (repos/majoration)", type: textarea }
+    text_html: >
+      Sont considérées comme <strong>heures de nuit</strong> celles accomplies entre <strong>[[night_from]]</strong> et <strong>[[night_to]]</strong>.
+      Les contreparties applicables (repos compensateur et/ou majorations) sont les suivantes : [[compensation]].
+
+  # TRV — Services discontinus (amplitudes/coupures/contreparties)
+  - key: trv_discontinuous_service
+    label: "TRV — Services discontinus"
+    synopsis: "Organisation des services discontinus (amplitude, coupures) et contreparties."
+    when: { segment: "TRV" }
+    flags: { needs_parameters: true }
+    params:
+      - { key: amplitude_max_hours, label: "Amplitude journalière max (h)", type: number }
+      - { key: breaks_per_day_max, label: "Nb max de coupures/jour", type: number }
+      - { key: max_break_duration_hours, label: "Durée max d'une coupure (h)", type: number }
+      - { key: compensation, label: "Contrepartie (prime/RC)", type: textarea }
+    text_html: >
+      En TRV, l’organisation en <strong>services discontinus</strong> est possible : l’amplitude journalière ne dépasse pas <strong>[[amplitude_max_hours]] h</strong>,
+      avec au plus <strong>[[breaks_per_day_max]]</strong> coupures (durée unitaire ≤ <strong>[[max_break_duration_hours]] h</strong>), sauf accord spécifique.
+      Les contreparties sont les suivantes : [[compensation]].
+
+  # Sanitaire — Astreintes / gardes
+  - key: sanitary_on_call
+    label: "Transport sanitaire — Astreintes / gardes"
+    synopsis: "Précise les plages d’astreinte ou de garde et les contreparties."
+    when: { segment: "SANITAIRE" }
+    flags: { needs_parameters: true }
+    params:
+      - { key: on_call_windows, label: "Plages d’astreinte/garde", type: textarea }
+      - { key: on_call_compensation, label: "Contreparties (indemnité/RC)", type: textarea }
+    text_html: >
+      Le Salarié peut être soumis à des <strong>astreintes/gardes</strong> selon les plages suivantes : [[on_call_windows]].
+      Les contreparties applicables (indemnités et/ou repos compensateur) sont : [[on_call_compensation]].
+
+  # Déménagement — Frais et chantiers
+  - key: moving_expenses
+    label: "Déménagement — frais et organisation de chantier"
+    synopsis: "Frais (repas, hébergement) et organisation (équipe, sécurité)."
+    when: { segment: "DEMENAGEMENT" }
+    flags: { needs_parameters: true }
+    params:
+      - { key: expenses_policy, label: "Politique de frais (repas/hébergement)", type: textarea }
+      - { key: safety_rules, label: "Règles sécurité/équipement", type: textarea }
+    text_html: >
+      En activité de <strong>déménagement</strong>, les frais (repas, hébergement) sont pris en charge selon la politique suivante : [[expenses_policy]].
+      Les règles d’organisation et de sécurité appliquées sur chantier sont : [[safety_rules]].
+
+  # Équipements / tenue — Habillage/déshabillage
+  - key: equipment_dress_code
+    label: "Équipements / tenue — habillage/déshabillage"
+    synopsis: "Dotation, entretien, temps d’habillage/déshabillage (si comptabilisé)."
+    when: { idcc: 16 }
+    flags: { needs_parameters: true }
+    params:
+      - { key: equipment_set, label: "Équipements/tenue fournis", type: textarea }
+      - { key: maintenance, label: "Entretien (à charge de)", type: textarea }
+      - { key: dress_time_policy, label: "Temps d’habillage/déshabillage (si comptabilisé)", type: textarea }
+    text_html: >
+      L’employeur fournit les équipements/tenues suivants : [[equipment_set]]. L’entretien est à la charge de : [[maintenance]].
+      La politique relative au <strong>temps d’habillage/déshabillage</strong> est la suivante : [[dress_time_policy]].

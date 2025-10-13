@@ -5,3 +5,82 @@ meta:
     label: "Durée et organisation du travail — CCN 0016"
     url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624"
 
+rules:
+  # Forfait-jours (cadres autonomes) — plafond usuel
+  - key: "forfait_jours"
+    scope: { work_time_mode: "forfait_days" }
+    constraint:
+      days_per_year_max: 218
+    source_ref: "Forfait‑jours cadres autonomes — plafond 218 j/an (usage de branche)"
+
+  # Équivalence roulants — durée normale portée à 39 h/semaine sans surcoût (TRM/AAT)
+  - key: "equivalence_roulants_trm"
+    scope: { work_time_mode: "standard", segment: "TRM_AAT", statut: "roulant" }
+    constraint:
+      weekly_hours_max: 39
+    notes: "Roulants TRM/AAT courte distance : 39 h/semaine considérées comme normales (équivalence)."
+    source_ref: "Équivalence conducteurs TRM/AAT"
+
+  # Équivalence roulants — durée normale portée à 39 h/semaine sans surcoût (TRV)
+  - key: "equivalence_roulants_trv"
+    scope: { work_time_mode: "standard", segment: "TRV", statut: "roulant" }
+    constraint:
+      weekly_hours_max: 39
+    notes: "Roulants TRV (voyageurs) : 39 h/semaine considérées comme normales (équivalence)."
+    source_ref: "Équivalence conducteurs TRV"
+
+  # Temps partiel — rappel du plancher légal (pas de plancher inférieur dans la CCN)
+  - key: "part_time_min"
+    scope: { work_time_mode: "part_time" }
+    constraint:
+      weekly_hours_min: 24
+    source_ref: "Durée minimale temps partiel — droit commun (aucune dérogation générale de branche)"
+
+  # Services discontinus (TRV) — amplitudes / coupures (squelette à confirmer)
+  - key: "trv_service_discontinu"
+    scope: { work_time_mode: "standard", segment: "TRV" }
+    constraint:
+      daily_amplitude_max: 12           # à confirmer
+      breaks_per_day_max: 2             # à confirmer
+      max_break_duration_hours: 2       # à confirmer
+      min_sequence_hours: 3             # à confirmer
+    notes: "Squelette indicatif TRV : services discontinus (amplitude/coupures). À confirmer selon les avenants applicables."
+    source_ref: "TRV — Services discontinus (à confirmer)"
+
+  # Programme de travail (prévenance) — temps partiel (squelette à confirmer)
+  - key: "program_prevenance"
+    scope: { work_time_mode: "part_time" }
+    constraint:
+      program_prevenance_days: 10
+      program_modify_deadline_days: 3
+      shift_swap_allowed: true
+    notes: "Prévenance des plannings temps partiel — valeur indicative, à confirmer (branche/accord d’entreprise)."
+    source_ref: "Temps partiel — prévenance (à confirmer)"
+
+  # Programme de travail — TRV (transport voyageurs)
+  - key: "program_prevenance_trv"
+    scope: { segment: "TRV" }
+    constraint:
+      program_prevenance_days: 7
+      program_modify_deadline_days: 1   # 24 heures possibles avec prime associée
+      shift_swap_allowed: true
+    notes: "TRV — programme indicatif communiqué 7 jours ouvrés avant; réduction possible à 24h avec prime (indemnité spéciale frais déplacement ouvriers)."
+    source_ref: "TRV — aménagement/modulation (prévenance 7 jours / 24h avec prime)"
+
+  # Programme de travail — Déménagement
+  - key: "program_prevenance_dem"
+    scope: { segment: "DEMENAGEMENT" }
+    constraint:
+      program_prevenance_days: 7
+      program_modify_deadline_days: 7
+    notes: "Déménagement — programme indicatif par quadrimestre; indemnités si prévenance < 7 j (1h), < 2 j (2h), < 24h (4h)."
+    source_ref: "Accord-cadre 23 août 2000 (aménagement du temps)"
+
+  # Programme de travail — Sanitaire
+  - key: "program_prevenance_sanitaire"
+    scope: { segment: "SANITAIRE" }
+    constraint:
+      program_prevenance_days: 15
+      program_modify_deadline_days: 5
+    notes: "Sanitaire — jours de repos (22/an) : prévenance 15 jours (réductible à 5 jours). Modulation/cycles: voir accord 4 mai 2000."
+    source_ref: "Sanitaire — aménagement (prévenance)"

@@ -2,10 +2,158 @@ meta:
   idcc: 16
   theme: "preavis"
   source:
-    label: "Préavis — CCN 0016 (Annexes)"
+    article: "Articles 11, 13 — Préavis de rupture (Convention TR)"
     url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624"
-  notes:
-    - "Squelette: à compléter par annexe/ancienneté. À défaut, renvoi au Code (L1234‑1 s.)."
 
-rules: []
+rules:
+  # OUVRIERS (Annexe I)
+  # Démission — 1 semaine (portée à 2 semaines pour le personnel roulant TRM/TRV — à modéliser via 'statut' quand le moteur le supportera)
+  - key: "ouvriers_demission"
+    annexe: "I"
+    category: "non-cadre"
+    notice_months: { demission: 0.25 }
+    source_ref: "Annexe I — Ouvriers : démission 1 semaine (2 semaines pour personnel roulant TRM/TRV)"
 
+  # Ouvriers — Démission 2 semaines (personnel roulant TRM/TRV)
+  - key: "ouvriers_demission_roulant_trm"
+    annexe: "I"
+    category: "non-cadre"
+    segment: "TRM_AAT"
+    statut: "roulant"
+    notice_months: { demission: 0.5 }
+    source_ref: "Annexe I — Ouvriers roulants TRM/AAT : démission 2 semaines"
+
+  - key: "ouvriers_demission_roulant_trv"
+    annexe: "I"
+    category: "non-cadre"
+    segment: "TRV"
+    statut: "roulant"
+    notice_months: { demission: 0.5 }
+    source_ref: "Annexe I — Ouvriers roulants TRV : démission 2 semaines"
+
+  # Licenciement — <6 mois : 1 semaine
+  - key: "ouvriers_lic_lt6m"
+    annexe: "I"
+    category: "non-cadre"
+    anciennete_months: { min: 0, max: 6 }
+    notice_months: { licenciement: 0.25 }
+    source_ref: "Annexe I — Ouvriers : licenciement <6 mois → 1 semaine"
+
+  # Licenciement — 6 à <24 mois : 1 mois
+  - key: "ouvriers_lic_6_24m"
+    annexe: "I"
+    category: "non-cadre"
+    anciennete_months: { min: 6, max: 24 }
+    notice_months: { licenciement: 1 }
+    source_ref: "Annexe I — Ouvriers : licenciement 6–24 mois → 1 mois"
+
+  # EMPLOYÉS (Annexe II) — DÉMISSION
+  - key: "employes_demission_lt6m"
+    annexe: "II"
+    category: "non-cadre"
+    anciennete_months: { min: 0, max: 6 }
+    notice_months: { demission: 0.25 }   # 1 semaine ≈ 0,25 mois
+    source_ref: "Annexe II — Démission : <6 mois → 1 semaine"
+
+  - key: "employes_demission_6_24m"
+    annexe: "II"
+    category: "non-cadre"
+    anciennete_months: { min: 6, max: 24 }
+    notice_months: { demission: 0.5 }    # 2 semaines ≈ 0,5 mois
+    source_ref: "Annexe II — Démission : 6–24 mois → 2 semaines"
+
+  - key: "employes_demission_ge2y"
+    annexe: "II"
+    category: "non-cadre"
+    anciennete_months: { min: 24 }
+    notice_months: { demission: 1 }
+    source_ref: "Annexe II — Démission : ≥2 ans → 1 mois"
+
+  # EMPLOYÉS (Annexe II) — LICENCIEMENT
+  - key: "employes_lic_lt6m"
+    annexe: "II"
+    category: "non-cadre"
+    anciennete_months: { min: 0, max: 6 }
+    notice_months: { licenciement: 0.25 }
+    source_ref: "Annexe II — Licenciement : <6 mois → 1 semaine"
+
+  - key: "employes_lic_6_24m"
+    annexe: "II"
+    category: "non-cadre"
+    anciennete_months: { min: 6, max: 24 }
+    notice_months: { licenciement: 1 }
+    source_ref: "Annexe II — Licenciement : 6–24 mois → 1 mois"
+
+  - key: "employes_lic_ge2y"
+    annexe: "II"
+    category: "non-cadre"
+    anciennete_months: { min: 24 }
+    notice_months: { licenciement: 2 }
+    source_ref: "Annexe II — Licenciement : ≥2 ans → 2 mois"
+
+  # CADRES (Annexe IV) — Démission & licenciement : 3 mois
+  - key: "cadres_preavis"
+    annexe: "IV"
+    category: "cadre"
+    notice_months: { demission: 3, licenciement: 3 }
+    source_ref: "Annexe IV — Cadres : préavis 3 mois (démission ou licenciement)"
+
+  # TAM (Annexe III) — Groupes 1 à 5 (règle générique)
+  # Démission : 1 mois
+  - key: "tam_1_5_demission"
+    annexe: "III"
+    category: "non-cadre"
+    notice_months: { demission: 1 }
+    source_ref: "Annexe III — TAM (groupes 1–5) : démission 1 mois"
+
+  # Licenciement : 1 mois (6–24 mois), 2 mois (≥ 2 ans)
+  - key: "tam_1_5_lic_6_24m"
+    annexe: "III"
+    category: "non-cadre"
+    anciennete_months: { min: 6, max: 24 }
+    notice_months: { licenciement: 1 }
+    source_ref: "Annexe III — TAM (groupes 1–5) : licenciement 6–24 mois → 1 mois"
+
+  - key: "tam_1_5_lic_ge2y"
+    annexe: "III"
+    category: "non-cadre"
+    anciennete_months: { min: 24 }
+    notice_months: { licenciement: 2 }
+    source_ref: "Annexe III — TAM (groupes 1–5) : licenciement ≥ 2 ans → 2 mois"
+
+  # Groupes 6 à 8 (2 mois démission & licenciement) — à affiner par groupe ou plage de coefficients si nécessaire
+  # (Nécessite un mapping fiable coefficient ↔ groupe pour un ciblage précis)
+  - key: "tam_6_8_trm"
+    annexe: "III"
+    category: "non-cadre"
+    segment: "TRM_AAT"
+    coeff_range: { min: 185 }
+    notice_months: { demission: 2, licenciement: 2 }
+    source_ref: "Annexe III — TAM (groupes 6–8) TRM/AAT : 2 mois"
+
+  - key: "tam_6_8_trv"
+    annexe: "III"
+    category: "non-cadre"
+    segment: "TRV"
+    coeff_range: { min: 185 }
+    notice_months: { demission: 2, licenciement: 2 }
+    source_ref: "Annexe III — TAM (groupes 6–8) TRV : 2 mois"
+
+  - key: "tam_6_8_epl"
+    annexe: "III"
+    category: "non-cadre"
+    segment: "EPL"
+    coeff_range: { min: 200 }
+    notice_months: { demission: 2, licenciement: 2 }
+    source_ref: "Annexe III — TAM (groupes 6–8) EPL : 2 mois"
+
+  # DÉMÉNAGEMENT — TAM : clés exactes (3A/3B vs 3C/3D)
+  # Groupes 1–5 (3A_DEM, 3B_DEM) — démission 1 mois ; licenciement 6–24 m: 1 mois ; ≥2 ans: 2 mois (héritent des règles génériques TAM 1–5)
+  # Groupes 6–8 (3C_DEM, 3D_DEM) — 2 mois (démission & licenciement)
+  - key: "tam_6_8_dem"
+    annexe: "III"
+    category: "non-cadre"
+    segment: "DEMENAGEMENT"
+    coeff_key_in: ["3C_DEM", "3D_DEM"]
+    notice_months: { demission: 2, licenciement: 2 }
+    source_ref: "Annexe III — TAM (groupes 6–8) Déménagement : 2 mois"

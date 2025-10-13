@@ -148,6 +148,11 @@
       <p>Les heures effectuées au‑delà de la valeur hebdomadaire de référence
       seront rémunérées avec les majorations applicables conformément aux
       dispositions légales et conventionnelles.</p>
+      {% if weekly_hours and weekly_hours|float > 35 %}
+        {% set hs = (weekly_hours|float - 35.0) %}
+        <p class="small">Ventilation indicative : base 35&nbsp;h + {{ '%.2f'|format(hs) }}&nbsp;h supplémentaires incluses.
+        Majoration légale de référence&nbsp;: +25&nbsp;% (36–43&nbsp;h), +50&nbsp;% (≥&nbsp;44&nbsp;h), sauf dispositions conventionnelles plus favorables.</p>
+      {% endif %}
     {% endif %}
     {% if forfait_hours_per_year %}
       <p>Forfait annuel en heures&nbsp;: <strong>{{ forfait_hours_per_year }}</strong> h.{% if forfait_hours_ref %} Référence&nbsp;: {{ forfait_hours_ref }}.{% endif %}</p>

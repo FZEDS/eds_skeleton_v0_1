@@ -30,8 +30,15 @@ def _find_ccn_dir(idcc: Optional[int]) -> Optional[Path]:
     if not root.exists():
         return None
     for d in root.iterdir():
-        if d.is_dir() and str(d.name).split("-")[0] == str(idcc):
-            return d
+        if not d.is_dir():
+            continue
+        prefix = str(d.name).split("-")[0]
+        try:
+            if int(prefix) == int(idcc):
+                return d
+        except Exception:
+            if prefix.lstrip('0') == str(idcc).lstrip('0'):
+                return d
     return None
 
 
@@ -236,4 +243,3 @@ def build_rule_explain(theme: str, data: Dict[str, Any], rule: Optional[Dict[str
         return out
 
     return out
-

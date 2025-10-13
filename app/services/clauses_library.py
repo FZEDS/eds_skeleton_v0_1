@@ -121,13 +121,68 @@ def _norm_clause_item(raw: Dict[str, Any]) -> Dict[str, Any]:
         "flags": {
             "needs_parameters": bool(flags.get("needs_parameters", False)),
             "sensitive": bool(flags.get("sensitive", False)),
+            "auto_include": bool(flags.get("auto_include", False)),
         },
         # --- NOUVEAU : spécification des paramètres (pour le front) ---
         "params": [_norm_param_spec(p) for p in (raw.get("params") or [])],
     }
 
 
-def load_clauses_catalog(idcc: Optional[int] = None) -> Dict[str, Any]:
+def _match_list_or_scalar(value: Any, cond: Any) -> bool:
+    if cond is None:
+        return True
+    if isinstance(cond, list):
+        return value in cond
+    return value == cond
+
+
+def _clause_matches(raw: Dict[str, Any], ctx: Optional[Dict[str, Any]]) -> bool:
+    """Filtre optionnel d'une clause selon un prédicat 'when' simple.
+    Supporte des conditions par égalité/in sur: idcc, annexe, segment, statut, categorie/category, work_time_mode
+    et des bornes numériques coeff_min/coeff_max.
+    """
+    if not ctx:
+        return True
+    w = raw.get("when") or {}
+    if not isinstance(w, dict) or not w:
+        return True
+
+    def get(k: str) -> Any:
+        return ctx.get(k)
+
+    # Égalités simples / listes
+    for key_ctx, key_when in (
+        ("idcc", "idcc"),
+        ("annexe", "annexe"),
+        ("segment", "segment"),
+        ("statut", "statut"),
+        ("categorie", "categorie"),
+        ("categorie", "category"),
+        ("work_time_mode", "work_time_mode"),
+    ):
+        if key_when in w:
+            if not _match_list_or_scalar(get(key_ctx), w[key_when]):
+                return False
+
+    # Coefficient borné
+    coeff = get("coeff")
+    try:
+        c = int(coeff) if coeff is not None else None
+    except Exception:
+        c = None
+    if c is not None:
+        if isinstance(w.get("coeff_min"), (int, float)) and c < int(w.get("coeff_min")):
+            return False
+        if isinstance(w.get("coeff_max"), (int, float)) and c > int(w.get("coeff_max")):
+            return False
+    else:
+        # Si la clause impose un min/max, absence de coeff => on laisse passer (affichage non bloquant)
+        pass
+
+    return True
+
+
+def load_clauses_catalog(idcc: Optional[int] = None, ctx: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
     Charge un catalogue fusionné : common.yml + (éventuel) ccn/<idcc>/clauses.yml
     Sortie front :
@@ -151,7 +206,10 @@ def load_clauses_catalog(idcc: Optional[int] = None) -> Dict[str, Any]:
     common_keys = { (c.get("key") or "").strip() for c in (common.get("clauses") or []) }
     ccn_keys    = { (c.get("key") or "").strip() for c in (ccn_doc.get("clauses") or []) }
 
-    items = [_norm_clause_item(x) for x in (merged.get("clauses") or [])]
+    # Optionnel: filtrer par contexte si 'when' est défini sur la clause
+    raw_items = (merged.get("clauses") or [])
+    filtered = [x for x in raw_items if _clause_matches(x, ctx)]
+    items = [_norm_clause_item(x) for x in filtered]
 
     ui_items = []
     for it in items:

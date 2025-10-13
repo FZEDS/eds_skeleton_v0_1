@@ -18,6 +18,16 @@
     const all = Array.from(raw.matchAll(/\b(\d{2,3})\b/g)).map(m => parseInt(m[1],10));
     return all.length ? Math.max(...all) : null;
   }
+  function getCoeff(){
+    const c = coeffFromClassif();
+    if (c!=null) return c;
+    try{
+      const v = (window.EDS_CTX && window.EDS_CTX.coeff!=null) ? window.EDS_CTX.coeff : null;
+      if (v==null || v==='') return null;
+      const n = parseInt(String(v), 10);
+      return Number.isNaN(n) ? null : n;
+    }catch(_){ return null; }
+  }
   function ancienneteMonths(){
     const y = parseInt($('#seniority_years')?.value || '0', 10) || 0;
     const m = parseInt($('#seniority_months')?.value || '0', 10) || 0;
@@ -125,7 +135,7 @@
   async function refreshNotice(){
     const idcc   = getIdcc();
     const cat    = getCategorie();
-    const coeff  = coeffFromClassif();
+    const coeff  = getCoeff();
     const ancM   = ancienneteMonths();
 
     let demMin=null, licMin=null, ref='', suggest=[];
@@ -133,6 +143,16 @@
       const q = new URLSearchParams({ categorie: cat, anciennete_months: String(ancM) });
       if (idcc)   q.append('idcc', String(idcc));
       if (coeff!=null) q.append('coeff', String(coeff));
+      try{
+        const ctx = (window.EDS_CTX || {});
+        if (ctx.annexe)  q.append('annexe', String(ctx.annexe));
+        if (ctx.segment) q.append('segment', String(ctx.segment));
+        if (ctx.statut)  q.append('statut', String(ctx.statut));
+        const ck = ctx.coeff_key || ctx.coeff; // coeff_key exact si dispo
+        if (ck) q.append('coeff_key', String(ck));
+      }catch(_){ }
+      // plus de pré‑check via /api/resolve: l'étape 4 collecte déjà les infos nécessaires
+
       const r = await fetch('/api/preavis/bounds?'+q.toString());
       const js = await r.json();
       if (js?.explain && window.renderExplain) window.renderExplain(js.explain);
@@ -214,6 +234,9 @@
 
   // ---------- Orchestrateur ----------
   async function refresh(){
+    // Ne rien faire si l'étape 8 (Préavis & Congés) n'est pas visible
+    const isStep8Visible = !!document.querySelector('.step[data-step="8"][aria-hidden="false"]');
+    if (!isStep8Visible) return;
     await refreshNotice();
     await refreshLeaves();
   }
@@ -230,5 +253,11 @@
   window.EDS_PREAVIS = window.EDS_PREAVIS || {};
   window.EDS_PREAVIS.refresh = refresh;
 
-  document.addEventListener('DOMContentLoaded', refresh);
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // Ne lance pas le calcul tant que l'étape 8 n'est pas visible
+    if (document.querySelector('.step[data-step="8"][aria-hidden="false"]')){
+      refresh();
+    }
+  });
+  document.addEventListener('eds:ctx_updated', refresh, false);
 })();

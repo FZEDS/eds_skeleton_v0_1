@@ -43,3 +43,37 @@ def test_salary_min_2216_coeff_500():
     assert round(minima["monthly_min_eur"], 2) == 2143.66
     assert round(minima["base_min_eur"], 2) == 2143.66
 
+
+def test_salary_min_0016_trm_ouvrier():
+    # CCN 0016 — Ouvriers TRM/AAT, coefficient 138M (GAR 22 785,14 €)
+    minima, rule, _ = compute_salary_minimum(
+        idcc=16,
+        categorie="non-cadre",
+        coeff=None,
+        work_time_mode="standard",
+        weekly_hours=35,
+        classification_level="Groupe 6 - 138M",
+        annexe="I",
+        segment="TRM_AAT",
+        statut="sedentaire",
+        as_of="2025-05-01",
+    )
+    assert round(minima["monthly_min_eur"], 2) == 1898.76
+    assert round(minima["base_min_eur"], 2) == 1898.76
+
+
+def test_salary_min_0016_trm_roulant_equiv_169():
+    # CCN 0016 — Ouvriers TRM/AAT roulants (équivalence 169h), coefficient 138M
+    minima, rule, _ = compute_salary_minimum(
+        idcc=16,
+        categorie="non-cadre",
+        coeff=None,
+        work_time_mode="standard",
+        weekly_hours=39,
+        classification_level="Ouvrier 138M",
+        annexe="I",
+        segment="TRM_AAT",
+        statut="roulant",
+        as_of="2025-05-01",
+    )
+    assert round(minima["monthly_min_eur"], 2) == 2167.35

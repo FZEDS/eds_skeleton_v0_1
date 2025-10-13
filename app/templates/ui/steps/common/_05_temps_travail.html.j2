@@ -149,11 +149,15 @@
     </div>
     <div class="row">
       <div>
-        <label>
-          Forfait annuel (heures)
-          <span class="help" title="Facultatif : total d'heures annuel si prévu par la CCN/AE.">i</span>
+        <label class="inline">
+          <input type="checkbox" id="fh_toggle_year">
+          Activer un forfait annuel (heures)
         </label>
-        <input type="number" min="1" step="1" name="forfait_hours_per_year" id="forfait_hours_per_year" placeholder="Ex. 1607">
+        <small class="muted">Facultatif — renseigner uniquement si la CCN/accord fixe un total d'heures annuel.</small>
+        <div class="mt-8">
+          <label>Nombre d'heures par an</label>
+          <input type="number" min="1" step="1" name="forfait_hours_per_year" id="forfait_hours_per_year" placeholder="Ex. 1607" disabled>
+        </div>
       </div>
     </div>
     <div class="row">

@@ -7,6 +7,7 @@ from typing import Optional, Tuple, List, Dict, Any
 import yaml
 from functools import lru_cache
 import os
+import re
 
 
 # Dossiers
@@ -104,6 +105,23 @@ def _coeff_match(rule: Dict[str, Any], coeff: Optional[int]) -> bool:
         return (lo is None or coeff >= lo) and (hi is None or coeff <= hi)
     return True
 
+def _coeff_key_match(rule: Dict[str, Any], coeff_key: Optional[str]) -> bool:
+    """Match par clé de coefficient alphanumérique (ex. '3C_DEM').
+    - coeff_key_in: liste de clés exactes (insensible à la casse/espaces)
+    - si le champ n'est pas présent dans la règle → pas de contrainte
+    """
+    keys = rule.get("coeff_key_in")
+    if not keys:
+        return True
+    if coeff_key is None:
+        return False
+    try:
+        target = str(coeff_key).strip().upper()
+        allowed = {str(k).strip().upper() for k in (keys or [])}
+        return target in allowed
+    except Exception:
+        return False
+
 def _anciennete_match(rule: Dict[str, Any], months: Optional[int]) -> bool:
     """
     Pour le thème 'préavis' : filtre par ancienneté si la règle le prévoit.
@@ -121,26 +139,43 @@ def _anciennete_match(rule: Dict[str, Any], months: Optional[int]) -> bool:
     return lo <= months < hi
 
 def _score_specificity(rule: Dict[str, Any]) -> int:
-    """Pour classer les règles CCN : coeff_in > coeff_range > générique."""
-    if "coeff_in" in rule:
-        return 3
-    if "coeff_range" in rule:
-        return 2
-    return 1
+    """Pour classer les règles CCN : coeff_in > coeff_range > générique; bonus si annexe/statut précisés."""
+    score = 1
+    if "coeff_in" in rule or "coeff_key_in" in rule:
+        score = 3
+    elif "coeff_range" in rule:
+        score = 2
+    # Bonus de précision sur dimensions additionnelles
+    if rule.get("annexe") is not None:
+        score += 1
+    if rule.get("statut") is not None:
+        score += 1
+    if rule.get("segment") is not None:
+        score += 1
+    return score
 
 
 # -------- chargement des YAML --------
 
 def _find_ccn_dir(idcc: int) -> Optional[Path]:
+    """
+    Trouve le dossier CCN par ID, en tolérant les zéros non significatifs.
+    Accepte: '1486', '1486-syntec', '0016-transports-routiers', etc.
+    """
     root = RULES_DIR / "ccn"
     if not root.exists():
         return None
     for d in root.iterdir():
         if not d.is_dir():
             continue
-        # accepte '1486', '1486-syntec', etc.
-        if str(d.name).split("-")[0] == str(idcc):
-            return d
+        prefix = str(d.name).split("-")[0]
+        try:
+            if int(prefix) == int(idcc):
+                return d
+        except Exception:
+            # Fallback sûr (strip des zéros à gauche)
+            if prefix.lstrip('0') == str(idcc).lstrip('0'):
+                return d
     return None
 
 def _mtime(p: Path) -> float:
@@ -235,6 +270,8 @@ def compute_probation_bounds(
     categorie: str,
     contract_start: str,
     coeff: Optional[int] = None,
+    annexe: Optional[str] = None,
+    statut: Optional[str] = None,
 ) -> Tuple[Dict[str, Optional[float]], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     PÉRIODE D'ESSAI — Retourne (bounds, chosen_rule, considered_rules)
@@ -247,12 +284,20 @@ def compute_probation_bounds(
     cat_key = _normalize_category(idcc, categorie)
     bundle = _load_rules_bundle("periode_essai", idcc)
 
-    # 1) CCN (si présente) — filtre par date, catégorie et coefficient
+    # 1) CCN (si présente) — filtre par date, catégorie, coefficient et dimensions additionnelles (annexe/statut)
+    def _match_opt(field: str, value: Optional[str], r: Dict[str, Any]) -> bool:
+        rv = r.get(field)
+        if rv in (None, ""):
+            return True
+        return str(rv).strip().lower() == str(value or "").strip().lower()
+
     ccn_candidates = [
         r for r in bundle["ccn_items"]
         if _within_effective(r, d)
         and _category_match(r.get("category"), cat_key)
         and _coeff_match(r, coeff)
+        and _match_opt("annexe", annexe, r)
+        and _match_opt("statut", statut, r)
     ]
     if ccn_candidates:
         ccn_candidates.sort(key=_score_specificity, reverse=True)  # la plus spécifique d'abord
@@ -308,6 +353,10 @@ def compute_notice_bounds(
     anciennete_months: Optional[int],
     coeff: Optional[int] = None,
     as_of: Optional[str] = None,
+    annexe: Optional[str] = None,
+    segment: Optional[str] = None,
+    statut: Optional[str] = None,
+    coeff_key: Optional[str] = None,
 ) -> Tuple[Dict[str, Optional[float]], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     PRÉAVIS — Retourne (notice, chosen_rule, considered_rules)
@@ -318,35 +367,47 @@ def compute_notice_bounds(
     bundle = _load_rules_bundle("preavis", idcc)
 
     # CCN d'abord
+    def _match_opt(field: str, value: Optional[str], r: Dict[str, Any]) -> bool:
+        rv = r.get(field)
+        if rv in (None, ""):
+            return True
+        return str(rv).strip().upper() == str(value or "").strip().upper()
+    def _match_annexe(rule: Dict[str, Any], value: Optional[str]) -> bool:
+        rv = rule.get("annexe")
+        if rv in (None, ""):
+            return True
+        return str(rv).strip().upper() == str(value or "").strip().upper()
     ccn_candidates = [
         r for r in bundle["ccn_items"]
         if _within_effective(r, d)
         and _category_match(r.get("category"), cat_key)
         and _coeff_match(r, coeff)
         and _anciennete_match(r, anciennete_months)
+        and _match_annexe(r, annexe)
+        and _match_opt("segment", segment, r)
+        and _match_opt("statut", statut, r)
+        and _coeff_key_match(r, coeff_key)
     ]
     if ccn_candidates:
-        # Agrège les minima sur l’ensemble des règles CCN correspondant au contexte
-        dem_list = []
-        lic_list = []
-        for r in ccn_candidates:
-            nm = (r.get("notice_months") or {})
-            if nm.get("demission") is not None:
-                dem_list.append(_to_float(nm.get("demission")))
-            if nm.get("licenciement") is not None:
-                lic_list.append(_to_float(nm.get("licenciement")))
+        # Sélection par spécificité pour chaque champ (démission / licenciement)
+        def pick(field: str) -> Optional[float]:
+            subset = [r for r in ccn_candidates if (r.get("notice_months") or {}).get(field) is not None]
+            if not subset:
+                return None
+            chosen_local = sorted(subset, key=_score_specificity, reverse=True)[0]
+            return _to_float((chosen_local.get("notice_months") or {}).get(field))
+
         notice = {
-            "demission": (min(dem_list) if dem_list else None),
-            "licenciement": (min(lic_list) if lic_list else None),
+            "demission": pick("demission"),
+            "licenciement": pick("licenciement"),
         }
-        # Choisit la règle la plus spécifique pour la métadonnée (à défaut, la première)
-        ccn_candidates.sort(key=_score_specificity, reverse=True)
-        chosen = ccn_candidates[0]
+        # Règle la plus spécifique (pour métadonnée)
+        chosen = sorted(ccn_candidates, key=_score_specificity, reverse=True)[0]
         return notice, {
             "source": "ccn",
-            "source_ref": chosen.get("source_ref") or "CCN — préavis (règles agrégées)",
+            "source_ref": chosen.get("source_ref") or "CCN — préavis",
             "bloc": "bloc_1",
-            "raw": {"aggregated": True, "matched": ccn_candidates},
+            "raw": {"matched": ccn_candidates},
         }, ccn_candidates
 
     # Fallback CCN si le coefficient est absent : ignorer la contrainte de coeff et prendre les minimas par catégorie/ancienneté
@@ -506,6 +567,236 @@ def _idcc2216_fj_monthly_from_extras(
 
 # --- RÉMUNÉRATION -------------------------------------------------------------
 
+def _norm_upper(val: Optional[str]) -> Optional[str]:
+    if val is None:
+        return None
+    return str(val).strip().upper() or None
+
+
+def _ccn16_select_entry(
+    entries: List[Dict[str, Any]],
+    annexe: Optional[str],
+    segment: Optional[str],
+    statut: Optional[str],
+    weekly_hours: Optional[float],
+) -> Optional[Dict[str, Any]]:
+    if not entries:
+        return None
+    annexe_u = _norm_upper(annexe)
+    segment_u = _norm_upper(segment)
+    statut_u = _norm_upper(statut)
+    best: Optional[Tuple[float, Dict[str, Any]]] = None
+    weekly = float(weekly_hours) if weekly_hours is not None else None
+
+    for entry in entries:
+        match = entry.get("match") or {}
+        score = 0.0
+
+        entry_annexe = _norm_upper(match.get("annexe"))
+        if entry_annexe:
+            if annexe_u is None or entry_annexe != annexe_u:
+                continue
+            score += 6.0
+        elif annexe_u:
+            # annexe requise si connue
+            continue
+
+        entry_segment = _norm_upper(match.get("segment"))
+        if entry_segment:
+            if segment_u is None or entry_segment != segment_u:
+                continue
+            score += 3.0
+        elif segment_u is None:
+            score += 0.5
+
+        entry_statut = _norm_upper(match.get("statut"))
+        if entry_statut:
+            if statut_u is None or entry_statut != statut_u:
+                continue
+            score += 1.5
+        elif statut_u is None:
+            score += 0.2
+
+        entry_hours = match.get("weekly_hours")
+        if entry_hours is not None:
+            try:
+                eh = float(entry_hours)
+            except Exception:
+                eh = None
+            if eh is None:
+                pass
+            elif weekly is None:
+                # l'entrée précise un horaire mais pas le contexte : conserver mais score plus faible
+                score += 0.3
+            else:
+                if abs(eh - weekly) <= 0.6:
+                    score += 2.0
+                else:
+                    # tolérance élargie : si différence < 5h garder mais score réduit
+                    if abs(eh - weekly) <= 5.0:
+                        score += 0.5
+                    else:
+                        continue
+        else:
+            score += 0.1
+
+        if best is None or score > best[0]:
+            best = (score, entry)
+
+    return best[1] if best else None
+
+
+def _ccn16_coeff_candidates(
+    raw_coeff: Optional[Any],
+    classification_level: Optional[str],
+    annexe: Optional[str],
+    segment: Optional[str],
+    coeff_key: Optional[str] = None,
+) -> List[str]:
+    cands: List[str] = []
+
+    def _add(val: Optional[str]):
+        if not val:
+            return
+        val = str(val).strip()
+        if not val:
+            return
+        up = val.upper()
+        for existing in cands:
+            if existing.upper() == up:
+                return
+        cands.append(val)
+
+    if raw_coeff is not None:
+        base = str(raw_coeff).strip()
+        _add(base)
+        try:
+            num = float(base)
+            if num.is_integer():
+                _add(str(int(num)))
+        except Exception:
+            pass
+
+    # Clé alphanumérique exacte (ex. SAN_1, 3A_DEM)
+    if coeff_key is not None:
+        _add(str(coeff_key))
+
+    annexe_u = _norm_upper(annexe)
+    segment_u = _norm_upper(segment)
+
+    suffix_map = {
+        "TRM_AAT": "M",
+        "TRV": "V",
+        "EPL": "L",
+    }
+
+    if raw_coeff is not None:
+        base = str(raw_coeff).strip()
+        if segment_u in suffix_map:
+            _add(f"{base}{suffix_map[segment_u]}")
+        if segment_u == "SANITAIRE":
+            _add(f"SAN_{base}")
+
+    text = str(classification_level or "")
+    upper = text.upper()
+
+    # Direct patterns <number><letters>
+    for match in re.findall(r"\d+(?:\.\d+)?\s*[A-Z]+", upper):
+        num_part = re.match(r"\d+(?:\.\d+)?", match).group(0)
+        letters = re.sub(r"[^A-Z]", "", match)
+        if letters.endswith("DEM"):
+            prefix = letters[:-3] or ""
+            _add(f"{num_part}{prefix}_DEM")
+        elif letters.startswith("SAN"):
+            suffix = re.search(r"(SAN)(\d)", letters)
+            if suffix:
+                _add(f"SAN_{suffix.group(2)}")
+            else:
+                _add(f"{num_part}{letters}")
+        else:
+            _add(f"{num_part}{letters}")
+
+    # SANITAIRE niveau X
+    san = re.search(r"SANITAIRE\s*(\d)", upper)
+    if san:
+        _add(f"SAN_{san.group(1)}")
+
+    amb = re.search(r"AMBULANCIER\s*(\d)", upper)
+    if amb:
+        _add(f"SAN_{amb.group(1)}")
+
+    # clean numeric tokens
+    for num in re.findall(r"\b\d+(?:\.\d+)?\b", upper):
+        _add(num)
+
+    if segment_u in suffix_map:
+        suffix = suffix_map[segment_u]
+        for base in list(cands):
+            if base.isdigit() or re.match(r"^\d+\.\d+$", base):
+                _add(f"{base}{suffix}")
+
+    return cands
+
+
+def _ccn16_lookup_minimum(
+    entries: List[Dict[str, Any]],
+    coeff: Optional[Any],
+    classification_level: Optional[str],
+    annexe: Optional[str],
+    segment: Optional[str],
+    statut: Optional[str],
+    weekly_hours: Optional[float],
+    coeff_key: Optional[str] = None,
+) -> Optional[Dict[str, Any]]:
+    entry = _ccn16_select_entry(entries, annexe, segment, statut, weekly_hours)
+    if not entry:
+        return None
+
+    coeffs = entry.get("coefficients") or {}
+    if not coeffs:
+        return None
+
+    # Build lookup map (case-insensitive)
+    lookup: Dict[str, Tuple[str, Dict[str, Any]]] = {}
+    for key, data in coeffs.items():
+        lookup[str(key).upper()] = (key, data)
+
+    candidates = _ccn16_coeff_candidates(coeff, classification_level, annexe, segment, coeff_key)
+
+    match_key: Optional[str] = None
+    match_data: Optional[Dict[str, Any]] = None
+
+    for cand in candidates:
+        cand_up = cand.replace(" ", "").upper()
+        if cand_up in lookup:
+            match_key, match_data = lookup[cand_up]
+            break
+        if cand_up.isdigit():
+            pref = [info for key, info in lookup.items() if key.startswith(cand_up)]
+            if len(pref) == 1:
+                match_key, match_data = pref[0]
+                break
+
+    if not match_data:
+        return None
+
+    monthly = match_data.get("monthly_min_eur")
+    if monthly is None and match_data.get("gar_annual_eur") is not None:
+        monthly = round(float(match_data["gar_annual_eur"]) / 12.0, 2)
+    if monthly is None and match_data.get("hourly_eur") is not None and weekly_hours is not None:
+        monthly = round(float(match_data["hourly_eur"]) * float(weekly_hours), 2)
+    if monthly is None:
+        return None
+
+    result = {
+        "monthly_min_eur": float(monthly),
+        "coeff_key": match_key,
+        "raw": match_data,
+        "entry": entry,
+    }
+    return result
+
+
 def compute_salary_minimum(
     idcc: Optional[int],
     categorie: str,
@@ -514,9 +805,13 @@ def compute_salary_minimum(
     weekly_hours: Optional[float] = None,
     forfait_days_per_year: Optional[int] = None,
     classification_level: Optional[str] = None,
+    coeff_key: Optional[str] = None,
     has_13th_month: Optional[bool] = False,  # support 13e mois
     as_of: Optional[str] = None,
     anciennete_months: Optional[int] = None,
+    annexe: Optional[str] = None,
+    segment: Optional[str] = None,
+    statut: Optional[str] = None,
 ) -> Tuple[Dict[str, Optional[float]], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     RÉMUNÉRATION — Unifiée (SMIC vs CCN + multiplicateurs + ratio mensuel CCN).
@@ -552,6 +847,34 @@ def compute_salary_minimum(
     grid   = (extras.get("grid") or {})
     meta   = (extras.get("meta") or {})
     mults  = (extras.get("multipliers") or {})
+
+    matrix_result = None
+    matrix_override = False
+    try:
+        matrix_entries = extras.get("matrix") if isinstance(extras, dict) else None
+        if isinstance(matrix_entries, list) and idcc == 16:
+            matrix_result = _ccn16_lookup_minimum(
+                matrix_entries,
+                coeff,
+                classification_level,
+                annexe,
+                segment,
+                statut,
+                weekly_hours,
+                coeff_key,
+            )
+            if matrix_result:
+                ccn_base = float(matrix_result["monthly_min_eur"])
+                matrix_override = True
+                entry_meta = matrix_result.get("entry", {}).get("meta") or {}
+                label = entry_meta.get("label") or meta.get("label")
+                if label:
+                    applied_labels.append(label)
+                details = matrix_result.get("raw") or {}
+                extras.setdefault("details", {})
+                extras["details"].setdefault("ccn_matrix", matrix_result)
+    except Exception as exc:
+        logger.warning("ccn16 matrix lookup failed: %s", exc)
 
     # Politique (supporte 'policy' et legacy 'compliance')
     policy = (extras.get("policy") or extras.get("compliance") or {})
@@ -597,7 +920,7 @@ def compute_salary_minimum(
         ccn_val = float(ccn_base)
 
         # Prorata heures/semaine pour standard / forfait_hours / modalité 2 / part_time
-        if mode in {"standard", "forfait_hours", "forfait_hours_mod2", "part_time"} and weekly_hours:
+        if (not matrix_override) and mode in {"standard", "forfait_hours", "forfait_hours_mod2", "part_time"} and weekly_hours:
             ccn_val = _prorata_35(ccn_val, weekly_hours)
 
         # Forfait-jours (cadres Syntec)
@@ -679,14 +1002,22 @@ def compute_salary_minimum(
         else:
             source, source_ref, bloc = "code_travail", "SMIC (35h proratisé)", "ordre_public"
 
+    details = {
+        "ccn_monthly_floor_eur": ccn_monthly_floor,
+        "ratio_used": ratio_used,
+    }
+    if matrix_result:
+        entry_meta = (matrix_result.get("entry") or {}).get("meta") or {}
+        details["ccn_matrix"] = {
+            "coeff_key": matrix_result.get("coeff_key"),
+            "entry_label": entry_meta.get("label"),
+        }
+
     res = {
         "monthly_min_eur": float(round(floor, 2)),
         "base_min_eur": float(round(ccn_base, 2)) if ccn_base is not None else None,  # référence hiérarchique CCN
         "applied": applied_labels,
-        "details": {
-            "ccn_monthly_floor_eur": ccn_monthly_floor,
-            "ratio_used": ratio_used,
-        }
+        "details": details,
     }
     rule = {
         "source": source,
@@ -710,6 +1041,9 @@ def compute_worktime_bounds(
     weekly_hours: Optional[float] = None,
     forfait_days_per_year: Optional[int] = None,
     as_of: Optional[str] = None,
+    *,
+    segment: Optional[str] = None,
+    statut: Optional[str] = None,
 ) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     TEMPS DE TRAVAIL — Renvoie des bornes selon le mode :
@@ -814,6 +1148,15 @@ def compute_worktime_bounds(
                     "max_break_duration_hours",
                     "min_sequence_hours",
                     "daily_amplitude_max",
+                    # TRV — discontinus (0016)
+                    "daily_amplitude_regular_max",
+                    "daily_amplitude_regular_ext_max",
+                    "daily_amplitude_occasionnel_max",
+                    "daily_amplitude_relais_max",
+                    "daily_amplitude_double_crew_max",
+                    "vacations_per_day_max_tp",
+                    "vacations_min_daily_guarantee_hours",
+                    "breaks_ext_conditions",
                     # prime coupure
                     "break_premium_mg_ratio",
                     "break_premium_min_eur",
@@ -827,13 +1170,19 @@ def compute_worktime_bounds(
                     capabilities = bounds.setdefault("_capabilities", {})  # stockage local si besoin
                     capabilities.update({"part_time_rules": extra_rules})
 
-            # Programme de travail (prévenance J‑10 / J‑3) — clé dédiée optionnelle
+            # Programme de travail (prévenance) — règles work_program/program_prevenance*
             try:
                 dccn = _find_ccn_dir(idcc) if idcc else None
                 if dccn:
                     ccn_items, _cx = _load_yaml(dccn / "temps_travail.yml")
-                    wp = next((r for r in ccn_items if r.get("key") in {"work_program", "program_prevenance"}), None)
-                    if wp:
+                    for wp in ccn_items:
+                        key = str(wp.get("key") or "")
+                        if key not in {"work_program", "program_prevenance"} and not key.startswith("program_prevenance"):
+                            continue
+                        sc = (wp.get("scope") or {})
+                        if sc.get("segment") not in (None, ""):
+                            if str(sc.get("segment")).strip().upper() != str(segment or "").strip().upper():
+                                continue
                         wc = (wp.get("constraint") or {})
                         defaults = bounds.setdefault("_capabilities", {}).setdefault("defaults", {})
                         if wc.get("program_prevenance_days") is not None:
@@ -846,6 +1195,72 @@ def compute_worktime_bounds(
                             wp_caps["shift_swap_allowed"] = bool(wc.get("shift_swap_allowed"))
             except Exception:
                 pass
+
+    # 5) CCN — Standard avec dimensions supplémentaires (ex. statut roulants → 39h)
+    if work_time_mode == "standard" and idcc:
+        dccn = _find_ccn_dir(idcc)
+        if dccn:
+            ccn_items, _ = _load_yaml(dccn / "temps_travail.yml")
+            # Filtre par mode + dimensions additionnelles (segment/statut)
+            def _match_rule(r: Dict[str, Any]) -> bool:
+                sc = (r.get("scope") or {})
+                if sc.get("work_time_mode") != "standard":
+                    return False
+                # statut
+                if sc.get("statut") not in (None, ""):
+                    try:
+                        if str(sc.get("statut")).strip().upper() != str(statut or "").strip().upper():
+                            return False
+                    except Exception:
+                        return False
+                # segment
+                if sc.get("segment") not in (None, ""):
+                    try:
+                        if str(sc.get("segment")).strip().upper() != str(segment or "").strip().upper():
+                            return False
+                    except Exception:
+                        return False
+                return True
+
+            std_rules = [r for r in ccn_items if _match_rule(r)]
+            # Applique la règle la plus stricte sur weekly_hours_max
+            for r in std_rules:
+                considered.append(r)
+                c = r.get("constraint") or {}
+                try:
+                    wh_max = c.get("weekly_hours_max")
+                    if wh_max is not None:
+                        if bounds.get("weekly_hours_max") is None or float(wh_max) < float(bounds.get("weekly_hours_max")):
+                            bounds["weekly_hours_max"] = wh_max
+                            chosen = {
+                                "source": "ccn",
+                                "source_ref": r.get("source_ref") or "Durée hebdo (équivalences) — CCN",
+                                "bloc": "bloc_1",
+                            }
+                    # Exposer d'autres contraintes utiles (TRV/discontinus)
+                    extra_rules = {}
+                    for k in [
+                        "daily_amplitude_max",
+                        "daily_amplitude_regular_max",
+                        "daily_amplitude_regular_ext_max",
+                        "daily_amplitude_occasionnel_max",
+                        "daily_amplitude_relais_max",
+                        "daily_amplitude_double_crew_max",
+                        "vacations_per_day_max_tp",
+                        "vacations_min_daily_guarantee_hours",
+                        "breaks_per_day_max",
+                        "max_break_duration_hours",
+                        "breaks_ext_conditions",
+                    ]:
+                        if c.get(k) is not None:
+                            extra_rules[k] = c.get(k)
+                    if extra_rules:
+                        bounds.setdefault("_capabilities", {})["part_time_rules"] = {
+                            **(bounds.get("_capabilities", {}).get("part_time_rules") or {}),
+                            **extra_rules,
+                        }
+                except Exception:
+                    pass
 
     return bounds, chosen, considered
 

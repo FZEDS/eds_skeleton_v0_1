@@ -39,7 +39,7 @@
   /* ---------- CCN : parsing/commit ---------- */
   function parseCCN(val){
     if(!val) return null;
-    const m = /^\s*(\d{4})\b/.exec(String(val));
+    const m = /^\s*(\d{2,4})\b/.exec(String(val));
     return m ? parseInt(m[1],10) : null;
   }
 

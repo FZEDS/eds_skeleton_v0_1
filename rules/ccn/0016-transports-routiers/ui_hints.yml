@@ -1,8 +1,183 @@
-meta:
-  idcc: 16
-  theme: "ui_hints"
-  source:
-    label: "Encarts d’aide — CCN 0016"
+# rules/ccn/0016-transports-routiers/ui_hints.yml
+hints:
+  # ---- Temps de travail (étape 5) ----
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "ccn"
+    when: { theme: "temps_travail" }
+    text: >
+      Transports routiers : la durée de référence est 35 h/sem (151,67 h/mois). Pour le personnel roulant des segments TRM/TRV,
+      des équivalences portent la durée normale hebdomadaire au‑delà de 35 h sans surcoût (ex. courte distance ≈ 39 h/sem).
+      À défaut de précision, appliquer une équivalence usuelle de 39 h pour les roulants TRM/TRV.
+    ref: { label: "CCN 16 — Durée/équivalences", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
 
-hints: []
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "ccn"
+    when: { work_time_mode: ["forfait_days"] }
+    text: >
+      Forfait‑jours (cadres autonomes) : plafond usuel 218 jours/an. Garanties à respecter : suivi de la charge, repos, entretien annuel.
+    ref: { label: "CCN 16 — Cadres autonomes", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
 
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "warn"
+    when: { work_time_mode: "forfait_hours_mod2" }
+    text: "La « modalité 2 » (forfait‑heures spécifique Syntec) n’est pas prévue par la CCN Transports routiers."
+    ref: { label: "Modalité 2 — hors périmètre CCN 16", url: "https://www.legifrance.gouv.fr/conv_coll" }
+
+  # Temps partiel — rappel de base
+  - theme: "temps_travail"
+    slot: "step5.part_time.header"
+    kind: "info"
+    when: { theme: "temps_travail" }
+    text: >
+      Temps partiel : durée minimale de 24 h/sem (sauf dérogations légales). Prévoir les règles de prévenance et les contreparties aux coupures
+      selon les accords applicables (branche/entreprise).
+    ref: { label: "Droit commun — Temps partiel", url: "https://www.legifrance.gouv.fr/codes/id/LEGIARTI000028787396" }
+
+  # TRV — Amplitudes (services discontinus / réguliers / occasionnels)
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "ccn"
+    when: { segment: "TRV" }
+    text: >
+      TRV (roulants) — Plafonds d’amplitude indicatifs : 12 h (règle générale). Service régulier : 13 h (sans formalité) et jusqu’à 14 h sous conditions.
+      Service occasionnel : 14 h max (sauf accord plus restrictif). Travail par relais : 10 h. Double équipage : 18 h.
+    ref: { label: "Code des transports / Fiches ministère", url: "https://www.ecologie.gouv.fr/politiques-publiques/temps-travail-conducteurs-routiers-transport-personnes" }
+
+  # TRV — Conditions d’extension d’amplitude (13 h / 14 h)
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "info"
+    when: { segment: "TRV" }
+    text: >
+      Pour dépasser 12 h d’amplitude en service régulier : jusqu’à 13 h si une coupure ≥ 2 h 30 ou deux coupures ≥ 1 h 30 chacune ; jusqu’à 14 h si une coupure ≥ 3 h
+      ou deux coupures ≥ 2 h chacune.
+    ref: { label: "R3312‑11 (conditions d’extension)", url: "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000043651232" }
+
+  # TRV — Vacations (temps partiel) et garanties minimales
+  - theme: "temps_travail"
+    slot: "step5.part_time.header"
+    kind: "ccn"
+    when: { segment: "TRV", work_time_mode: ["part_time","standard"] }
+    text: >
+      Vacations (temps partiel TRV) : la journée peut comporter au plus 3 vacations (donc 2 coupures). Garanties journalières minimales : 1 vacation → 2 h ; 2 vacations → 3 h ; 3 vacations → 4 h 30.
+      Une vacation est une continuité de temps rémunérés (travail effectif ou temps indemnisé à 100%).
+    ref: { label: "Accord TRV 18/04/2002 — Art. 20", url: "https://www.legifrance.gouv.fr/conv_coll/article/KALIARTI000005850188" }
+
+  # TRV — Coupures : principe d’indemnisation
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "info"
+    when: { segment: "TRV" }
+    text: >
+      Les coupures n’entrent pas dans le temps de travail effectif mais donnent lieu à indemnisation selon les modalités (lieu aménagé, extérieur…). Vérifier les barèmes applicables.
+    ref: { label: "CCN 16 — Indemnisation des coupures", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALISCTA000005723514?idConteneur=KALICONT000005635624" }
+
+  # Primauté branche TRV
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "warn"
+    when: { segment: "TRV" }
+    text: >
+      Les règles de branche TRV (amplitudes, coupures, vacations) priment sur un éventuel accord d’entreprise moins favorable.
+    ref: { label: "Code des transports — TRV", url: "https://www.legifrance.gouv.fr/codes/section_lc/LEGITEXT000023086525/LEGISCTA000033453099/" }
+
+  # Déménagement — Prévenance (indemnités si délai réduit)
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "ccn"
+    when: { segment: "DEMENAGEMENT" }
+    text: >
+      Programme indicatif par quadrimestre : en cas de réduction de prévenance, indemnité due (ex. < 7 jours : 1 h ; < 2 jours : 2 h ; < 24 h : 4 h). Se référer à l’accord‑cadre déménagement.
+    ref: { label: "Accord‑cadre déménagement 23/08/2000", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  # TRV — services discontinus (amplitudes/coupures)
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "ccn"
+    when: { segment: "TRV" }
+    text: >
+      Transport voyageurs (TRV) : vérifiez l'organisation des services discontinus (amplitudes/coupures), les repos et les contreparties associées.
+      Les plafonds et modalités peuvent être précisés par avenant d'entreprise.
+    ref: { label: "CCN 16 — TRV (services discontinus)", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  # Temps partiel — prévenance (planning)
+  - theme: "temps_travail"
+    slot: "step5.part_time.header"
+    kind: "info"
+    when: { work_time_mode: "part_time" }
+    text: >
+      Prévenance des plannings : délai d'information avant modification et conditions de changement à définir (branche/entreprise). Pensez à le préciser contractuellement.
+    ref: { label: "Prévenance — temps partiel", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  # Zoom global catégorie (rappel bonnes pratiques)
+  - theme: "temps_travail"
+    slot: "step5.zoom.category"
+    kind: "ccn"
+    when: { theme: "temps_travail" }
+    text: >
+      Transports routiers : tenir compte des amplitudes, coupures, travail de nuit, repos et contreparties, ainsi que des minimas par classification.
+      En transport sanitaire, les astreintes (gardes) et leurs contreparties relèvent d’accords spécifiques.
+    ref: { label: "CCN 16 — Dispositions générales", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  # ---- Rémunération (étape 6) ----
+  - theme: "remuneration"
+    slot: "step6.footer"
+    kind: "ccn"
+    when: { theme: "remuneration" }
+    text: >
+      Minima conventionnels (base 35 h/sem) selon le coefficient hiérarchique. Le plancher appliqué est le plus favorable entre la CCN et le SMIC,
+      avec proratisation si l’horaire de référence diffère (ex. équivalence roulants TRM/TRV ≈ 39 h).
+    ref: { label: "CCN 16 — Salaires minima", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  - theme: "remuneration"
+    slot: "step6.more.minima"
+    kind: "info"
+    when: { theme: "remuneration" }
+    text: >
+      13ᵉ mois : non généralisé dans la branche. Si un 13ᵉ mois conventionnel est versé, le salaire mensuel de base peut être ajusté à ~92,3 % du minimum annuel/12.
+    ref: { label: "NAO / usages — rémunération annuelle", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  # ---- Période d’essai (étape 7) ----
+  - theme: "periode_essai"
+    slot: "step7.card"
+    kind: "ccn"
+    when: { category: "cadre" }
+    text: "Cadres (Annexe IV) : 3 mois, renouvelable une fois (cumulé 6 mois)."
+    ref: { label: "CCN 16 — Essai cadres", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  - theme: "periode_essai"
+    slot: "step7.card"
+    kind: "ccn"
+    when: { category: "non-cadre" }
+    text: >
+      Références CCN : Ouvriers sédentaires 2 semaines ; Ouvriers roulants 1 mois ; Employés 1 mois ; TAM 1–5 : 1 mois (renouvelable) ; TAM 6–8 : 2 mois (renouvelable).
+      Vérifier la clause de renouvellement et l’accord de branche étendu.
+    ref: { label: "CCN 16 — Période d’essai", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  # ---- Préavis (étape 8) ----
+  - theme: "preavis"
+    slot: "step8.card"
+    kind: "ccn"
+    when: { category: "cadre" }
+    text: "Cadres (Annexe IV) : préavis 3 mois (démission ou licenciement)."
+    ref: { label: "CCN 16 — Préavis cadres", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  - theme: "preavis"
+    slot: "step8.card"
+    kind: "ccn"
+    when: { category: "non-cadre" }
+    text: >
+      Employés (Annexe II) : Démission 1 sem (<6 m), 2 sem (6–24 m), 1 mois (≥2 ans). Licenciement 1 sem (<6 m), 1 mois (6–24 m), 2 mois (≥2 ans).
+      Ouvriers/TAM : à défaut de règle CCN spécifique, application du Code du travail.
+    ref: { label: "CCN 16 — Préavis employés", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  # ---- Congés payés (étape 8) ----
+  - theme: "conges_payes"
+    slot: "step8.conges"
+    kind: "info"
+    when: { theme: "conges_payes" }
+    text: "Base légale : 25 jours ouvrés (ou 30 ouvrables). Pas de barème générique d’ancienneté spécifique à la CCN 16 — vérifier les accords d’entreprise."
+    ref: { label: "C. trav. — L3141‑3", url: "https://www.legifrance.gouv.fr/codes/id/LEGIARTI000044732564" }

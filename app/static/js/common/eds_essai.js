@@ -18,6 +18,16 @@
     const all = Array.from(raw.matchAll(/\b(\d{2,3})\b/g)).map(m => parseInt(m[1], 10));
     return all.length ? Math.max(...all) : null;
   }
+  function getCoeff(){
+    const c = coeffFromClassif();
+    if (c!=null) return c;
+    try{
+      const v = (window.EDS_CTX && window.EDS_CTX.coeff!=null) ? window.EDS_CTX.coeff : null;
+      if (v==null || v==='') return null;
+      const n = parseInt(String(v), 10);
+      return Number.isNaN(n) ? null : n;
+    }catch(_){ return null; }
+  }
 
   // ----- Helpers UI locaux (autonomes) -----
   function stepEl(){ return document.querySelector('.step[data-step="7"]'); }
@@ -108,9 +118,12 @@
 
   // ----- Appel API + validation -----
   async function refresh(){
+    // Ne rien faire si l'étape 7 (Période d’essai) n'est pas visible
+    const isStep7Visible = !!document.querySelector('.step[data-step="7"][aria-hidden="false"]');
+    if (!isStep7Visible) return;
     const idcc  = getIdcc();
     const cat   = getCategorie();
-    const coeff = coeffFromClassif();
+    const coeff = getCoeff();
     const as_of = $('#contract_start')?.value || new Date().toISOString().slice(0,10);
 
     let bounds = {}, rule = {}, suggest = [];
@@ -118,6 +131,13 @@
       const q = new URLSearchParams({ categorie: cat, date: as_of });
       if (idcc)  q.append('idcc', String(idcc));
       if (coeff!=null) q.append('coeff', String(coeff));
+      try{
+        const ctx = (window.EDS_CTX || {});
+        if (ctx.annexe) q.append('annexe', String(ctx.annexe));
+        if (ctx.statut) q.append('statut', String(ctx.statut));
+      }catch(_){ }
+
+      // plus de pré‑check via /api/resolve: l'étape 4 collecte déjà les infos nécessaires
 
       const r = await fetch('/api/essai/bounds?'+q.toString());
       const js = await r.json();
@@ -182,5 +202,11 @@
   window.EDS_ESSAI = window.EDS_ESSAI || {};
   window.EDS_ESSAI.refresh = refresh;
 
-  document.addEventListener('DOMContentLoaded', refresh);
+  document.addEventListener('DOMContentLoaded', ()=>{
+    // Ne lance pas le calcul tant que l'étape 7 n'est pas visible
+    if (document.querySelector('.step[data-step="7"][aria-hidden="false"]')){
+      refresh();
+    }
+  });
+  document.addEventListener('eds:ctx_updated', refresh, false);
 })();

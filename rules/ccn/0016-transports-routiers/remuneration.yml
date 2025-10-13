@@ -1,9 +1,508 @@
 meta:
   idcc: 16
-  label: "Rémunérations — CCN 0016 (structure)"
-  effective_from: 
+  theme: remuneration
+  label: Rémunérations — CCN 0016 (structure multi-segments)
   source:
-    label: 
-    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624"
-  notes:
-
+    article: Accords salariaux Transports routiers (NAO 2023–2025)
+    url: https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624
+  version: 2025-05
+matrix:
+- match:
+    annexe: I
+    segment: TRM_AAT
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: Ouvriers TRM/AAT (GAR standard)
+  coefficients:
+    110M:
+      gar_annual_eur: 22664.41
+      monthly_min_eur: 1888.7
+      hourly_eur: 12.09
+    115M:
+      gar_annual_eur: 22664.41
+      monthly_min_eur: 1888.7
+      hourly_eur: 12.09
+    118M:
+      gar_annual_eur: 22664.41
+      monthly_min_eur: 1888.7
+      hourly_eur: 12.09
+    120M:
+      gar_annual_eur: 22664.41
+      monthly_min_eur: 1888.7
+      hourly_eur: 12.09
+    128M:
+      gar_annual_eur: 22720.65
+      monthly_min_eur: 1893.39
+      hourly_eur: 12.12
+    138M:
+      gar_annual_eur: 22785.14
+      monthly_min_eur: 1898.76
+      hourly_eur: 12.14
+    150M:
+      gar_annual_eur: 23301.79
+      monthly_min_eur: 1941.82
+      hourly_eur: 12.43
+- match:
+    annexe: I
+    segment: TRM_AAT
+    statut: ROULANT
+    weekly_hours: 39.0
+  meta:
+    label: Ouvriers TRM/AAT roulants – GAR équivalence 169h
+  coefficients:
+    115M:
+      gar_annual_eur: 25901.12
+      monthly_min_eur: 2158.43
+    118M:
+      gar_annual_eur: 25901.12
+      monthly_min_eur: 2158.43
+    120M:
+      gar_annual_eur: 25901.12
+      monthly_min_eur: 2158.43
+    128M:
+      gar_annual_eur: 25965.39
+      monthly_min_eur: 2163.78
+    138M:
+      gar_annual_eur: 26008.24
+      monthly_min_eur: 2167.35
+    150M:
+      gar_annual_eur: 26629.52
+      monthly_min_eur: 2219.13
+- match:
+    annexe: I
+    segment: TRM_AAT
+    statut: ROULANT
+    weekly_hours: 46.0
+  meta:
+    label: Ouvriers TRM/AAT roulants – GAR équivalence 200h
+  coefficients:
+    115M:
+      gar_annual_eur: 32202.68
+      monthly_min_eur: 2683.56
+    118M:
+      gar_annual_eur: 32202.68
+      monthly_min_eur: 2683.56
+    120M:
+      gar_annual_eur: 32202.68
+      monthly_min_eur: 2683.56
+    128M:
+      gar_annual_eur: 32282.59
+      monthly_min_eur: 2690.22
+    138M:
+      gar_annual_eur: 32335.86
+      monthly_min_eur: 2694.66
+    150M:
+      gar_annual_eur: 33108.3
+      monthly_min_eur: 2759.03
+- match:
+    annexe: I
+    segment: TRV
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: Ouvriers TRV (SMPG 2025)
+  coefficients:
+    110V:
+      monthly_min_eur: 1860.61
+      hourly_eur: 12.2675
+    115V:
+      monthly_min_eur: 1860.61
+      hourly_eur: 12.2675
+    120V:
+      monthly_min_eur: 1860.61
+      hourly_eur: 12.2675
+    123V:
+      monthly_min_eur: 1860.61
+      hourly_eur: 12.2675
+    128V:
+      monthly_min_eur: 1860.61
+      hourly_eur: 12.2675
+    131V:
+      monthly_min_eur: 1888.9
+      hourly_eur: 12.454
+    136V:
+      monthly_min_eur: 1905.1
+      hourly_eur: 12.5608
+    137V:
+      monthly_min_eur: 1911.18
+      hourly_eur: 12.6009
+    138V:
+      monthly_min_eur: 1964.32
+      hourly_eur: 12.9513
+    140V:
+      monthly_min_eur: 1978.69
+      hourly_eur: 13.046
+    142V:
+      monthly_min_eur: 1998.48
+      hourly_eur: 13.1765
+    145V:
+      monthly_min_eur: 2019.62
+      hourly_eur: 13.3159
+    150V:
+      monthly_min_eur: 2068.69
+      hourly_eur: 13.6394
+    155V:
+      monthly_min_eur: 2172.35
+      hourly_eur: 14.3229
+- match:
+    annexe: I
+    segment: DEMENAGEMENT
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: Ouvriers déménagement
+  coefficients:
+    1A_DEM:
+      hourly_eur: 11.89
+      monthly_min_eur: 1803.32
+    1B_DEM:
+      hourly_eur: 12.07
+      monthly_min_eur: 1830.62
+    1C_DEM:
+      hourly_eur: 12.53
+      monthly_min_eur: 1900.38
+    1D_DEM:
+      hourly_eur: 13.43
+      monthly_min_eur: 2036.88
+- match:
+    annexe: I
+    segment: SANITAIRE
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: Personnel ambulancier (accord 2025)
+  coefficients:
+    SAN_1:
+      hourly_eur: 11.89
+      monthly_min_eur: 1803.32
+    SAN_2:
+      hourly_eur: 11.9
+      monthly_min_eur: 1804.83
+    SAN_3:
+      hourly_eur: 12.79
+      monthly_min_eur: 1939.82
+- match:
+    annexe: I
+    segment: EPL
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: Ouvriers prestations logistiques
+  coefficients:
+    110L:
+      gar_annual_eur: 22916.93
+      monthly_min_eur: 1909.74
+      hourly_eur: 11.91
+    115L:
+      gar_annual_eur: 23112.45
+      monthly_min_eur: 1926.04
+      hourly_eur: 11.91
+    120L:
+      gar_annual_eur: 23210.86
+      monthly_min_eur: 1934.24
+      hourly_eur: 11.92
+    125L:
+      gar_annual_eur: 23367.84
+      monthly_min_eur: 1947.32
+      hourly_eur: 11.95
+    138L:
+      gar_annual_eur: 23463.13
+      monthly_min_eur: 1955.26
+      hourly_eur: 11.98
+- match:
+    annexe: II
+    segment: TRM_AAT
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: Employés TRM/AAT
+  coefficients:
+    '105':
+      gar_annual_eur: 22664.41
+      monthly_min_eur: 1888.7
+      hourly_eur: 12.09
+    '110':
+      gar_annual_eur: 22664.41
+      monthly_min_eur: 1888.7
+      hourly_eur: 12.09
+    '115':
+      gar_annual_eur: 22664.41
+      monthly_min_eur: 1888.7
+      hourly_eur: 12.09
+    '120':
+      gar_annual_eur: 22664.41
+      monthly_min_eur: 1888.7
+      hourly_eur: 12.09
+    '125':
+      gar_annual_eur: 22683.16
+      monthly_min_eur: 1890.26
+      hourly_eur: 12.1
+    '132.5':
+      gar_annual_eur: 22720.65
+      monthly_min_eur: 1893.39
+      hourly_eur: 12.12
+    '140':
+      gar_annual_eur: 22776.89
+      monthly_min_eur: 1898.07
+      hourly_eur: 12.15
+    '148.5':
+      gar_annual_eur: 23301.79
+      monthly_min_eur: 1941.82
+      hourly_eur: 12.43
+- match:
+    annexe: II
+    segment: TRV
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: Employés TRV
+  coefficients:
+    '105':
+      monthly_min_eur: 1895.83
+      hourly_eur: 12.4997
+    '110':
+      monthly_min_eur: 1895.83
+      hourly_eur: 12.4997
+    '115':
+      monthly_min_eur: 1896.38
+      hourly_eur: 12.5033
+    '120':
+      monthly_min_eur: 1896.63
+      hourly_eur: 12.505
+    '125':
+      monthly_min_eur: 1896.83
+      hourly_eur: 12.5063
+    '132.5':
+      monthly_min_eur: 1915.02
+      hourly_eur: 12.6262
+    '140':
+      monthly_min_eur: 1932.26
+      hourly_eur: 12.7399
+    '148.5':
+      monthly_min_eur: 2050.06
+      hourly_eur: 13.5166
+- match:
+    annexe: II
+    segment: DEMENAGEMENT
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: Employés déménagement
+  coefficients:
+    2A_DEM:
+      hourly_eur: 11.89
+      monthly_min_eur: 1803.32
+    2B_DEM:
+      hourly_eur: 11.97
+      monthly_min_eur: 1815.45
+    2C_DEM:
+      hourly_eur: 12.29
+      monthly_min_eur: 1863.98
+    2D_DEM:
+      hourly_eur: 12.7
+      monthly_min_eur: 1926.17
+- match:
+    annexe: II
+    segment: EPL
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: Employés prestations logistiques
+  coefficients:
+    110L:
+      gar_annual_eur: 23326.58
+      monthly_min_eur: 1943.88
+      hourly_eur: 11.98
+    120L:
+      gar_annual_eur: 23463.48
+      monthly_min_eur: 1955.29
+      hourly_eur: 12.03
+- match:
+    annexe: III
+    segment: TRM_AAT
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: TAM TRM/AAT
+  coefficients:
+    '150':
+      gar_annual_eur: 23620.48
+      monthly_min_eur: 1968.37
+      hourly_eur: 12.6
+    '157.5':
+      gar_annual_eur: 23864.18
+      monthly_min_eur: 1988.68
+      hourly_eur: 12.73
+    '165':
+      gar_annual_eur: 25007.71
+      monthly_min_eur: 2083.98
+      hourly_eur: 13.34
+    '175':
+      gar_annual_eur: 26563.67
+      monthly_min_eur: 2213.64
+      hourly_eur: 14.17
+    '185':
+      gar_annual_eur: 28007.14
+      monthly_min_eur: 2333.93
+      hourly_eur: 14.94
+    '200':
+      gar_annual_eur: 30312.95
+      monthly_min_eur: 2526.08
+      hourly_eur: 16.17
+    '215':
+      gar_annual_eur: 32562.52
+      monthly_min_eur: 2713.54
+      hourly_eur: 17.37
+    '225':
+      gar_annual_eur: 34137.22
+      monthly_min_eur: 2844.77
+      hourly_eur: 18.21
+- match:
+    annexe: III
+    segment: TRV
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: TAM TRV
+  coefficients:
+    '150':
+      monthly_min_eur: 2071.25
+      hourly_eur: 13.6563
+    '157.5':
+      monthly_min_eur: 2174.27
+      hourly_eur: 14.3355
+    '165':
+      monthly_min_eur: 2278.58
+      hourly_eur: 15.0233
+    '175':
+      monthly_min_eur: 2417.57
+      hourly_eur: 15.6272
+    '185':
+      monthly_min_eur: 2553.53
+      hourly_eur: 16.8361
+    '200':
+      monthly_min_eur: 2760.41
+      hourly_eur: 18.2001
+    '215':
+      monthly_min_eur: 2967.27
+      hourly_eur: 19.564
+    '225':
+      monthly_min_eur: 3106.22
+      hourly_eur: 20.4801
+- match:
+    annexe: III
+    segment: DEMENAGEMENT
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: TAM déménagement
+  coefficients:
+    3A_DEM:
+      hourly_eur: 13.28
+      monthly_min_eur: 2014.13
+    3B_DEM:
+      hourly_eur: 14.02
+      monthly_min_eur: 2126.37
+    3C_DEM:
+      hourly_eur: 16.04
+      monthly_min_eur: 2432.73
+    3D_DEM:
+      hourly_eur: 18.07
+      monthly_min_eur: 2740.62
+- match:
+    annexe: III
+    segment: EPL
+    statut: null
+    weekly_hours: 35.0
+  meta:
+    label: TAM prestations logistiques
+  coefficients:
+    150L:
+      gar_annual_eur: 26227.38
+      monthly_min_eur: 2185.62
+      hourly_eur: 13.54
+    157.5L:
+      gar_annual_eur: 26391.83
+      monthly_min_eur: 2199.32
+      hourly_eur: 13.64
+    165L:
+      gar_annual_eur: 27405.83
+      monthly_min_eur: 2283.82
+      hourly_eur: 14.15
+    200L:
+      gar_annual_eur: 32316.3
+      monthly_min_eur: 2693.03
+      hourly_eur: 16.76
+- match:
+    annexe: IV
+    segment: TRM_AAT
+    statut: null
+    weekly_hours: null
+  meta:
+    label: Cadres TRM/AAT
+  coefficients:
+    '100':
+      monthly_min_eur: 2621.8
+    '106.5':
+      monthly_min_eur: 2791.96
+    '113':
+      monthly_min_eur: 2962.15
+    '119':
+      monthly_min_eur: 3119.15
+    '132':
+      monthly_min_eur: 3459.5
+    '145':
+      monthly_min_eur: 3799.85
+- match:
+    annexe: IV
+    segment: TRV
+    statut: null
+    weekly_hours: null
+  meta:
+    label: Cadres TRV (synthèse)
+  coefficients:
+    '100':
+      monthly_min_eur: 2878.92
+    '106':
+      monthly_min_eur: 3045.53
+    '113':
+      monthly_min_eur: 3212.17
+    '119':
+      monthly_min_eur: 3378.76
+    '126':
+      monthly_min_eur: 3556.36
+    '132':
+      monthly_min_eur: 3723.0
+- match:
+    annexe: IV
+    segment: DEMENAGEMENT
+    statut: null
+    weekly_hours: null
+  meta:
+    label: Cadres déménagement (embauche)
+  coefficients:
+    4A_DEM:
+      monthly_min_eur: 3835.11
+    4B_DEM:
+      monthly_min_eur: 4094.88
+    4C_DEM:
+      monthly_min_eur: 4413.99
+- match:
+    annexe: IV
+    segment: EPL
+    statut: null
+    weekly_hours: null
+  meta:
+    label: Cadres prestations logistiques
+  coefficients:
+    100L:
+      monthly_min_eur: 3041.04
+    106.5L:
+      monthly_min_eur: 3239.47
+    113L:
+      monthly_min_eur: 3436.42
+    119L:
+      monthly_min_eur: 3593.69
+    132L:
+      monthly_min_eur: 4015.8

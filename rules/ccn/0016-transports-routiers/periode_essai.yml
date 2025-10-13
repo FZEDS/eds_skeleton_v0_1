@@ -2,15 +2,57 @@ meta:
   idcc: 16
   theme: "periode_essai"
   source:
-    label: "Période d’essai — CCN 0016 (Annexes I à IV)"
+    article: "Périodes d’essai par catégorie — Convention TR"
     url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624"
-  notes:
-    - "Squelette: à compléter par annexe/groupe si la CCN diffère du Code. À défaut, le moteur retient l’ordre public (Code)."
 
-rules: []
+rules:
+  # Ouvriers (Annexe I)
+  - key: "ouvriers_roulants"
+    annexe: "I"
+    statut: "roulant"
+    category: "non-cadre"
+    bounds: { max_months: 1,   max_total_months: 1 }
+    renewal_allowed: false
+    source_ref: "Annexe I — Ouvriers roulants : 1 mois non renouvelable"
 
-defaults:
-  fallback:
-    non-cadre: { max_months: 2, max_total_months: 4 }
-    cadre: { max_months: 4, max_total_months: 8 }
+  - key: "ouvriers_sedentaires"
+    annexe: "I"
+    statut: "sedentaire"
+    category: "non-cadre"
+    bounds: { max_months: 0.5, max_total_months: 0.5 }  # ~ 2 semaines
+    renewal_allowed: false
+    source_ref: "Annexe I — Ouvriers sédentaires : 2 semaines non renouvelable"
+
+  # Employés (Annexe II)
+  - key: "employes"
+    annexe: "II"
+    category: "non-cadre"
+    bounds: { max_months: 1,   max_total_months: 1 }
+    renewal_allowed: false
+    source_ref: "Annexe II — Employés : 1 mois non renouvelable"
+
+  # Techniciens & Agents de maîtrise (Annexe III)
+  # Groupes 1 à 5 : 1 mois, renouvelable une fois (total 2 mois)
+  - key: "tam_1_5"
+    annexe: "III"
+    category: "non-cadre"
+    bounds: { max_months: 1,   max_total_months: 2 }
+    renewal_allowed: true
+    source_ref: "Annexe III — TAM (groupes 1–5) : 1 mois (renouvelable)"
+
+  # Groupes 6 à 8 : 2 mois, renouvelable une fois (total 3 mois)
+  - key: "tam_6_8"
+    annexe: "III"
+    category: "non-cadre"
+    bounds: { max_months: 2,   max_total_months: 3 }
+    renewal_allowed: true
+    source_ref: "Annexe III — TAM (groupes 6–8) : 2 mois (renouvelable)"
+
+  # Cadres (Annexe IV)
+  - key: "cadres"
+    annexe: "IV"
+    category: "cadre"
+    bounds: { max_months: 3,   max_total_months: 6 }
+    renewal_allowed: true
+    source_ref: "Annexe IV — Cadres : 3 mois (renouvelable, cumulé 6 mois)"
 
