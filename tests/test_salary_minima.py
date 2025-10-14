@@ -77,3 +77,21 @@ def test_salary_min_0016_trm_roulant_equiv_169():
         as_of="2025-05-01",
     )
     assert round(minima["monthly_min_eur"], 2) == 2167.35
+
+
+def test_salary_min_0016_trm_roulant_longue_distance_43h():
+    # CCN 0016 — Ouvriers TRM/AAT roulants (longue distance 43h), coefficient 115M
+    # GAR mensuel (200h) à l'embauche = 2 683,56 €
+    minima, rule, _ = compute_salary_minimum(
+        idcc=16,
+        categorie="non-cadre",
+        coeff=None,
+        work_time_mode="standard",
+        weekly_hours=43,
+        classification_level="Ouvrier 115M",
+        annexe="I",
+        segment="TRM_AAT",
+        statut="roulant",
+        as_of="2025-05-01",
+    )
+    assert round(minima["monthly_min_eur"], 2) == 2683.56

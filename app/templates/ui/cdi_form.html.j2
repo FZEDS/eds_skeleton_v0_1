@@ -467,6 +467,12 @@
   }
 
   function renderExplain(explainItems){
+    // Toujours nettoyer les slots Step 5 avant d'afficher de nouveaux hints
+    [
+      '#slot_step5_header', '#worktime_card', '#fh_card', '#fd_guard', '#fd_info', '#m2_card', '#mod_card',
+      '#pt_header', '#pt_fixed_card', '#pt_flex_card', '#pt_coupures_card', '#pt_modif_card'
+    ].forEach(sel=> clearSlot(sel));
+
     if(!Array.isArray(explainItems) || explainItems.length===0) return;
 
     const bySlot = new Map();
@@ -965,8 +971,90 @@
             selectedClauses.add('work_program_prevenance_1501');
           }
         }
+        // 0016 — TRV : services discontinus (clause dédiée)
+        try{
+          const ctx = (window.EDS_CTX || {});
+          if (idcc === 16 && String(ctx.segment||'').toUpperCase() === 'TRV'){
+            const hasDisc = items.some(it => it.key === 'trv_discontinuous_service');
+            if (hasDisc && !selectedClauses.has('trv_discontinuous_service')){
+              selectedClauses.add('trv_discontinuous_service');
+            }
+            // 39h + RTT → ajouter clause d’égalisation RTT si présente
+            const mode = document.querySelector('input[name="trv_fulltime_mode"]:checked')?.value || (ctx.trv_fulltime_mode || '');
+            const hasRtt = items.some(it => it.key === 'trv_rtt_equalization');
+            if (String(mode).toLowerCase() === '39rtt'){
+              if (hasRtt && !selectedClauses.has('trv_rtt_equalization')){
+                selectedClauses.add('trv_rtt_equalization');
+                // Pré-remplir les paramètres si on a une valeur à l’étape 5
+                try{
+                  const days = document.getElementById('trv_rtt_days_per_year')?.value || '';
+                  const ref  = document.getElementById('trv_ref_desc')?.value || '';
+                  if (days || ref){
+                    clauseParamsByKey['trv_rtt_equalization'] = {
+                      rtt_days_per_year: days ? parseInt(days, 10) : null,
+                      ref_desc: ref,
+                    };
+                  }
+                }catch(_){ }
+              }
+            } else {
+              if (selectedClauses.has('trv_rtt_equalization')) selectedClauses.delete('trv_rtt_equalization');
+            }
+            // TRV modulation → clause dédiée si présente
+            const hasMod = items.some(it => it.key === 'trv_modulation');
+            if ((document.getElementById('wt_mod')?.checked) && hasMod){
+              selectedClauses.add('trv_modulation');
+              try{
+                const a = document.getElementById('mod_annual_hours_max')?.value || '';
+                const w = document.getElementById('mod_weekly_hours_cap')?.value || '';
+                const r = document.getElementById('mod_ref_desc')?.value || '';
+                clauseParamsByKey['trv_modulation'] = {
+                  annual_hours_max: a ? parseInt(a,10) : null,
+                  weekly_hours_cap: w ? parseFloat(w) : null,
+                  ref_desc: r,
+                };
+              }catch(_){ }
+            }
+          }
+          // Sanitaire modulation → clause dédiée
+          if (idcc === 16 && String(ctx.segment||'').toUpperCase() === 'SANITAIRE'){
+            const hasSM = items.some(it => it.key === 'sanitary_modulation');
+            if ((document.getElementById('wt_mod')?.checked) && hasSM){
+              selectedClauses.add('sanitary_modulation');
+              try{
+                const a = document.getElementById('mod_annual_hours_max')?.value || '';
+                const w = document.getElementById('mod_weekly_hours_cap')?.value || '';
+                const r = document.getElementById('mod_ref_desc')?.value || '';
+                clauseParamsByKey['sanitary_modulation'] = {
+                  annual_hours_max: a ? parseInt(a,10) : 1600,
+                  weekly_hours_cap: w ? parseFloat(w) : 42,
+                  ref_desc: r,
+                };
+              }catch(_){ }
+            }
+          }
+          // Déménagement modulation → clause dédiée
+          if (idcc === 16 && String(ctx.segment||'').toUpperCase() === 'DEMENAGEMENT'){
+            const hasDM = items.some(it => it.key === 'dem_modulation');
+            if ((document.getElementById('wt_mod')?.checked) && hasDM){
+              selectedClauses.add('dem_modulation');
+              try{
+                const a = document.getElementById('mod_annual_hours_max')?.value || '';
+                const w = document.getElementById('mod_weekly_hours_cap')?.value || '';
+                const r = document.getElementById('mod_ref_desc')?.value || '';
+                clauseParamsByKey['dem_modulation'] = {
+                  annual_hours_max: a ? parseInt(a,10) : 1600,
+                  weekly_hours_cap: w ? parseFloat(w) : null,
+                  ref_desc: r,
+                };
+              }catch(_){ }
+            }
+          }
+        }catch(_){ /* silent */ }
       }catch(_){ /* silent */ }
       renderClausesCatalog(items);
+      // S'assurer que les auto-sélections/params sont persistés
+      try{ serializeClauses(); }catch(_){ }
     }catch(e){
       if (window.EDS_DEBUG) console.warn('clauses catalog failed', e);
       renderClausesCatalog([]);
@@ -1036,6 +1124,12 @@
 
     // flag d'aperçu
     fd.append('preview', '1');
+
+    // Dimensions de classification et modes complémentaires (TRV)
+    try{
+      const ctx = (window.EDS_CTX || {});
+      if (ctx.trv_fulltime_mode) fd.append('trv_fulltime_mode', String(ctx.trv_fulltime_mode));
+    }catch(_){ }
 
     // Overlay
     const overlay = $('#overlay');
@@ -1362,9 +1456,8 @@
     if (i === 7 && window.EDS_PREAVIS?.refresh) window.EDS_PREAVIS.refresh();
 
     if (i === 8) { // Step 9 (index 8)
-      if (!document.getElementById('clauses_catalog')?.hasChildNodes()) {
-        refreshClausesCatalog();
-      }
+      // Toujours recharger le catalogue de clauses pour coller au contexte CCN
+      refreshClausesCatalog();
       renderCustomClauses();
       serializeClauses();
     }
@@ -1581,7 +1674,7 @@
     // Dimensions de classification (CCN 0016 etc.) maintenues en mémoire (EDS_CTX)
     try{
       const ctx = (window.EDS_CTX || {});
-      [ 'annexe', 'segment', 'statut', 'coeff_key' ].forEach((k)=>{
+      [ 'annexe', 'segment', 'statut', 'coeff_key', 'trv_fulltime_mode' ].forEach((k)=>{
         const v = ctx[k];
         if (v != null && String(v).trim() !== ''){
           const h = document.createElement('input');

@@ -25,6 +25,7 @@
     const wt = getUiWorkTimeRaw();
     const regime = document.querySelector('input[name="work_time_regime"]:checked')?.value || 'temps_complet';
     if (wt === 'standard_35h') return (regime === 'temps_partiel') ? 'part_time' : 'standard';
+    if (wt === 'trv_70q' || wt === 'trv_39rtt' || wt === 'san_39rtt' || wt === 'dem_39rtt') return 'standard';
     if (wt === 'modalite_2')   return 'forfait_hours_mod2';
     return wt; // 'forfait_hours' | 'forfait_days'
   }

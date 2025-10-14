@@ -59,14 +59,26 @@ def _merge_catalogs(base: Dict[str, Any], override: Dict[str, Any]) -> Dict[str,
 
 
 def _find_ccn_dir(idcc: Optional[int]) -> Optional[Path]:
+    """Trouve le dossier CCN par ID, en tolérant les zéros non significatifs.
+    Accepte par ex.: 1486, '1486-syntec', '0016-transports-routiers'.
+    """
     if not idcc:
         return None
     root = RULES_DIR / "ccn"
     if not root.exists():
         return None
+    sid = str(idcc)
+    sid_nz = sid.lstrip('0') or '0'
     for d in root.iterdir():
-        if d.is_dir() and str(d.name).split("-")[0] == str(idcc):
+        if not d.is_dir():
+            continue
+        prefix = str(d.name).split('-')[0]
+        # Match strict ou en supprimant les zéros non significatifs
+        if prefix == sid:
             return d
+        if prefix.lstrip('0') or '0':
+            if (prefix.lstrip('0') or '0') == sid_nz:
+                return d
     return None
 
 

@@ -140,12 +140,12 @@ Taux horaire des ouvriers roulants et sédentaires (en euros) au 1er décembre 2
 
 A tire informatif, en ce qui concerne le travail de nuit , les compensations à retenir sont les suivantes :
 
-| Coefficient                    | Pourcentage à appliquer au  taux conventionnel à l'embauche     |
-|--------------------------------|-----------------------------------------------------------------|
-| 110M  -  115M  -  118M  - 120M | 20,5743%                                                        |
-| 128M                           | 20,5133%                                                        |
-| 138 M                          | 20,4729%                                                        |
-| 150M                           | 20,0000%                                                        |
+| Coefficient             | Pourcentage à appliquer au  taux conventionnel à l'embauche     |
+|-------------------------|-----------------------------------------------------------------|
+| 110M -115M- 118M - 120M | 20,5743%                                                        |
+| 128M                    | 20,5133%                                                        |
+| 138 M                   | 20 4729%                                                        |
+| 150M                    | 20,0000%                                                        |
 
 - Accord de révision du 20 septembre 2019 relatif à la transposition du protocole d'accord du 4 octobre 2017, étendu par arrêté du 8 juin 2023 (JORF n°0150 du 30 juin 2023)
 
@@ -171,10 +171,23 @@ Garantie annuelle de rémunération (GAR) des ouvriers roulants (en euros) au 1e
 | 169 heures                | 128 M                 | 25 965,39           |
 | 169 heures                | 138 M                 | 26 008,24           |
 | 169 heures                | 150 M                 | 26 629,52           |
+
+TRM – Longue distance (43 h) – GAR mensuels (200 h)
+
 | 200 heures                | 115 M -118 M - 120 M  | 32 202,68           |
 | 200 heures                | 128 M                 | 32 282,59           |
 | 200 heures                | 138 M                 | 32 335,86           |
 | 200 heures                | 150 M                 | 33 108,30           |
+
+TRM – Longue distance (43 h) – GAR mensuels (200 h)
+
+| Coef.                  |   À l’embauche |    + 2 ans |    + 5 ans |   + 10 ans |   + 15 ans |
+| ---------------------- | -------------: | ---------: | ---------: | ---------: | ---------: |
+| 115M / 118M / 120M     | 2 683,56 €     | 2 737,23 € | 2 790,90 € | 2 844,57 € | 2 898,24 € |
+| 128M                   | 2 690,22 €     | 2 744,02 € | 2 797,82 € | 2 851,63 € | 2 905,43 € |
+| 138M                   | 2 694,66 €     | 2 748,55 € | 2 802,44 € | 2 856,33 € | 2 910,23 € |
+| 150M                   | 2 759,03 €     | 2 814,21 € | 2 869,39 € | 2 924,57 € | 2 979,75 € |
+
 
 - Accord du 11 octobre 2023 relatif à la revalorisation des rémunérations, étendu par arrêté du 19 décembre 2023 (JORF n°0296 du 22 décembre 2023)
 
@@ -182,22 +195,22 @@ Garantie annuelle de rémunération (GAR) des ouvriers roulants (en euros) au 1e
 
 Ouvriers (base 151,67 heures) :
 
-| Groupe | Coefficient| Taux horaire  au 1er  février 2025| Salaires mensuels au 1er février 2025 |
-|--------|------------|-----------------------------------|---------------------------------------|
-| 2      | 110V       | 12,2675                           | 1 860,61                              |
-| 3      | 115V       | 12,2675                           | 1 860,61                              |
-| 4      | 120V       | 12,2675                           | 1 860,61                              |
-| 5      | 123V       | 12,2675                           | 1 860,61                              |
-| 6      | 128V       | 12,2675                           | 1 860,61                              |
-| 7      | 131 V      | 12,4540                           | 1 888,90                              |
-| 7      | 136 V      | 12,5608                           | 1 905,10                              |
-| 7bis   | 137 V      | 12,6009                           | 1 911,18                              |
-| 8      | 138 V      | 12,9513                           | 1 964,32                              |
-| 9      | 140 V      | 13,0460                           | 1 978,69                              |
-| 9      | 142 V      | 13,1765                           | 1 998,48                              |
-| 9bis   | 145 V      | 13,3159                           | 2 019,62                              |
-| 10     | 150 V      | 13,6394                           | 2 068,69                              |
-| 10     | 155 V      | 14,3229                           | 2 172,35                              |
+| Groupe | Coef      | Taux horaire  au 1er  février 2025| Salaires mensuels au 1er fév 2025|
+|--------|-----------|-----------------------------------|----------------------------------|
+| 2      | 110V      | 12,2675                           | 1 860,61                         |
+| 3      | 115V      | 12,2675                           | 1 860,61                         |
+| 4      | 120V      | 12,2675                           | 1 860,61                         |
+| 5      | 123V      | 12,2675                           | 1 860,61                         |
+| 6      | 128V      | 12,2675                           | 1 860,61                         |
+| 7      | 131 V     | 12,4540                           | 1 888,90                         |
+| 7      | 136 V     | 12,5608                           | 1 905,10                         |
+| 7bis   | 137 V     | 12,6009                           | 1 911,18                         |
+| 8      | 138 V     | 12,9513                           | 1 964,32                         |
+| 9      | 140 V     | 13,0460                           | 1 978,69                         |
+| 9      | 142 V     | 13,1765                           | 1 998,48                         |
+| 9bis   | 145 V     | 13,3159                           | 2 019,62                         |
+| 10     | 150 V     | 13,6394                           | 2 068,69                         |
+| 10     | 155 V     | 14,3229                           | 2 172,35                         |
 
 Le tableau ci-dessus est majoré le cas échéant :
 

@@ -52,8 +52,9 @@
     const reg = getRegime();
     if (!raw) return null;
     if (raw === 'standard_35h') return (reg === 'temps_partiel') ? 'part_time' : 'standard';
+    if (raw === 'trv_70q' || raw === 'trv_39rtt' || raw === 'san_39rtt' || raw === 'dem_39rtt') return 'standard';
     if (raw === 'modalite_2')   return 'forfait_hours_mod2';
-    return raw; // 'forfait_hours' | 'forfait_days'
+    return raw; // 'forfait_hours' | 'forfait_days' | 'modulation'
   }
 
   // ---------- Standard temps complet par CCN/contexte ----------
@@ -63,9 +64,26 @@
       const ctx = (window.EDS_CTX || {});
       const seg = String(ctx.segment||'').trim().toUpperCase();
       const st  = String(ctx.statut ||'').trim().toUpperCase();
+      const trvMode = String(ctx.trv_fulltime_mode || '').trim().toLowerCase();
+      const trmKind = String(ctx.trm_service_kind || '').trim().toLowerCase();
+      const uiMode = getUiModeRaw() || '';
       // CCN 0016 — roulants TRM/TRV : équivalence ≈ 39h/sem (durée "normale" sans surcoût)
-      if (idcc === 16 && st === 'ROULANT' && (seg === 'TRM_AAT' || seg === 'TRV')){
-        return 39;
+      if (idcc === 16){
+        if (seg === 'TRV'){
+          // Organisation TRV : 35h, 70h/quinzaine (≈35), 39h+RTT
+          if (trvMode === '39rtt' || uiMode === 'trv_39rtt') return 39;
+          return 35;
+        }
+        // SAN/DEM : 39h + RTT (affichage standard gelé à 39)
+        if (uiMode === 'san_39rtt' || uiMode === 'dem_39rtt'){
+          return 39;
+        }
+        if (st === 'ROULANT' && (seg === 'TRM_AAT')){
+          // TRM roulants : 43 / 39 / 35 selon activité
+          if (trmKind === 'longue_distance') return 43;
+          if (trmKind === 'messagerie_fonds') return 35;
+          return 39; // défaut : autres roulants (39 h)
+        }
       }
     }catch(_){ /* ignore */ }
     return 35;
@@ -88,7 +106,35 @@
       const hint = $('#pt_floor_hint'); if (hint) hint.style.display = 'none';
     }
     const lbl = document.querySelector('label[for="wt_35"]');
-    if (lbl){ lbl.textContent = `${h} heures par semaine`; }
+    if (lbl){
+      // Ajout d’un libellé contextualisé pour TRV
+      let suffix = '';
+      try{
+        const idcc = getIdcc();
+        const ctx = (window.EDS_CTX || {});
+        const seg = String(ctx.segment||'').trim().toUpperCase();
+        const trvMode = String(ctx.trv_fulltime_mode || '').trim().toLowerCase();
+        if (idcc === 16 && seg === 'TRV'){
+          if (trvMode === '39rtt') suffix = ' (TRV — 39 h + RTT)';
+          else suffix = ' (TRV — 35 h / 70 h quinzaine)';
+        }
+      }catch(_){ /* ignore */ }
+      lbl.textContent = `${h} heures par semaine${suffix}`;
+    }
+  }
+
+  function setStdFulltimeDefaultsForSegment(){
+    const std = $('#weekly_hours_std');
+    if (!std) return;
+    const h = computeStdFulltimeHours();
+    setStdHoursUnit('week');
+    std.setAttribute('readonly','');
+    std.min = String(h);
+    std.max = String(h);
+    std.value = String(h);
+    const err = ensureErrNode('std_err', std.parentElement);
+    clearError(std, err);
+    const hint = $('#pt_floor_hint'); if (hint) hint.style.display = 'none';
   }
 
   // ---------- Unité / nommage (hebdo ↔ mensuel) ----------
@@ -316,6 +362,7 @@
     setModeOptionVisible('forfait_days', !(wm.forfait_days === false));
     setModeOptionVisible('forfait_hours', !(wm.forfait_hours === false));
     setModeOptionVisible('forfait_hours_mod2', !(wm.forfait_hours_mod2 === false));
+    setModeOptionVisible('modulation', !(wm.modulation === false));
 
     // Si l’option choisie vient d’être masquée -> rebascule sur 35h
     const selected = step?.querySelector('input[name="work_time_mode"]:checked');
@@ -796,6 +843,16 @@
       }
     }
 
+    // Modulation: proposer des valeurs issues des bornes CCN si exposées
+    if (mode==='modulation'){
+      const a = document.getElementById('mod_annual_hours_max');
+      const w = document.getElementById('mod_weekly_hours_cap');
+      const annual = lastBounds.annual_hours_max;
+      const weekly = lastBounds.weekly_hours_max;
+      if (a && annual!=null && !a.value) a.placeholder = String(annual);
+      if (w && weekly!=null && !w.value) w.placeholder = String(weekly);
+    }
+
     // Bornes + revalidations
     const std = $('#weekly_hours_std');
     if ((mode==='standard' || mode==='part_time') && std){
@@ -1127,32 +1184,112 @@
     const reg = getRegime();
 
     // Affiche le sous‑bloc correspondant
-    show('#blk_standard',      m === 'standard_35h');
+    show('#blk_standard',      (m === 'standard_35h' || m === 'trv_70q' || m === 'trv_39rtt' || m === 'san_39rtt' || m === 'dem_39rtt'));
     show('#blk_forfait_hours', m === 'forfait_hours');
     show('#blk_forfait_days',  m === 'forfait_days');
     show('#blk_modalite_2',    m === 'modalite_2');
 
     // Harmonise le champ standard
     const std = $('#weekly_hours_std');
-    if (std && m === 'standard_35h'){
-      if (reg === 'temps_complet'){
-        applyStdFulltimeDefaults();
-      } else {
-        // temps partiel + "35h" coché côté UI → champ éditable
-        setStdHoursUnit( isPartTimeMonthly() ? 'month' : 'week' );
-        std.removeAttribute('readonly');
-        std.min = '1';
-        std.max = isPartTimeMonthly() ? String(round1((lastBounds?.weekly_hours_max ?? 34.9) * (52/12))) : '34.9';
-        if (std.value === '35') std.value = ''; // au cas où on venait de TC→TP
-        const err = ensureErrNode('std_err', std.parentElement);
-        clearError(std, err);
-        const hint = $('#pt_floor_hint'); if (hint) hint.style.display = 'none';
+    if (std){
+      if (m === 'standard_35h'){
+        if (reg === 'temps_complet'){
+          applyStdFulltimeDefaults();
+        } else {
+          // temps partiel + "35h" coché côté UI → champ éditable
+          setStdHoursUnit( isPartTimeMonthly() ? 'month' : 'week' );
+          std.removeAttribute('readonly');
+          std.min = '1';
+          std.max = isPartTimeMonthly() ? String(round1((lastBounds?.weekly_hours_max ?? 34.9) * (52/12))) : '34.9';
+          if (std.value === '35') std.value = ''; // au cas où on venait de TC→TP
+          const err = ensureErrNode('std_err', std.parentElement);
+          clearError(std, err);
+          const hint = $('#pt_floor_hint'); if (hint) hint.style.display = 'none';
+        }
+      } else if (m === 'trv_70q' || m === 'trv_39rtt' || m === 'san_39rtt' || m === 'dem_39rtt'){
+        // Modes segmentés — afficher la référence hebdo calculée et la geler
+        setStdFulltimeDefaultsForSegment();
       }
     }
+
+    // Afficher/masquer les options segmentées (TRV / SANITAIRE / DEMENAGEMENT)
+    try{
+      const idcc = getIdcc();
+      const ctx = (window.EDS_CTX || {});
+      const seg = String(ctx.segment||'').trim().toUpperCase();
+      const isTC = (reg === 'temps_complet');
+      // TRV: 70h quinzaine et 39h+RTT
+      const rowTrv70 = document.getElementById('row_wt_trv_70q');
+      const rowTrv39 = document.getElementById('row_wt_trv_39rtt');
+      const showTRV = (idcc === 16 && isTC && seg === 'TRV');
+      if (rowTrv70) rowTrv70.style.display = showTRV ? '' : 'none';
+      if (rowTrv39) rowTrv39.style.display = showTRV ? '' : 'none';
+      // SANITAIRE: 39h+RTT
+      const rowSan39 = document.getElementById('row_wt_san_39rtt');
+      const showSAN = (idcc === 16 && isTC && seg === 'SANITAIRE');
+      if (rowSan39) rowSan39.style.display = showSAN ? '' : 'none';
+      // DEMENAGEMENT: 39h+RTT
+      const rowDem39 = document.getElementById('row_wt_dem_39rtt');
+      const showDEM = (idcc === 16 && isTC && seg === 'DEMENAGEMENT');
+      if (rowDem39) rowDem39.style.display = showDEM ? '' : 'none';
+      // Si la sélection en cours est masquée, rebascule sur 35h standard
+      const sel = document.querySelector('input[name="work_time_mode"]:checked');
+      if (sel){
+        const wrap = sel.closest('.radio');
+        if (wrap && getComputedStyle(wrap).display === 'none'){
+          const fallback = document.getElementById('wt_35');
+          if (fallback){ fallback.checked = true; }
+        }
+      }
+    }catch(_){ }
 
     // Recharges / validations
     refreshFromApi();
     validatePartTimeRequired();
+
+    // Afficher l'organisation TRV (temps complet) : on montre uniquement les champs JRTT si 39rtt
+    try{
+      const idcc = getIdcc();
+      const ctx = (window.EDS_CTX || {});
+      const seg = String(ctx.segment||'').trim().toUpperCase();
+      const trvBlock = document.getElementById('trv_org_block');
+      const trmBlock = document.getElementById('trm_org_block');
+      if (trvBlock){
+        const isTRVTC = (idcc === 16 && reg === 'temps_complet' && seg === 'TRV');
+        const rttBox = document.getElementById('trv_rtt_fields');
+        // Affiche uniquement les champs RTT si le mode sélectionné est 39rtt
+        const showRtt = isTRVTC && (m === 'trv_39rtt');
+        if (showRtt){
+          trvBlock.style.display = '';
+          // masquer titre / liste de radios internes
+          const header = trvBlock.querySelector('h4'); if (header) header.style.display = 'none';
+          const hint   = trvBlock.querySelector('.muted'); if (hint) hint.style.display = 'none';
+          const vlist  = trvBlock.querySelector('.vlist'); if (vlist) vlist.style.display = 'none';
+          if (rttBox) rttBox.style.display = '';
+          // S'assurer que le contexte reflète ce choix
+          window.EDS_CTX.trv_fulltime_mode = '39rtt';
+        } else {
+          if (rttBox) rttBox.style.display = 'none';
+          trvBlock.style.display = 'none';
+          // Si standard 35h sélectionné, on met le contexte par défaut
+          if (isTRVTC){
+            if (m === 'standard_35h') window.EDS_CTX.trv_fulltime_mode = '35h';
+            else if (m === 'trv_70q') window.EDS_CTX.trv_fulltime_mode = '70q';
+          }
+        }
+      }
+      if (trmBlock){
+        const st = String(ctx.statut||'').trim().toUpperCase();
+        // Toujours visible pour TRM_AAT roulants en temps complet, quel que soit le mode (standard/forfait...)
+        const visibleTrm = (idcc === 16 && reg === 'temps_complet' && seg === 'TRM_AAT' && st === 'ROULANT');
+        trmBlock.style.display = visibleTrm ? '' : 'none';
+        if (visibleTrm){
+          // valeur par défaut si rien choisi: 39 h (autres roulants)
+          const any = !!document.querySelector('input[name="trm_service_kind"]:checked');
+          if (!any){ const def = document.getElementById('trm_kind_39'); def && (def.checked = true); window.EDS_CTX.trm_service_kind = 'autres_roulants'; }
+        }
+      }
+    }catch(_){ }
 
     // Notifie le reste de l'appli
     document.dispatchEvent(new CustomEvent('eds:worktime_changed'));
@@ -1171,17 +1308,50 @@
     step = document.querySelector('.step[data-step="5"]');
     if (!step) return;
     _inited = true;
-    // Recalcule quand le contexte demandé par le backend a été collecté
-    document.addEventListener('eds:ctx_updated', ()=>{ refreshZoomByCategory(); applyStdFulltimeDefaults(); }, false);
+    // Recalcule quand le contexte (classification) change
+    document.addEventListener('eds:ctx_updated', ()=>{
+      try{
+        // MàJ des hints et blocs (TRM/TRV) + valeur standard
+        refreshZoomByCategory();
+        onModeChange();
+        applyStdFulltimeDefaults();
+        updateStdMinMaxForCurrentUnit();
+      }catch(e){ console.warn('EDS worktime: ctx listener failed', e); }
+    }, false);
 
     // Écouteurs directs
     $$('#reg_full, #reg_part').forEach(r => on(r, 'change', onRegimeChange));
-    $$('#wt_35, #wt_fh_pay, #wt_fh_repos, #wt_fd, #wt_m2').forEach(r => on(r, 'change', onModeChange));
+    $$('#wt_35, #wt_fh_pay, #wt_fh_repos, #wt_fd, #wt_m2, #wt_mod').forEach(r => on(r, 'change', onModeChange));
 
     on($('#weekly_hours_std'), 'input', ()=>{ validateStandard(); maybeShowPartTimeFloorHint(); validatePartTimeRequired(); document.dispatchEvent(new CustomEvent('eds:worktime_changed')); });
     on($('#weekly_hours_fh'), 'input',  ()=>{ validateFH();      document.dispatchEvent(new CustomEvent('eds:worktime_changed')); });
     on($('#weekly_hours_m2'), 'input',  ()=>{ validateM2();      document.dispatchEvent(new CustomEvent('eds:worktime_changed')); });
     on($('#forfait_days_per_year'), 'input', ()=>{ validateFJ(); document.dispatchEvent(new CustomEvent('eds:worktime_changed')); });
+
+    // TRV — organisation temps complet
+    ['trv_org_35','trv_org_70q','trv_org_39rtt'].forEach(id=>{
+      on(document.getElementById(id), 'change', ()=>{
+        const v = document.querySelector('input[name="trv_fulltime_mode"]:checked')?.value || '35h';
+        window.EDS_CTX = window.EDS_CTX || {};
+        window.EDS_CTX.trv_fulltime_mode = v;
+        // Toggle champs RTT
+        const rttBox = document.getElementById('trv_rtt_fields');
+        if (rttBox) rttBox.style.display = (v === '39rtt') ? '' : 'none';
+        applyStdFulltimeDefaults();
+        document.dispatchEvent(new CustomEvent('eds:worktime_changed'));
+      });
+    });
+
+    // TRM — roulants : service kind
+    ['trm_kind_43','trm_kind_39','trm_kind_35'].forEach(id=>{
+      on(document.getElementById(id), 'change', ()=>{
+        const v = document.querySelector('input[name="trm_service_kind"]:checked')?.value || 'autres_roulants';
+        window.EDS_CTX = window.EDS_CTX || {};
+        window.EDS_CTX.trm_service_kind = v;
+        applyStdFulltimeDefaults();
+        document.dispatchEvent(new CustomEvent('eds:worktime_changed'));
+      });
+    });
 
     // Délégation de secours
     on(step, 'change', (e)=>{
@@ -1189,6 +1359,7 @@
       if (!t) return;
       if (t.name === 'work_time_regime') onRegimeChange();
       if (t.name === 'work_time_mode')   onModeChange();
+      if (t.name === 'trv_fulltime_mode') onModeChange();
 
       // Hebdo (jours)
       if (t.id && /^pt_(mon|tue|wed|thu|fri|sat|sun)_(on|hours)$/.test(t.id)){
@@ -1245,6 +1416,7 @@
 
     // Bascule initiale du label (au cas où l'état serait restauré)
     setStdHoursUnit( isPartTimeMonthly() ? 'month' : 'week' );
+    applyStdFulltimeDefaults();
 
     // Zoom & bandeaux visibles dès l’arrivée
     updateZoomSummary();

@@ -173,6 +173,9 @@ def _map_worktime_mode_ui_to_api(wt_ui: Optional[str]) -> str:
         return "standard"
     if wt == "modalite_2":
         return "forfait_hours_mod2"
+    # CCN 0016 — modes TRV/SAN/DEM mappés sur 'standard' côté API
+    if wt in {"trv_70q", "trv_39rtt", "san_39rtt", "dem_39rtt"}:
+        return "standard"
     return wt
 
 def _call_resolver(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
@@ -779,6 +782,16 @@ async def cdi_generate(
     work_time_regime: str = Form(...),
     work_time_mode: Optional[str] = Form(None),   
     part_time_payload: Optional[str] = Form(None),
+    # TRV — organisation temps complet
+    trv_fulltime_mode: Optional[str] = Form(None),
+    trv_rtt_days_per_year: Optional[int] = Form(None),
+    trv_ref_desc: Optional[str] = Form(None),
+    # TRM — roulants (temps de service de référence)
+    trm_service_kind: Optional[str] = Form(None),
+    # Modulation (cadre annuel)
+    mod_annual_hours_max: Optional[int] = Form(None),
+    mod_weekly_hours_cap: Optional[float] = Form(None),
+    mod_ref_desc: Optional[str] = Form(None),
 
     weekly_hours: Optional[float] = Form(None),
     schedule_info: Optional[str] = Form(None),
@@ -991,12 +1004,20 @@ async def cdi_generate(
     if (work_time_regime or "").lower() == "temps_partiel" and wt_api == "standard":
         wt_api = "part_time"
 
+    # Rémunération: pour TRV temps complet en standard, les minimas restent sur 35h (151,67 h/mois)
+    _sal_weekly = weekly_hours
+    try:
+        if idcc == 16 and str(segment or '').strip().upper() == 'TRV' and (work_time_regime or '').lower() == 'temps_complet' and wt_api == 'standard':
+            _sal_weekly = 35.0
+    except Exception:
+        _sal_weekly = weekly_hours
+
     sal_ctx = {
         "idcc": idcc,
         "categorie": categorie,
         "coeff": coeff,
         "work_time_mode": wt_api,
-        "weekly_hours": weekly_hours,
+        "weekly_hours": _sal_weekly,
         "forfait_days_per_year": forfait_days_per_year,
         "classification_level": classification_level,
         "coeff_key": coeff_key,
@@ -1282,6 +1303,16 @@ async def cdi_generate(
         "forfait_days_ref": forfait_days_ref,
         "m2_days_cap": m2_days_cap,
         "ref_period_desc": ref_period_desc,
+        # TRV (organisation temps complet)
+        "trv_fulltime_mode": trv_fulltime_mode,
+        "trv_rtt_days_per_year": trv_rtt_days_per_year,
+        "trv_ref_desc": trv_ref_desc,
+        # TRM (roulants) — service de référence
+        "trm_service_kind": trm_service_kind,
+        # Modulation (cadre annuel)
+        "mod_annual_hours_max": mod_annual_hours_max,
+        "mod_weekly_hours_cap": mod_weekly_hours_cap,
+        "mod_ref_desc": mod_ref_desc,
         # Essai
         "contract_start": contract_start,
         "probation_months": probation_months,

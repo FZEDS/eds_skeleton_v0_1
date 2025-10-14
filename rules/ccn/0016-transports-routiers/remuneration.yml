@@ -73,6 +73,26 @@ matrix:
     annexe: I
     segment: TRM_AAT
     statut: ROULANT
+    weekly_hours: 43.0
+  meta:
+    label: Ouvriers TRM/AAT roulants – Longue distance (43 h)
+  coefficients:
+    115M:
+      monthly_min_eur: 2683.56
+    118M:
+      monthly_min_eur: 2683.56
+    120M:
+      monthly_min_eur: 2683.56
+    128M:
+      monthly_min_eur: 2690.22
+    138M:
+      monthly_min_eur: 2694.66
+    150M:
+      monthly_min_eur: 2759.03
+- match:
+    annexe: I
+    segment: TRM_AAT
+    statut: ROULANT
     weekly_hours: 46.0
   meta:
     label: Ouvriers TRM/AAT roulants – GAR équivalence 200h

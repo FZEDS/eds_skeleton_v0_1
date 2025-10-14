@@ -59,6 +59,27 @@
 
   <hr class="divider">
 
+  {# TRM — Roulants : temps de service de référence (affiché en permanence pour TC, au-dessus des modalités) #}
+  <div id="trm_org_block" class="fieldset" style="display:none; margin-top:0">
+    <h4 style="margin:0 0 6px">TRM (roulants) — Temps de service de référence</h4>
+    <div class="muted" style="margin-bottom:6px">Choisissez le type d’activité pour fixer la semaine de référence (impacte les minima et le déclenchement des heures supplémentaires).</div>
+    <div class="vlist" style="gap:10px">
+      <div class="radio">
+        <input type="radio" name="trm_service_kind" id="trm_kind_43" value="longue_distance">
+        <label class="label" for="trm_kind_43">Longue distance — 43 h (référence 200 h/mois)</label>
+      </div>
+      <div class="radio">
+        <input type="radio" name="trm_service_kind" id="trm_kind_39" value="autres_roulants">
+        <label class="label" for="trm_kind_39">Autres roulants — 39 h</label>
+      </div>
+      <div class="radio">
+        <input type="radio" name="trm_service_kind" id="trm_kind_35" value="messagerie_fonds">
+        <label class="label" for="trm_kind_35">Messagerie / Convoyeurs de fonds — 35 h</label>
+      </div>
+    </div>
+    <div class="small" style="margin-top:6px">Au‑delà de la référence, les heures constituent des heures supplémentaires de <em>temps de service</em> (ou au‑delà d’environ 186/187 h au mois selon le mode de décompte), avec majorations de branche (25 % puis 50 %).</div>
+  </div>
+
   <!-- Modalités (affiché uniquement si temps complet) -->
   <div id="wt_modalities" class="fieldset flow-12" style="display:none">
     <div class="label-inline">
@@ -69,6 +90,18 @@
       <div class="radio">
         <input type="radio" name="work_time_mode" id="wt_35" value="standard_35h" data-required="true">
         <label class="label" for="wt_35">35 heures par semaine</label>
+        <span></span>
+      </div>
+
+      {# TRV — Organisations exclusives (intégrées au même groupe) #}
+      <div class="radio" id="row_wt_trv_70q" style="display:none">
+        <input type="radio" name="work_time_mode" id="wt_trv_70q" value="trv_70q">
+        <label class="label" for="wt_trv_70q">70 heures par quinzaine (≈ 35 h de moyenne)</label>
+        <span></span>
+      </div>
+      <div class="radio" id="row_wt_trv_39rtt" style="display:none">
+        <input type="radio" name="work_time_mode" id="wt_trv_39rtt" value="trv_39rtt">
+        <label class="label" for="wt_trv_39rtt">39 heures + RTT (moyenne 35 h via JRTT)</label>
         <span></span>
       </div>
 
@@ -107,6 +140,27 @@
         </label>
         <span></span>
       </div>
+
+      <div class="radio">
+        <input type="radio" name="work_time_mode" id="wt_mod" value="modulation">
+        <label class="label" for="wt_mod">
+          Modulation (cadre annuel)
+          <span class="help" title="Cadre annuel (≤ 1 600 h) avec bornes hebdomadaires et prévenance selon segment (TRV, sanitaire, déménagement).">i</span>
+        </label>
+        <span></span>
+      </div>
+
+      {# SANITAIRE / DEMENAGEMENT — 39h + RTT (exclusif) #}
+      <div class="radio" id="row_wt_san_39rtt" style="display:none">
+        <input type="radio" name="work_time_mode" id="wt_san_39rtt" value="san_39rtt">
+        <label class="label" for="wt_san_39rtt">39 heures + RTT (sanitaire)</label>
+        <span></span>
+      </div>
+      <div class="radio" id="row_wt_dem_39rtt" style="display:none">
+        <input type="radio" name="work_time_mode" id="wt_dem_39rtt" value="dem_39rtt">
+        <label class="label" for="wt_dem_39rtt">39 heures + RTT (déménagement)</label>
+        <span></span>
+      </div>
     </div>
   </div>
 
@@ -134,6 +188,37 @@
     </div>
     <div id="std_card" class="callout mt-12" data-slot="step5.block.std" style="display:none"></div>
     <div id="slot_step5_header" class="callout" data-slot="step5.header" style="display:none"></div>
+
+    {# TRV — Organisation temps complet (visible si CCN 0016 / segment TRV) #}
+    <div id="trv_org_block" class="fieldset" style="display:none; margin-top:12px">
+      <h4 style="margin:0 0 6px">Organisation TRV (temps complet)</h4>
+      <div class="muted" style="margin-bottom:6px">Choisissez l’organisation retenue. Les minimas conventionnels restent publiés en 151,67 h/mois.</div>
+      <div class="vlist" style="gap:10px">
+        <div class="radio">
+          <input type="radio" name="trv_fulltime_mode" id="trv_org_35" value="35h">
+          <label class="label" for="trv_org_35">35 heures par semaine</label>
+        </div>
+        <div class="radio">
+          <input type="radio" name="trv_fulltime_mode" id="trv_org_70q" value="70q">
+          <label class="label" for="trv_org_70q">70 heures par quinzaine (≈ 35 h de moyenne)</label>
+        </div>
+        <div class="radio">
+          <input type="radio" name="trv_fulltime_mode" id="trv_org_39rtt" value="39rtt">
+          <label class="label" for="trv_org_39rtt">39 heures + RTT (moyenne 35 h via JRTT)</label>
+        </div>
+      </div>
+      <div id="trv_rtt_fields" class="grid2" style="margin-top:8px; display:none">
+        <div>
+          <label>Nombre de JRTT / an (si 39 h + RTT)</label>
+          <input type="number" min="0" step="1" name="trv_rtt_days_per_year" id="trv_rtt_days_per_year" placeholder="Ex. 10">
+        </div>
+        <div>
+          <label>Période / référence (optionnel)</label>
+          <input type="text" name="trv_ref_desc" id="trv_ref_desc" placeholder="Ex. Référence annuelle, cycle 2 semaines, etc.">
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <div id="blk_forfait_hours" class="fieldset flow-12" style="display:none">
@@ -217,6 +302,35 @@
       </div>
     </div>
     <div id="m2_card" class="callout mt-12" data-slot="step5.block.m2" style="display:none"></div>
+  </div>
+
+  <div id="blk_modulation" class="fieldset flow-12" style="display:none">
+    <div class="row">
+      <div>
+        <label>
+          Volume annuel (max)
+          <span class="help" title="Cadre annuel de la modulation, par ex. 1 600 h.">i</span>
+        </label>
+        <input type="number" min="1" step="1" id="mod_annual_hours_max" name="mod_annual_hours_max" placeholder="1600">
+      </div>
+      <div>
+        <label>
+          Plafond hebdomadaire (si applicable)
+          <span class="help" title="Borne hebdomadaire conventionnelle (ex. 42 h en sanitaire). Laisser vide si non précisée.">i</span>
+        </label>
+        <input type="number" min="1" step="0.5" id="mod_weekly_hours_cap" name="mod_weekly_hours_cap" placeholder="selon segment">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label>
+          Référence / période (optionnel)
+          <span class="help" title="Ex. accord interne, période de référence, cycle, etc.">i</span>
+        </label>
+        <input type="text" id="mod_ref_desc" name="mod_ref_desc" placeholder="Ex. Période annuelle — accord du …">
+      </div>
+    </div>
+    <div id="mod_card" class="callout mt-12" data-slot="step5.block.modulation" style="display:none"></div>
   </div>
 
   <hr class="divider">

@@ -84,3 +84,27 @@ rules:
       program_modify_deadline_days: 5
     notes: "Sanitaire — jours de repos (22/an) : prévenance 15 jours (réductible à 5 jours). Modulation/cycles: voir accord 4 mai 2000."
     source_ref: "Sanitaire — aménagement (prévenance)"
+
+  # ================= Modulation (cadre annuel) =================
+  # TRV — modulation (accord ARTT du 18/04/2002)
+  - key: "modulation_trv"
+    scope: { work_time_mode: "modulation", segment: "TRV" }
+    constraint:
+      annual_hours_max: 1600
+      # bornes hebdomadaires précisées par accord d’entreprise; la prévenance TRV figure ci‑dessus
+    source_ref: "TRV — ARTT 18/04/2002 (cadre annuel 1600 h)"
+
+  # Sanitaire — modulation (accord‑cadre du 04/05/2000)
+  - key: "modulation_sanitaire"
+    scope: { work_time_mode: "modulation", segment: "SANITAIRE" }
+    constraint:
+      annual_hours_max: 1600
+      weekly_hours_max: 42
+    source_ref: "Sanitaire — Accord‑cadre 04/05/2000 (≤ 1600 h; 42 h/sem)"
+
+  # Déménagement — modulation (accord‑cadre 23/08/2000)
+  - key: "modulation_dem"
+    scope: { work_time_mode: "modulation", segment: "DEMENAGEMENT" }
+    constraint:
+      annual_hours_max: 1600
+    source_ref: "Déménagement — Accord‑cadre 23/08/2000 (cadre annuel; prévenances)"

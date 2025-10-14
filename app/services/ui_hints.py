@@ -94,6 +94,42 @@ def _hint_matches(h: Dict[str, Any], ctx: Dict[str, Any], idcc: Optional[int]) -
     if "work_time_mode" in w and not _match_list_or_scalar((ctx.get("work_time_mode") or "").lower(), w["work_time_mode"]):
         return False
 
+    # Segment (ex. TRV / TRM_AAT / SANITAIRE / DEMENAGEMENT)
+    if "segment" in w:
+        seg_ctx = str(ctx.get("segment") or "").strip().upper()
+        cond = w["segment"]
+        if isinstance(cond, list):
+            allowed = {str(x).strip().upper() for x in cond}
+            if seg_ctx not in allowed:
+                return False
+        else:
+            if seg_ctx != str(cond).strip().upper():
+                return False
+
+    # Statut (ex. roulant / sedentaire)
+    if "statut" in w:
+        st_ctx = str(ctx.get("statut") or "").strip().lower()
+        cond = w["statut"]
+        if isinstance(cond, list):
+            allowed = {str(x).strip().lower() for x in cond}
+            if st_ctx not in allowed:
+                return False
+        else:
+            if st_ctx != str(cond).strip().lower():
+                return False
+
+    # Annexe (I / II / III / IV)
+    if "annexe" in w:
+        an_ctx = str(ctx.get("annexe") or "").strip().upper()
+        cond = w["annexe"]
+        if isinstance(cond, list):
+            allowed = {str(x).strip().upper() for x in cond}
+            if an_ctx not in allowed:
+                return False
+        else:
+            if an_ctx != str(cond).strip().upper():
+                return False
+
     # Coefficient borné
     coeff = ctx.get("coeff")
     if "coeff_min" in w and (coeff is None or int(coeff) < int(w["coeff_min"])):

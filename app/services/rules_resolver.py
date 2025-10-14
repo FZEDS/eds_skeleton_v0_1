@@ -128,12 +128,20 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
                 "forfait_hours": True,
                 "forfait_hours_mod2": True,
                 "forfait_days": True,
+                "modulation": False,
             },
             "defaults": {},
         }
         # Modalité 2: spécifique Syntec (IDCC 1486). Désactiver par défaut ailleurs.
         if idcc != SYNTEC_IDCC:
             capabilities["work_time_modes"]["forfait_hours_mod2"] = False
+        # Modulation: exposée pour CCN 0016 (TRV / SANITAIRE / DEMENAGEMENT)
+        try:
+            seg = str(ctx.get("segment") or "").strip().upper()
+            if idcc == 16 and seg in {"TRV", "SANITAIRE", "DEMENAGEMENT"}:
+                capabilities["work_time_modes"]["modulation"] = True
+        except Exception:
+            pass
         if bounds.get("days_per_year_max") is not None:
             capabilities["defaults"]["forfait_days_per_year"] = int(bounds["days_per_year_max"])
 
@@ -152,8 +160,13 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         # Encarts factorisés + Hints CCN
         explain.extend(build_rule_explain("temps_travail", bounds, rule, ctx))
         explain.extend(load_ui_hints(idcc, "temps_travail", {
-            "idcc": idcc, "categorie": categorie, "coeff": coeff,
-            "work_time_mode": work_time_mode
+            "idcc": idcc,
+            "categorie": categorie,
+            "coeff": coeff,
+            "work_time_mode": work_time_mode,
+            "segment": ctx.get("segment"),
+            "statut": ctx.get("statut"),
+            "annexe": ctx.get("annexe"),
         }))
 
         # Ventilation & majorations — forfait-heures (hint générique légal)

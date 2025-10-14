@@ -126,9 +126,33 @@
 
 <h2>Article 6 — Durée du travail</h2>
 <div class="sec">
-  {% if work_time_mode in ['standard','standard_35h'] %}
+  {% if work_time_mode in ['standard','standard_35h','trv_70q','trv_39rtt','san_39rtt','dem_39rtt'] %}
     La durée de travail est fixée à {{ weekly_hours }} heures par semaine.
     {% if schedule_info %} Organisation indicative : {{ schedule_info }}.{% endif %}
+    {% if idcc == 16 and (segment or '')|upper == 'TRM_AAT' and (statut or '')|upper == 'ROULANT' and work_time_regime == 'temps_complet' %}
+      <br/>
+      <span class="small">TRM (roulants) — temps de service de référence :
+        {% set _k = trm_service_kind %}
+        {% if _k == 'longue_distance' %}<strong>43 h</strong> (longue distance){% elif _k == 'messagerie_fonds' %}<strong>35 h</strong> (messagerie / convoyeurs de fonds){% else %}<strong>39 h</strong> (autres roulants){% endif %}.
+        Au‑delà de cette référence : heures supplémentaires (temps de service).
+      </span>
+    {% endif %}
+    {% if idcc == 16 and (segment or '')|upper == 'TRV' and work_time_regime == 'temps_complet' %}
+      {% if trv_fulltime_mode == '70q' or work_time_mode == 'trv_70q' %}
+        <br/>Organisation sur deux semaines&nbsp;: <strong>70&nbsp;heures par quinzaine</strong> (moyenne <strong>35&nbsp;h/sem</strong>){% if trv_ref_desc %}, {{ trv_ref_desc }}{% endif %}.
+      {% elif trv_fulltime_mode == '39rtt' or work_time_mode == 'trv_39rtt' %}
+        <br/>Organisation <strong>39&nbsp;h/sem</strong> compensées par des jours de RTT, ramenant la durée moyenne à <strong>35&nbsp;h/sem</strong>.
+        {% if trv_rtt_days_per_year is not none %}JRTT/an&nbsp;: <strong>{{ trv_rtt_days_per_year }}</strong>.{% endif %}
+        Le salaire de base demeure calculé sur <strong>151,67&nbsp;h/mois</strong>.
+        {% if trv_ref_desc %}<br/>Référence/organisation&nbsp;: {{ trv_ref_desc }}.{% endif %}
+      {% endif %}
+      <br/><span class="small">TRV — prévenance des plannings : <strong>7 jours</strong> (réduction possible à <strong>24&nbsp;heures</strong> avec contrepartie), sous réserve des dispositions applicables.</span>
+    {% elif idcc == 16 and ((segment or '')|upper == 'SANITAIRE' or (segment or '')|upper == 'DEMENAGEMENT') and work_time_regime == 'temps_complet' %}
+      {% if work_time_mode == 'san_39rtt' or work_time_mode == 'dem_39rtt' %}
+        <br/>Organisation <strong>39&nbsp;h/sem</strong> compensées par des jours de RTT, ramenant la durée moyenne à <strong>35&nbsp;h/sem</strong>.
+        Le salaire de base demeure calculé sur <strong>151,67&nbsp;h/mois</strong>.
+      {% endif %}
+    {% endif %}
     {% if work_time_regime == 'temps_complet' %}
       <br/>La durée du travail de {{ employee_civility }} {{ employee_name }} ainsi que ses modalités d’aménagement sont celles appliquées dans son service, à la catégorie professionnelle à laquelle il appartient.
       {% if schedule_info %}
@@ -164,6 +188,12 @@
     {% if ref_period_desc %}Période de référence : {{ ref_period_desc }}.{% endif %}
     {% if forfait_days_ref %}<br/>Référence conventionnelle/AE&nbsp;: {{ forfait_days_ref }}.{% endif %}
     <br/><span class="small">Sous réserve des dispositions d’ordre public du forfait en jours (suivi de la charge, entretien, repos).</span>
+  {% elif work_time_mode == 'modulation' %}
+    Organisation en <strong>modulation</strong> du temps de travail (cadre annuel).
+    {% if mod_annual_hours_max %}Volume annuel de référence (max) : <strong>{{ mod_annual_hours_max }}</strong> h.{% endif %}
+    {% if mod_weekly_hours_cap %} Plafond hebdomadaire : <strong>{{ '%.1f'|format(mod_weekly_hours_cap|float) }}</strong> h.{% endif %}
+    {% if mod_ref_desc %}<br/>Référence / période : {{ mod_ref_desc }}.{% endif %}
+    <br/><span class="small">Les plannings sont communiqués avec la prévenance applicable selon le segment (TRV / sanitaire / déménagement) et les accords en vigueur.</span>
   {% endif %}
 
   {# Modalité 2 (Syntec) — Forfait heures sur la semaine avec plafond annuel en jours #}

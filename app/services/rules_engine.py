@@ -1196,7 +1196,41 @@ def compute_worktime_bounds(
             except Exception:
                 pass
 
-    # 5) CCN — Standard avec dimensions supplémentaires (ex. statut roulants → 39h)
+    # 5) CCN — Modulation (cadre annuel)
+    if work_time_mode == "modulation" and idcc:
+        dccn = _find_ccn_dir(idcc)
+        if dccn:
+            ccn_items, _ = _load_yaml(dccn / "temps_travail.yml")
+            candidates = []
+            for r in ccn_items:
+                sc = (r.get("scope") or {})
+                if sc.get("work_time_mode") != "modulation":
+                    continue
+                if sc.get("segment") not in (None, ""):
+                    try:
+                        if str(sc.get("segment")).strip().upper() != str(segment or "").strip().upper():
+                            continue
+                    except Exception:
+                        continue
+                candidates.append(r)
+            if candidates:
+                considered.extend(candidates)
+                chosen_rule = candidates[0]
+                c = chosen_rule.get("constraint") or {}
+                try:
+                    if c.get("annual_hours_max") is not None:
+                        bounds["annual_hours_max"] = int(c.get("annual_hours_max"))
+                    if c.get("weekly_hours_max") is not None:
+                        bounds["weekly_hours_max"] = float(c.get("weekly_hours_max"))
+                except Exception:
+                    pass
+                chosen = {
+                    "source": "ccn",
+                    "source_ref": chosen_rule.get("source_ref") or "Modulation (CCN)",
+                    "bloc": "bloc_1",
+                }
+
+    # 6) CCN — Standard avec dimensions supplémentaires (ex. statut roulants → 39h)
     if work_time_mode == "standard" and idcc:
         dccn = _find_ccn_dir(idcc)
         if dccn:
@@ -1263,6 +1297,8 @@ def compute_worktime_bounds(
                     pass
 
     return bounds, chosen, considered
+
+    
 
 
 def compute_leave_minimum(

@@ -69,6 +69,21 @@ clauses:
       avec au plus <strong>[[breaks_per_day_max]]</strong> coupures (durée unitaire ≤ <strong>[[max_break_duration_hours]] h</strong>), sauf accord spécifique.
       Les contreparties sont les suivantes : [[compensation]].
 
+  # TRV — Organisation 39h + RTT (égalisation à 35h)
+  - key: trv_rtt_equalization
+    label: "TRV — 39 h + RTT (égalisation à 35 h)"
+    synopsis: "Organisation 39 h hebdomadaires compensées par des jours de RTT pour ramener la moyenne à 35 h."
+    when: { segment: "TRV" }
+    flags: { needs_parameters: false, auto_include: false }
+    params:
+      - { key: rtt_days_per_year, label: "Nombre de JRTT/an", type: number, required: false }
+      - { key: ref_desc, label: "Période / référence (optionnel)", type: text, required: false }
+    text_html: >
+      L’organisation du temps de travail est fixée à <strong>39 heures par semaine</strong> et compensée par l’attribution de jours de <strong>RTT</strong>,
+      de sorte que la durée moyenne est ramenée à <strong>35 heures par semaine</strong> conformément aux dispositions applicables.
+      {% if rtt_days_per_year %}Le nombre de JRTT attribués est fixé à <strong>[[rtt_days_per_year]]</strong> jour(s) par année de référence.{% endif %}
+      {% if ref_desc %}Référence / organisation&nbsp;: [[ref_desc]].{% endif %}
+
   # Sanitaire — Astreintes / gardes
   - key: sanitary_on_call
     label: "Transport sanitaire — Astreintes / gardes"
@@ -94,6 +109,54 @@ clauses:
     text_html: >
       En activité de <strong>déménagement</strong>, les frais (repas, hébergement) sont pris en charge selon la politique suivante : [[expenses_policy]].
       Les règles d’organisation et de sécurité appliquées sur chantier sont : [[safety_rules]].
+
+  # ================= Modulation — Clauses segmentées =================
+  - key: trv_modulation
+    label: "TRV — Modulation (cadre annuel)"
+    synopsis: "Cadre annuel (≤ 1 600 h) avec bornes hebdo et prévenance TRV."
+    when: { segment: "TRV" }
+    flags: { needs_parameters: false }
+    params:
+      - { key: annual_hours_max, label: "Volume annuel max (h)", type: number, required: false }
+      - { key: weekly_hours_cap, label: "Plafond hebdo (h)", type: number, required: false }
+      - { key: ref_desc, label: "Référence/période", type: text, required: false }
+    text_html: >
+      L’organisation du temps de travail est aménagée sous forme de <strong>modulation</strong> sur une période annuelle.
+      {% if annual_hours_max %}Le volume de référence est fixé à <strong>[[annual_hours_max]] h</strong> par an.{% endif %}
+      {% if weekly_hours_cap %}Plafond hebdomadaire appliqué : <strong>[[weekly_hours_cap]] h</strong>.{% endif %}
+      {% if ref_desc %}Référence/période : [[ref_desc]].{% endif %}
+      La prévenance des plannings est assurée selon les dispositions TRV applicables.
+
+  - key: sanitary_modulation
+    label: "Transport sanitaire — Modulation"
+    synopsis: "Modulation (≤ 1 600 h/an) — plafond hebdo 42 h — prévenance sanitaire."
+    when: { segment: "SANITAIRE" }
+    flags: { needs_parameters: false }
+    params:
+      - { key: annual_hours_max, label: "Volume annuel max (h)", type: number, required: false, default: 1600 }
+      - { key: weekly_hours_cap, label: "Plafond hebdo (h)", type: number, required: false, default: 42 }
+      - { key: ref_desc, label: "Référence/période", type: text, required: false }
+    text_html: >
+      L’organisation du temps de travail est aménagée sous forme de <strong>modulation</strong> sur une période annuelle, dans la limite de
+      <strong>[[annual_hours_max]] h</strong> par an et d’un plafond hebdomadaire de <strong>[[weekly_hours_cap]] h</strong>.
+      {% if ref_desc %}Référence/période : [[ref_desc]].{% endif %}
+      La prévenance est assurée selon l’accord‑cadre du 4 mai 2000.
+
+  - key: dem_modulation
+    label: "Déménagement — Modulation (cadre annuel)"
+    synopsis: "Modulation (≤ 1 600 h/an) avec prévenances de l’accord‑cadre déménagement."
+    when: { segment: "DEMENAGEMENT" }
+    flags: { needs_parameters: false }
+    params:
+      - { key: annual_hours_max, label: "Volume annuel max (h)", type: number, required: false, default: 1600 }
+      - { key: weekly_hours_cap, label: "Plafond hebdo (h)", type: number, required: false }
+      - { key: ref_desc, label: "Référence/période", type: text, required: false }
+    text_html: >
+      L’organisation du temps de travail est aménagée sous forme de <strong>modulation</strong> sur une période annuelle
+      {% if annual_hours_max %}(max <strong>[[annual_hours_max]] h</strong>){% endif %}.
+      {% if weekly_hours_cap %}Plafond hebdomadaire : <strong>[[weekly_hours_cap]] h</strong>.{% endif %}
+      {% if ref_desc %}Référence/période : [[ref_desc]].{% endif %}
+      La prévenance est assurée conformément à l’accord‑cadre du 23 août 2000 (programme indicatif / délais).
 
   # Équipements / tenue — Habillage/déshabillage
   - key: equipment_dress_code
