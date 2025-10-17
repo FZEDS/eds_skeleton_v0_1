@@ -140,6 +140,26 @@ def _hint_matches(h: Dict[str, Any], ctx: Dict[str, Any], idcc: Optional[int]) -
     return True
 
 
+def _pick_hints_path(ccn_dir: Path, ctx: Dict[str, Any]) -> Optional[Path]:
+    """
+    Choisit le fichier de hints en fonction du type de contrat, avec fallback rétro‑compatible.
+    Priorités:
+      - CDD -> ui_hints.cdd.yml (fallback ui_hints.yml)
+      - CDI -> ui_hints.cdi.yml (fallback ui_hints.yml)
+      - non spécifié -> ui_hints.yml
+    """
+    ct = str((ctx.get("contract_type") or ctx.get("doc_type") or "")).strip().lower()
+    candidates: List[str]
+    if ct == "cdd":
+        p = ccn_dir / "ui_hints.cdd.yml"
+        return p if p.exists() else None
+    if ct == "cdi":
+        p = ccn_dir / "ui_hints.cdi.yml"
+        return p if p.exists() else None
+    # Sans type de contrat explicite → ne renvoie rien (pas de fallback)
+    return None
+
+
 def load_ui_hints(idcc: Optional[int], theme: str, ctx: Dict[str, Any]) -> List[Dict[str, Any]]:
     """
     Charge les micro-textes CCN (ui_hints.yml) et filtre selon le contexte.
@@ -151,7 +171,11 @@ def load_ui_hints(idcc: Optional[int], theme: str, ctx: Dict[str, Any]) -> List[
     if not ccn_dir:
         return []
 
-    hints_doc = _load_yaml_cached(str(ccn_dir / "ui_hints.yml"))
+    # Choix du fichier selon CDI/CDD avec fallback
+    hints_path = _pick_hints_path(ccn_dir, ctx)
+    if not hints_path:
+        return []
+    hints_doc = _load_yaml_cached(str(hints_path))
     raw_hints = hints_doc.get("hints") if isinstance(hints_doc, dict) else (hints_doc or [])
     if not isinstance(raw_hints, list):
         return []

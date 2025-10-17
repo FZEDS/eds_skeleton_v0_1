@@ -1,0 +1,71 @@
+meta:
+  ccn: "Syntec (IDCC 1486)"
+  source:
+    article: "Syntec — Dispositions générales (CDD)"
+    url: null
+  effective:
+    from: "2024-01-01"
+  # Notes mainteneur: ce fichier complète le droit commun (rules/code_travail/cdd.yml)
+  # et fournit des surcharges/affinages propres à la branche Syntec.
+  # Les blocs supportés par le resolver sont : precarity, recourse, duration,
+  # renewals, carence. Les champs additionnels sont tolérés mais ignorés côté
+  # backend (ils servent de mémo documentaire).
+
+# Par défaut, Syntec ne fixe pas un taux propre pour la prime de précarité (reste à 10%, sauf accord étendu sectoriel spécifique)
+precarity:
+  default_rate_percent: 10.0
+  source: code
+  special_cases:
+    - when: "annexe_enqueteurs"
+      label: "Annexe Enquêteurs (vacataires)"
+      rate_percent: 4.0
+      extra:
+        iccp_percent: 10.0
+      note: "Annexe Enquêteurs : indemnité de fin de contrat 4 % + 10 % d’ICCP (articles 53 et 54)."
+  notes:
+    - "La branche ne fixe pas un taux propre de droit commun pour la précarité (10 % par défaut)."
+    - "Certains accords d’entreprise peuvent prévoir 6 % sous conditions légales (garanties de formation)."
+
+recourse:
+  # Sans précision contraire, on reprend le droit commun
+  allow_imprecise_reasons: ["remplacement", "saisonnier", "usage"]
+  notes:
+    - "Sans terme précis autorisé pour remplacement, saisonnier, usage (droit commun)."
+
+duration:
+  max_months_by_reason:
+    remplacement: 18
+    accroissement: 18
+    saisonnier: null
+    usage: null
+  special_cases:
+    - when: "accroissement.export"
+      max_months: 24
+      note: "Commande exceptionnelle à l’export (repère droit commun) — à confirmer/affiner si la branche déroge."
+    - when: "mission_etranger"
+      max_months: 24
+      note: "Mission à l’étranger (repère droit commun) — à confirmer/affiner si la branche déroge."
+  notes:
+    - "Les plafonds ci‑dessus incluent les renouvellements."
+
+renewals:
+  max_count_by_reason:
+    remplacement: 2
+    accroissement: 2
+    saisonnier: null
+    usage: null
+  notes:
+    - "Plafond de renouvellements en l’absence de disposition plus favorable/stricte."
+
+carence:
+  method: "1_3_or_1_2"
+  exemptions: ["saisonnier", "usage", "remplacement_justifié", "accord"]
+  scope: "même poste"
+  note: "Règle générale conforme au Code du travail : 1/2 si CDD précédent ≤ 14 jours, 1/3 sinon ; dispenses pour saisonnier/usage, remplacement justifié, et cas prévus par accord."
+  special_cases:
+    - when: "intervention_foires_salons_congres"
+      label: "Contrats d’intervention (foires, salons, congrès)"
+      rule: "Pas de carence jusqu’à 4 mois de cumul de contrats successifs ; au‑delà, carence calculée sur la durée totale cumulée avant ouverture d’une nouvelle série."
+  notes:
+    - "Le délai de carence se calcule à poste équivalent (même poste / même établissement)."
+    - "La neutralisation peut résulter d’un accord de branche étendu ou d’un accord d’entreprise conforme."

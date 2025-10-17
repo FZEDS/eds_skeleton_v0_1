@@ -1,0 +1,76 @@
+# rules/ccn/1979-hcr/clauses.yml
+meta:
+  idcc: 1979
+  source:
+    label: "CCN HCR — Clauses types"
+    url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635534/"
+
+clauses:
+  - key: "hcr_forfait_jours"
+    label: "Convention individuelle de forfait annuel en jours (HCR)"
+    when:
+      category: "cadre"         # visible/recommandée pour les cadres (Niveau V)
+      work_time_mode: "forfait_days"
+    flags: { needs_parameters: true }
+    params:
+      - key: forfait_jours
+        label: "Nombre de jours (an)"
+        type: number
+        min: 1
+        max: 230
+        step: 1
+        required: true
+        default: 218
+      - key: renonciation_max
+        label: "Renonciation — nombre max de jours"
+        type: number
+        min: 0
+        max: 15
+        step: 1
+        default: 10
+      - key: renonciation_maj5
+        label: "Majoration % (5 premiers jours)"
+        type: percent
+        step: 1
+        default: 15
+      - key: renonciation_maj_suivants
+        label: "Majoration % (jours suivants)"
+        type: percent
+        step: 1
+        default: 25
+    body: |
+      **Convention individuelle de forfait en jours (cadres autonomes – HCR)**
+
+      Conformément à l’avenant n° 22 bis à la CCN HCR du 30 avril 1997, conclu le 7 octobre 2016 et étendu, le/la salarié(e) exerce des fonctions impliquant une autonomie dans l’organisation de son emploi du temps et ne pouvant être prédéterminées. Les parties conviennent en conséquence d’une convention individuelle de forfait en jours.
+
+      Le nombre de jours travaillés est fixé à **[[forfait_jours]] jours** par année civile au maximum (plafond CCN : 218 jours), incluant la journée de solidarité. Le décompte des journées et demi‑journées travaillées s’effectue par un système auto‑déclaratif, tenu à disposition de l’employeur.
+
+      L’employeur assure un **suivi régulier de la charge de travail** et veille au respect des **repos quotidiens et hebdomadaires**. Un **entretien annuel spécifique** porte sur la charge de travail, l’amplitude des journées, l’organisation du travail, l’articulation vie pro/vie perso et la rémunération. Le **droit à la déconnexion** est rappelé ; l’usage des outils numériques en dehors des périodes de travail est encadré.
+
+      Le/la salarié(e) peut renoncer, par accord écrit distinct, à une partie de ses jours de repos dans la limite de **[[renonciation_max]] jours/an** ; ces jours supplémentaires sont **majorés de [[renonciation_maj5]] % pour les 5 premiers, puis [[renonciation_maj_suivants]] %** pour les suivants.
+
+      Référence : avenant n° 22 bis « cadres autonomes » (plafond 218 jours, suivi, entretien, déconnexion). 
+
+  - key: "hcr_avantage_repas"
+    label: "Avantage en nature – Repas (HCR)"
+    when: { }     # tout salarié HCR
+    flags: { needs_parameters: true }
+    params:
+      - key: evaluation_mode
+        label: "Mode d’évaluation"
+        type: enum
+        required: true
+        options:
+          - { value: "forfait_hcr", label: "barème forfaitaire HCR (1 MG/repas)" }
+          - { value: "cout_reel", label: "coût réel (si plus favorable)" }
+        default: "forfait_hcr"
+      - key: precision
+        label: "Précisions (optionnel)"
+        type: textarea
+        placeholder: "ex. nombre de repas concernés, cas particuliers…"
+    body: |
+      **Avantage en nature – Repas (HCR)**
+
+      Lorsque les repas sont fournis par l’employeur, l’avantage en nature « nourriture » est évalué selon <em>[[evaluation_mode__label]]</em> et soumis à cotisations sociales conformément aux textes en vigueur (URSSAF/Arrêté annuel). Le montant appliqué suit automatiquement les revalorisations du **MG** publiées.
+
+      En cas de prise en charge de repas non fournis dans l’établissement, les règles relatives aux **frais professionnels** s’appliquent (plafonds d’exonération URSSAF). [[precision]]

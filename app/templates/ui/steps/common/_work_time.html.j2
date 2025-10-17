@@ -1,7 +1,7 @@
-{# app/templates/ui/steps/_05_temps_travail.html.j2 #}
+{# app/templates/ui/steps/common/_05_temps_travail.html.j2 #}
 
-<div class="step card flow-16" data-step="5" aria-hidden="true">
-  <h3>05. Durée du travail</h3>
+<div class="step card flow-16" data-step="{{ step_num|default('5') }}" aria-hidden="true">
+  <h3>{{ "%02d"|format(step_num|default(5)) }}. Durée du travail</h3>
 
   <!-- Slots “pédagogie” injectés par l’API (explain[]) -->
   <div id="slot_step5_block"  class="callout" data-slot="step5.block"  style="display:none"></div>

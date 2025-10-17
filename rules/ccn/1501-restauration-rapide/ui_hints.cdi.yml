@@ -1,3 +1,4 @@
+# rules/ccn/1501-restauration-rapide/ui_hints.cdi.yml
 meta:
   ccn: "Restauration rapide (IDCC 1501)"
   last_checked: "2025-09-06"
@@ -7,6 +8,7 @@ hints:
   - theme: "classification"
     slot: step4.header
     kind: ccn
+    when: { theme: "classification" }
     text: >
       Restauration rapide — 3 familles : Employé·e (niveaux I à III), Maîtrise (niveau IV),
       Cadre (niveau V). Les minima I–IV sont fixés à l’heure (convertis en mensuel 35 h),
@@ -30,6 +32,7 @@ hints:
   - theme: "temps_travail"
     slot: step5.header
     kind: ccn
+    when: { theme: "temps_travail" }
     text: >
       Programmation des horaires (art. 29.5) : affichage du programme au moins 10 jours calendaires
       avant la semaine ; modification possible au plus tard J‑3 avec accord du salarié. Décompte
@@ -41,6 +44,7 @@ hints:
   - theme: "temps_travail"
     slot: step5.block.program
     kind: guard
+    when: { theme: "temps_travail" }
     text: >
       Variabilité des horaires : ne pas prévoir de prévenance plus stricte que <strong>J‑10/J‑3</strong> (programme → J‑10 ; modification → J‑3 avec accord du salarié).
       Les échanges de créneau sont possibles entre salariés (volume équivalent) avec inscription au programme.
@@ -51,6 +55,7 @@ hints:
   - theme: "temps_travail"
     slot: step5.block.rest
     kind: ccn
+    when: { theme: "temps_travail" }
     text: >
       Repos quotidien : 11 h (12 h si fin de poste après minuit en IDF / après 22 h en province).
       Repos hebdomadaire : 2 jours (aménagements possibles) et au moins 8 week‑ends/an pour un temps complet.
@@ -61,6 +66,7 @@ hints:
   - theme: "temps_travail"
     slot: step5.block.modulation
     kind: ccn
+    when: { theme: "temps_travail" }
     text: >
       Annualisation / modulation (art. 33) : base de 1 652 h/an (236 jours travaillés).
       Lissage de la rémunération, suivi du cumul, régularisation en fin de période ; repos
@@ -159,6 +165,7 @@ hints:
   - theme: "temps_travail"
     slot: step5.block.night
     kind: ccn
+    when: { theme: "temps_travail" }
     text: >
       Travail de nuit : 22 h–7 h (ou 21 h–6 h par accord). Majoration : 10 % (0–2 h) et 30 % (2–6 h)
       pour niveaux I à IV, qu’il s’agisse ou non de travailleurs de nuit ; + repos compensateur 2 %/h
@@ -166,12 +173,13 @@ hints:
       (plafonds différenciés IDF/province).
     ref:
       label: "Art. 36.a et 36.b"
-      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000038162823/?idConteneur=KALICONT000005635596"
+      url: "https://www.legifrance.gouv.fr/conv_coll/id/KALIARTI000038162823/?idConteneur=KALICONT000005635596&origin=list"
 
   # --- Repas, tenues, fériés, CET ---
   - theme: "temps_travail"
     slot: step5.block.meals
     kind: ccn
+    when: { theme: "temps_travail" }
     text: >
       Repas (art. 42) : titres‑restaurant / menu personnel / prime panier ; pause repas < 30 min = temps
       de travail. Heures de pointe (déj./dîner) définies par l’établissement conditionnent l’ouverture du droit.
@@ -182,6 +190,7 @@ hints:
   - theme: "temps_travail"
     slot: step5.block.clothes
     kind: ccn
+    when: { theme: "temps_travail" }
     text: >
       Tenue et blanchissage (art. 41) : fourniture par l’employeur ou indemnité indexée sur le MG lorsque
       le salarié prend à sa charge le blanchissage. Temps d’habillage/déshabillage : contreparties prévues.
@@ -192,6 +201,7 @@ hints:
   - theme: "temps_travail"
     slot: step5.block.feries
     kind: ccn
+    when: { theme: "temps_travail" }
     text: >
       Jours fériés (art. 40) : droits ouverts après 8 mois de présence ; au choix de l’employeur, paiement
       ou compensation en temps (hors 1er mai régi par la loi).
@@ -202,6 +212,7 @@ hints:
   - theme: "temps_travail"
     slot: step5.block.cet
     kind: ccn
+    when: { theme: "temps_travail" }
     text: >
       Compte épargne‑temps (CET) possible : ouverture après 1 an d’ancienneté, alimentation notamment par
       jours de repos d’annualisation, conversion en heures indemnisables, règles de valorisation et d’utilisation.
@@ -213,6 +224,7 @@ hints:
   - theme: "remuneration"
     slot: step6.footer
     kind: ccn
+    when: { theme: "remuneration" }
     text: >
       Plancher applicable = max(SMIC proratisé ; minimum CCN du niveau/échelon). Niv. V : minima en annuel TEC.
       En forfait‑jours (cadres), vérifier le plancher 120 % du IV‑D (annuel TEC).
@@ -223,6 +235,7 @@ hints:
   - theme: "remuneration"
     slot: step6.more.minima
     kind: ccn
+    when: { theme: "remuneration" }
     text: >
       I–IV : minima fixés en €/h (convertis en mensuel 35 h par la plateforme) ; V : minima en annuel TEC
       (affichés en équivalent mensuel pour comparaison). Les accessoires (repas, coupure, nuit, blanchissage)
@@ -234,6 +247,7 @@ hints:
   - theme: "remuneration"
     slot: step6.more.ursaff_repas
     kind: info
+    when: { theme: "remuneration" }
     text: >
       Avantage en nature « repas » (si repas fournis) : évaluation URSSAF fondée sur le minimum garanti. Impact en paie (cotisations) à anticiper.
     ref:
@@ -255,6 +269,7 @@ hints:
   - theme: "periode_essai"
     slot: step7.card
     kind: ccn
+    when: { theme: "periode_essai" }
     text: >
       Périodes d’essai (CDI) : 1 mois (Niv. I–II), 2 mois (Niv. III), 3 mois (Maîtrise Niv. IV),
       4 mois (Cadres Niv. V). Renouvellement : réservé aux cadres, avec plafond total 6 mois.
@@ -277,6 +292,7 @@ hints:
   - theme: "preavis"
     slot: step8.card
     kind: ccn
+    when: { theme: "preavis" }
     text: >
       Préavis (CDI) : Ouvriers/Employés I–III : 8 j (<6 mois), 15 j (6–24 mois), 1 mois (≥2 ans).
       Maîtrise IV : 1 mois (<2 ans), 2 mois (≥2 ans). Cadres V : 3 mois (démission/licenciement).
@@ -287,6 +303,7 @@ hints:
   - theme: "conges_payes"
     slot: step8.conges
     kind: ccn
+    when: { theme: "conges_payes" }
     text: >
       Congés annuels : décompte en ouvrables, fractionnement encadré (pas de jours en plus sauf refus de l’employeur
       de prise entre le 1er mai et le 31 octobre). Don de jours de repos possible (enfant gravement malade / proche aidant).

@@ -1,5 +1,5 @@
 
-## Transports routiers et activités auxiliaires du transport n°3085
+# Transports routiers et activités auxiliaires du transport n°3085
 
 | CONVENTION COLLECTIVE     | SIGNATURE   | EXTENSION   | JO                 |   N° BROCHURE |   IDCC |
 |---------------------------|-------------|-------------|--------------------|---------------|--------|
@@ -29,7 +29,7 @@ Extension de l'avenant n° 16 du 9 avril 2025 relatif à la revalorisation des m
 
 ## I - CHAMP D'APPLICATION
 
-## 1 - Entreprises et salariés concernés
+### 1 - Entreprises et salariés concernés
 
 Cette  convention  collective  nationale  règle  les  rapports  entre  les employeurs et les salariés, du territoire métropolitain, des entreprises relevant des codes NAF suivants, issus de la nomenclature INSEE de 2008 :
 
@@ -52,7 +52,7 @@ Il  convient  également  de  se  référer  à  certains  codes  NAF  de  la no
 - -60.2B, 60.2G, 60.2L, 60.2M, 60.2N, 60.2P, 63.4A, 63.4B, 63.4C, 64.1C, 71.2A et 85.1J.
 - Article 1 de la convention collective
 
-## 2 - Élargissement du champ d'application
+### 2 - Élargissement du champ d'application
 
 Depuis  le  1er  février  2005,  cette  convention  collective  s'applique également  aux  entreprises  identifiées  sous  le  code  NAF  5210B : Entreposage et stockage non frigorifique. Il s'agit des entreprises qui exercent à  titre  principal,  pour  le  compte  de  tiers,  une  activité  de prestations logistiques sur des marchandises qui ne leur appartiennent pas et qui leur sont confiées, soit :
 
@@ -64,13 +64,13 @@ Depuis  le  1er  février  2005,  cette  convention  collective  s'applique éga
 - Article 1 de la convention collective
 
 
-## 3 - Exclusions
+### 3 - Exclusions
 
 Les  entreprises  industrielles  ou  commerciales  effectuant  des transports  définis  comme  transports  pour compte propre  par  la réglementation des transports en vigueur sont exclues de cette convention collective.
 
 - Article 1 de la convention collective
 
-## 4 - Cas des entreprises mixtes
+### 4 - Cas des entreprises mixtes
 
 Il  s'agit  des  entreprises  exerçant  des  activités  telles  que  du transport public et des activités industrielles et commerciales. En pareille  circonstance,  la  convention  collective  des  transports routiers s'applique au personnel affecté aux services de transport public et le personnel  affecté aux  activités industrielles et commerciales  reste  régi  par  les  dispositions  de  la  convention applicable à la branche d'activité concernée.
 
@@ -84,7 +84,7 @@ Les  employeurs  et  les  salariés  doivent  respecter  la  liberté syndicale 
 
 ## III  - PÉRIODE D'ESSAI ET CONTRAT DE TRAVAIL
 
-## 1 - Période d'essai
+### 1 - Période d'essai
 
 La période d'essai correspond au temps écoulé entre la prise de service effectif dans l'entreprise et l'embauchage définitif. Ces durées sont inapplicables car elles sont plus courtes que celles prévues par la loi. Elles sont néanmoins précisées dans la convention collective.
 
@@ -101,15 +101,15 @@ La période d'essai correspond au temps écoulé entre la prise de service effec
 - Article  11  de  l'Annexe  III :  Techniciens  et  agents  de  maîtrise  Accord du 30 mars 1951, étendu par arrêté du 1er février 1955
 - Article  8  de  l'Annexe  IV :  Ingénieurs  et  cadres  -  Accord  du  30 octobre 1951, étendu par arrêté du 1er février 1955
 
-## 2 - Contrat de travail
+### 2 - Contrat de travail
 
-## a - Généralités
+#### a - Généralités
 
 L'embauchage  définitif  devra  être  confirmé  par  une  lettre  ou  un contrat. Ils devront obligatoirement préciser la convention collective applicable, le titre du salarié, son emploi et les éléments de salaire correspondant à sa qualification professionnelle.
 
 - Article 11
 
-## b - Transport de déménagement
+#### b - Transport de déménagement
 
 Contrat journalier en déménagement : Le personnel affecté à une opération  ou  un  voyage  de  déménagement  (à  l'exclusion  du personnel administratif et commercial) peuvent conclure ce type de contrat.
 
@@ -129,12 +129,11 @@ Transformation d'un CDD en un CDI : Le salarié qui a cumulé 190 jours de trava
 
 
 
-
 ## VIII - FORMATION PROFESSIONNELLE
 
-## 1 - Accès à la formation professionnelle tout au long de la vie
+### 1 - Accès à la formation professionnelle tout au long de la vie
 
-## a -Contrat de professionnalisation
+#### a -Contrat de professionnalisation
 
 Il permet de favoriser l'insertion ou la réinsertion professionnelle des jeunes travailleurs et des demandeurs d'emploi en permettant à ses bénéficiaires d'acquérir un diplôme ou un titre à finalité professionnelle ou une qualification professionnelle. Les personnes
 
@@ -142,29 +141,29 @@ Il permet de favoriser l'insertion ou la réinsertion professionnelle des jeunes
 
 L'action de professionnalisation est généralement conclue pour une durée de 6 à 12 mois, mais elle peut être portée jusqu'à 24 mois pour certaines personnes.
 
-## b -Période de professionnalisation
+#### b -Période de professionnalisation
 
 Elle a pour objet de favoriser le maintien dans l'emploi ou la conversion de salariés titulaires d'un contrat de travail à durée indéterminée, en  permettant  au  bénéficiaire  d'acquérir  une  qualification  ou  de suivre une action de formation nécessaire à l'adaptation de son poste ou à l'évolution de son emploi. Les actions de formation peuvent se dérouler en tout ou partie en dehors du temps de travail, à l'initiative du salarié dans le cadre du droit individuel à la formation (aujourd'hui CPF) ou à l'initiative de l'employeur, après accord du salarié.
 
-## c -Tuteur
+#### c -Tuteur
 
 L'employeur choisit sur la base du volontariat  un  tuteur  disposant d'une expérience d'au moins trois ans, dont deux minimum dans un emploi de niveau de qualification au moins égal à celui de l'emploi pour lequel il exerce la fonction de tuteur.
 
 Le tuteur joue un rôle important et ses missions tiennent notamment en l'accompagnement, l'aide et l'information auprès des jeunes. Il ne peut exercer simultanément des fonctions de tutorat à l'égard de plus de trois salariés. Lorsqu'il exerce cette fonction pour la première fois, le tuteur suit l'activité de trois salariés au plus dont au maximum deux conducteurs.
 
-## d -Entretien professionnel
+#### d -Entretien professionnel
 
 Les salariés ayant deux ans d'ancienneté dans l'entreprise bénéficient tous les deux ans d'un entretien professionnel avec leur employeur.  L'entretien  professionnel  a  pour  finalité  de  permettre  à chaque salarié  d'élaborer  son  projet  professionnel  à  partir  de  ses souhaits d'évolution dans l'entreprise, de ses aptitudes et en fonction de la situation.
 
-## e -Passeport orientation et formation
+#### e -Passeport orientation et formation
 
 Ce passeport recense les connaissances, compétences et aptitudes professionnelles de chaque salarié, acquises dans le cadre de la formation initiale ou continue, ou du fait des expériences professionnelles, associatives ou citoyennes du salarié.
 
-## 2 - Contributions
+### 2 - Contributions
 
 Les contributions sont versées à l'OPCA de la branche, c'est-à-dire l'OPCA Transports.
 
-## a - Entreprises de 10 salariés et plus
+#### a - Entreprises de 10 salariés et plus
 
 La contribution légale est  fixée  à  1,60%  de  la  masse  salariale  de l'année de référence au titre du financement des actions de formation professionnelle continue.
 
@@ -178,7 +177,7 @@ Par dérogation, dans les entreprises de transport sanitaire, le taux de la cont
 
 Enfin, pour les entreprises de 10 à 19 salariés, les taux applicables sont ceux fixés par les dispositions réglementaires en vigueur.
 
-## b - Entreprises de moins de 10 salariés
+#### b - Entreprises de moins de 10 salariés
 
 
 La  contribution  légale  est  de  0,55%  de  la  masse  salariale  de l'année  de  référence  au  titre  du  financement  des  actions  de formation professionnelle continue.
@@ -195,7 +194,7 @@ Dans les entreprises de transport sanitaire, par dérogation, le taux de la cont
 - Accord du 12 avril 2017 relatif à la formation professionnelle tout au long de la vie, étendu par arrêté du 5 janvier 2018
 - Avenant du 17 décembre 2020 à l'accord du 12 avril 2017 relatif à  la  formation  professionnelle  tout  au  long  de  la  vie,  à  la professionnalisation  et  la  F  des  parcours  professionnels  et  à l'emploi, étendu par arrêté du 21 mai 2021 (JORF n°0152 du 2 juillet 2021)
 
-## 3 - Formation des personnels coursiers
+### 3 - Formation des personnels coursiers
 
 L'employeur est tenu à des obligations relatives à la formation des personnels coursiers, qui est par ailleurs destinée à ce que les travailleurs salariés acquièrent les connaissances, compétences, et qualifications nécessaires durant leur vie professionnelle.
 
@@ -253,7 +252,7 @@ Cette période peut être augmentée de deux jours par enfant à charge mais ne 
 
 L'ancienneté  prise  en  compte  pour  la  détermination  du  droit  à l'indemnisation s'exprime au premier jour de l'absence. Les pourcentages d'indemnisation s'appliquent sur la base de la rémunération qui aurait été perçue si le salarié avait continué à travailler.
 
-## 1 - Ouvriers et employés
+### 1 - Ouvriers et employés
 
 | Ancienneté   | Maladie             | Maladie                  | Accident de travail   | Accident de travail   |
 |--------------|---------------------|--------------------------|-----------------------|-----------------------|
@@ -269,7 +268,7 @@ L'ancienneté  prise  en  compte  pour  la  détermination  du  droit  à l'inde
 
 les périodes d'indemnisation à 75% sont prolongées de 30 jours.
 
-## 2 - TAM (groupes 1 à 5)
+### 2 - TAM (groupes 1 à 5)
 
 | Ancienneté   | Maladie             | Maladie                | Accident de travail   | Accident de travail   |
 |--------------|---------------------|------------------------|-----------------------|-----------------------|
@@ -284,7 +283,7 @@ les périodes d'indemnisation à 75% sont prolongées de 30 jours.
 
 - l'arrêt, les périodes d'indemnisation à 75% sont prolongées de 30 jours.
 
-## 3 - TAM (groupes 6 à 8) et cadres
+### 3 - TAM (groupes 6 à 8) et cadres
 
 | Ancienneté   | Maladie             | Maladie                | Accident de travail   | Accident de travail   |
 |--------------|---------------------|------------------------|-----------------------|-----------------------|
@@ -298,7 +297,7 @@ les périodes d'indemnisation à 75% sont prolongées de 30 jours.
 
 Enfin, il y a des dispositions spéciales pour les conducteurs scolaires : en cas de maladie ou d'accident de travail, le décompte du délai de carence se fait pendant les périodes de travail. Puis, les durées d'indemnisation sont décomptées en jours calendaires et le  complément de rémunération n'est dû que pour les périodes devant être travaillées.
 
-## 4 - Garantie d'emploi en cas de maladie
+### 4 - Garantie d'emploi en cas de maladie
 
 La garantie d'emploi est valable pendant :
 
@@ -317,16 +316,13 @@ Le salarié absent depuis plus de 6 mois ou de 12 mois dans l'entreprise bénéf
 
 
 
-
-
-
 ## XI - RÉGIME DE FRAIS DE SANTÉ ET DE PRÉVOYANCE
 
-## 1 - Régime de frais de santé
+### 1 - Régime de frais de santé
 
 Il  diffère  selon  les  activités  concernées.  Dans  tous  les  cas,  les garanties  permettent  de  compléter  les  remboursements  de  la sécurité sociale en matière de frais de santé.
 
-a -Entreprises de transport de personnes et de marchandises
+#### a -Entreprises de transport de personnes et de marchandises
 
 Les  dispositions  suivantes  s'appliquent  à  tous  les  salariés  des entreprises répertoriées sous les codes NAF suivants :
 
@@ -344,10 +340,7 @@ Les entreprises de transport routier de voyageurs disposent d'un délai maximal 
 
 Il existe toutefois une dérogation pour les entreprises possédant déjà un régime de frais de santé :  elles  peuvent  maintenir  les  contrats obligatoires préexistants dans toutes leurs dispositions à condition de  respecter  les  dispositions  relatives  aux  cotisations  fixées  par l'accord de branche. Chaque entreprise peut choisir son organisme assureur.
 
-Néanmoins, à défaut de choix opéré dans le délai de mise en œuvre de six mois, les entreprises auront l'obligation de contracter auprès de l'organisme ou de l'un des organismes désignés par la
-
-
-commission « Appel d'offres » pour un délai minimum de trois ans. Au  terme  de  ce  délai,  l'entreprise  pourra  soit  contracter  avec l'organisme ou l'un des organismes désignés par la commission, soit opter pour un autre organisme assureur.
+Néanmoins, à défaut de choix opéré dans le délai de mise en œuvre de six mois, les entreprises auront l'obligation de contracter auprès de l'organisme ou de l'un des organismes désignés par la commission « Appel d'offres » pour un délai minimum de trois ans. Au  terme  de  ce  délai,  l'entreprise  pourra  soit  contracter  avec l'organisme ou l'un des organismes désignés par la commission, soit opter pour un autre organisme assureur.
 
 Les entreprises de transport routier de marchandises peuvent adhérer auprès de CARCEPT - Prévoyance pour une durée de cinq ans à compter du 1er janvier 2013.
 
@@ -374,7 +367,7 @@ Concernant  les entreprises  dont  les  salariés  dépendent  du régime local 
 - Accord du 1er octobre 2012 relatif à la protection santé, étendu par arrêté du 2 août 2016
 - Avenant n° 3 du 3 février 2022 à l'accord du 1er octobre 2012 relatif à la création d'une obligation conventionnelle de souscrire un socle minimal de « protection santé », étendu par arrêté du 20 juin 2022 (JORF n°0149 du 29 juin 2022)
 
-## b - Entreprises de transport de déménagement
+#### b - Entreprises de transport de déménagement
 
 Les  dispositions  suivantes  s'appliquent  à  tous  les  salariés  des entreprises répertoriées sous le code NAF 49.42Z. L'organisme assureur a été désigné dans l'accord du 21  novembre  2012  relatif  à  la  protection  santé.  Il  s'agit  de CARCEPT - Prévoyance.
 
@@ -389,7 +382,7 @@ La  couverture  complémentaire  des  frais  de  santé  comprend  trois régime
 - Accord  du  21  novembre  2012  relatif  à  la  protection  santé,  non étendu
 - Accord du 25 septembre 2015 relatif à la complémentaire des frais de santé, étendu par arrêté du 2 août 2016 (JORF n°0184 du 9 août 2016)
 
-## c - Entreprises de transport sanitaire
+#### c - Entreprises de transport sanitaire
 
 Les  dispositions  suivantes  s'appliquent  à  tous  les  salariés  des entreprises  répertoriées  sous  le  code  NAF  86.90A.  L'organisme assureur a été désigné dans l'accord du 15 avril  2013  relatif  à  la  protection  santé,  non  étendu.  Il  s'agit  de CARCEPT - Prévoyance.
 
@@ -402,9 +395,9 @@ La  couverture  complémentaire  des  frais  de  santé  comprend  trois régime
 - Accord du 15 avril 2013 relatif à la protection santé, non étendu
 - Accord du 6 octobre 2015 relatif à la complémentaire des frais de santé (transport sanitaire), étendu par arrêté du 2 août 2016 (JORF n°0185 du 10 août 2016)
 
-## 2 - Régime de prévoyance
+### 2 - Régime de prévoyance
 
-## a - Organisme assureur
+#### a - Organisme assureur
 
 En  principe,  les  entreprises  sont  libres  de  choisir  l'organisme assureur de leur choix.
 
@@ -412,19 +405,17 @@ Cependant, CARCEPT -Prévoyance assure la gestion administrative  et  financièr
 
 - Accord-cadre  du  20  avril  2016  pour  un  nouveau  modèle  de protection sociale des salariés relevant des professions des transports et activités du déchet, étendu par arrêté du 1er décembre 2016
 
-b - Montant des garanties
-
-<!-- image -->
+#### b - Montant des garanties
 
 Le  montant  de  la  garantie  est  basé  sur  le  salaire  annuel  de référence.  Celui-ci  correspond  à  l'ensemble  des  rémunérations totales brutes soumises aux cotisations de sécurité sociale, hors frais professionnels, limitées à trois fois le plafond annuel de la sécurité sociale, perçues au cours des 12 derniers mois précédant l'arrêt de travail ou le décès.
 
 En cas d'ancienneté inférieure  à  12  mois,  le  salaire  annuel  de référence est égal aux rémunérations totales brutes soumises aux cotisations de sécurité sociale, hors frais professionnels figurant dans le contrat de travail, limitées à trois fois le plafond annuel de la sécurité sociale.
 
-## c - Prestations
+#### c - Prestations
 
 - i. Garanties décès, incapacité de travail et  invalidité des non-cadres
 
-## Champ d'application :
+Champ d'application :
 
 Les dispositions suivantes s'appliquent à la convention collective nationale des transports routiers et activités auxiliaires du transport à l'exception des entreprises relevant des codes NAF suivants :
 
@@ -433,11 +424,11 @@ Les dispositions suivantes s'appliquent à la convention collective nationale de
 - -77.39Z :  Location  et  location-bail  d'autres  machines, équipements et biens matériels n.c.a ;
 - -86.90 A : Ambulances .
 
-## Bénéficiaires :
+ Bénéficiaires :
 
 Les salariés qui ne relèvent pas des dispositions des articles 2.1 et  2.2  de  l'accord  national  interprofessionnel  du  17  novembre 2017 relatif à la prévoyance des cadres.
 
-## Cotisation et répartition :
+ Cotisation et répartition :
 
 La cotisation est assise sur l'ensemble des rémunérations totales brutes  soumises  aux  cotisations  de  sécurité  sociale,  hors  frais professionnels.  Elle  est  limitée  à  trois  plafonds  de  la  sécurité sociale.
 
@@ -448,7 +439,7 @@ La cotisation est répartie à raison de 50% minimum à la charge de l'employeur
 - -la cotisation patronale est a minima de 0,35% dont 0,025% affectée au financement du haut degré de solidarité ;
 - -la cotisation salariale est au plus de 0,35% dont 0,025% affectée au financement du haut degré de solidarité.
 
-## Garantie décès ou invalidité absolue et définitive :
+ Garantie décès ou invalidité absolue et définitive :
 
 | Situation  familiale                           | Enfant à charge                                          | Montant   |
 |------------------------------------------------|----------------------------------------------------------|-----------|
@@ -487,7 +478,7 @@ Le total des sommes perçues par le salarié ne peut dépasser 100% du salaire n
 
 Garantie incapacité de travail : en cas d'arrêt de travail temporaire consécutif à une maladie ou accident du travail, le salarié non-cadre des transports routiers ou activités auxiliaires de transport a droit au versement d'indemnités journalières complémentaires à celles de la sécurité sociale.
 
-## Leur montant est établi comme suit :
+ Leur montant est établi comme suit :
 
 - -75% du  salaire  de  référence  pour  un  salarié  n'ayant  pas acquis 3000 points d'activité au 1er jour du sinistre ;
 - -80% du salaire de référence pour un salarié qui acquis 3000 points d'activité au jour du sinistre.
@@ -505,7 +496,7 @@ ii.
 
 Garantie inaptitude à la conduite
 
-## Champ d'application :
+Champ d'application :
 
 Les dispositions suivantes s'appliquent aux conventions collectives nationales suivantes :
 
@@ -515,7 +506,7 @@ Les dispositions suivantes s'appliquent aux conventions collectives nationales s
 
 Les  catégories  de  personnel  des  entreprises  relevant  de  la convention collective nationale des activités du déchet ayant pour activité  principale  la collecte des déchets non dangereux (code NAF : 38.11Z) sont également concernées.
 
-## Bénéficiaires :
+Bénéficiaires :
 
 Il s'agit des salariés occupant de manière effective et permanente un  des  emplois  de  conduite  cités  par  la  convention  collective concernée et affectés :
 
@@ -523,7 +514,7 @@ Il s'agit des salariés occupant de manière effective et permanente un  des  em
 - -Soit  à  la  conduite  des  véhicules  d'exploitation  des réseaux de tramways, métro, chemin de fer, funiculaire, nécessitant un certificat spécial de capacité à la conduite ;
 - -Soit à la conduite de transport scolaire.
 
-## Cotisation et répartition :
+Cotisation et répartition :
 
 La cotisation est assise sur l'ensemble des rémunérations totales brutes  soumises  aux  cotisations  de  sécurité  sociale,  hors  frais professionnels.  Elle  est  limitée  à  trois  plafonds  de  la  sécurité sociale.
 
@@ -532,7 +523,7 @@ Le taux de cotisation est fixé à 0,35%. La cotisation est répartie à raison 
 - -La cotisation patronale est a minima de 0,21% ;
 - -La cotisation salariale est au plus de 0,14%.
 
-## Montant de la garantie :
+Montant de la garantie :
 
 | Nombre de points d'activité   | Montant   |
 |-------------------------------|-----------|
@@ -544,18 +535,18 @@ Le total des sommes perçues par le salarié ne peut dépasser 100% du salaire n
 
 iii. Garantie ALD AVC / Cancer
 
-## Champ d'application :
+Champ d'application :
 
 Les dispositions suivantes s'appliquent aux entreprises relevant des codes NAF suivants :
 
 - -49.39 A : Transports routiers réguliers de voyageurs ;
 - -49.39 B : Autres transports routiers de voyageurs.
 
-## Bénéficiaires :
+Bénéficiaires :
 
 Il s'agit des salariés non-cadres ou assimilés cadres, c'est-à-dire les salariés qui ne relèvent pas des dispositions des articles 4 et 4 bis de la convention collective nationale de retraite et de prévoyance des cadres du 14 mars 1947 ou des dispositions des articles 2.1 et 2.2 de l'ANI du 17 novembre 2017 relatif à la prévoyance des cadres.
 
-## Cotisation et répartition :
+Cotisation et répartition :
 
 La  cotisation  est  assise  sur  l'ensemble  des  rémunérations  totales brutes  soumises  aux  cotisations  de  sécurité  sociale,  hors  frais professionnels. Elle est limitée à trois plafonds de la sécurité sociale.
 
@@ -564,7 +555,7 @@ Le taux de cotisation est fixé à 0,50 %. La cotisation est répartie à raison
 - -La cotisation patronale est a minima de 0,30 % ;
 - -La cotisation salariale est au plus de 0,20 %.
 
-## Garantie ALD AVC / Cancer :
+Garantie ALD AVC / Cancer :
 
 Sont  reconnues  « ALD  AVC  /  Cancer »,  dès  la  reconnaissance initiale  par  l'assurance  maladie,  les  deux  affectations  de  longue durée suivantes, définies à l'article D.160-4 du Code de la sécurité sociale :
 
@@ -577,17 +568,17 @@ La garantie ALD AVC / Cancer est alors composée du versement d'un capital égal
 
 - Accord  du  23  mars  2022  relatif  au  régime  de  prévoyance  des salariés des entreprises du transport de voyageurs, non étendu
 
-d  -  Prévoyance  du  personnel  des  transports  sanitaires (non-cadres et assimilés)
+#### d  -  Prévoyance  du  personnel  des  transports  sanitaires (non-cadres et assimilés)
 
-## Bénéficiaires :
+Bénéficiaires :
 
 Les salariés non-cadres et assimilés évoluant au sein des entreprises dont le code NAF et le 86.90 A - Ambulances.
 
-## Cotisations :
+Cotisations :
 
 Le montant global de la cotisation afférente au régime de prévoyance est fixé à 1,20 % dont 0,05 % affecté au financement du haut degré de  solidarité.  La  cotisation  globale  est  répartie  à  raison  de 50  % minimum à la charge de l'employeur et 50 % maximum à la charge du salarié.
 
-## Garanties :
+Garanties :
 
 | Garanties   | Description                                                 | Montant                                                                            |
 |-------------|-------------------------------------------------------------|------------------------------------------------------------------------------------|

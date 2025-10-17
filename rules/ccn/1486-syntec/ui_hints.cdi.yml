@@ -1,3 +1,4 @@
+# rules/ccn/1486-syntec/ui_hints.cdi.yml
 meta:
   ccn: "Syntec (IDCC 1486)"
   last_checked: "2025-08-21"
@@ -145,9 +146,9 @@ hints:
     kind: ccn
     when: { theme: "periode_essai" }
     text: "En articulant les dispositions issues de la loi et celles de la convention collective des Bureaux d’études techniques, la durée maximale de la période d’essai initiale est de :
-        •	2 mois pour les Employés (Positions 1 non cadre coef 240 à 250) 	      
-        •	3 mois pour les Agents de maîtrise / techniciens (Positions 2 et 3 non cadre coef 275 à 500)	      
-        •	4 mois pour les Ingénieurs et cadres (Positions 1.1 à 3.3)
+        •\t2 mois pour les Employés (Positions 1 non cadre coef 240 à 250) \t      
+        •\t3 mois pour les Agents de maîtrise / techniciens (Positions 2 et 3 non cadre coef 275 à 500)\t      
+        •\t4 mois pour les Ingénieurs et cadres (Positions 1.1 à 3.3)
         Le contrat de travail peut prévoir une durée de période d’essai plus courte (mais pas plus longue).
         💡 La période d'essai peut être renouvelée pour une durée équivalente à la durée initiale avec l'accord du salarié."
     ref: "C. trav., L1221-19 s. ; Syntec — dispositions spécifiques"

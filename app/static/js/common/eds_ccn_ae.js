@@ -51,7 +51,14 @@
   function commitIdccIfChanged(newId){
     const newVal = (newId != null) ? String(newId) : '';
     if (String(_lastCommittedIdcc) === newVal) return; // pas de changement → pas de refresh
-    if (idccHidden) idccHidden.value = newVal;
+    if (idccHidden) {
+      idccHidden.value = newVal;
+      // Notifie les écouteurs (ex. eds_classif.js) qu'un nouvel IDCC est commité
+      try {
+        idccHidden.dispatchEvent(new Event('input', { bubbles: true }));
+        idccHidden.dispatchEvent(new Event('change', { bubbles: true }));
+      } catch(_){ /* noop */ }
+    }
     _lastCommittedIdcc = newVal;
 
     // UI : si une CCN est saisie, décocher "Pas de CCN"

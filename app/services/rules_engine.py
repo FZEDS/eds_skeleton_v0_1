@@ -272,6 +272,9 @@ def compute_probation_bounds(
     coeff: Optional[int] = None,
     annexe: Optional[str] = None,
     statut: Optional[str] = None,
+    *,
+    contract_type: Optional[str] = None,
+    contract_duration_weeks: Optional[int] = None,
 ) -> Tuple[Dict[str, Optional[float]], Optional[Dict[str, Any]], List[Dict[str, Any]]]:
     """
     PÉRIODE D'ESSAI — Retourne (bounds, chosen_rule, considered_rules)
@@ -327,13 +330,58 @@ def compute_probation_bounds(
                 "raw": {"_synthetic": True, **fb_cat},
             }, []
 
-    # 3) Code du travail — format "legacy" (scope.categorie)
+    # 3) Code du travail — étendu (categorie + (eventuels) critères CDD)
+    def _match_code_scope(r: Dict[str, Any]) -> bool:
+        sc = r.get("scope") or {}
+        # catégorie
+        rc = sc.get("categorie")
+        if rc not in (None, ""):
+            if not _category_match(rc, cat_key):
+                return False
+        # type de contrat
+        ct = (sc.get("contract_type") or None)
+        if ct is not None:
+            try:
+                if str(ct).strip().lower() != str(contract_type or "").strip().lower():
+                    return False
+            except Exception:
+                return False
+        # bornes de durée (en semaines)
+        try:
+            dur = int(contract_duration_weeks) if contract_duration_weeks is not None else None
+        except Exception:
+            dur = None
+        minw = sc.get("contract_duration_weeks_min")
+        maxw = sc.get("contract_duration_weeks_max")
+        if minw is not None:
+            try:
+                if dur is None or int(dur) < int(minw):
+                    return False
+            except Exception:
+                return False
+        if maxw is not None:
+            try:
+                if dur is None or int(dur) > int(maxw):
+                    return False
+            except Exception:
+                return False
+        return True
+
     code_candidates = [
         r for r in bundle["code_items"]
-        if _within_effective(r, d)
-        and (r.get("scope", {}).get("categorie") in (None, categorie))
+        if _within_effective(r, d) and _match_code_scope(r)
     ]
     if code_candidates:
+        # Privilégier les règles les plus spécifiques (avec type/durée)
+        def _code_specificity(r: Dict[str, Any]) -> int:
+            sc = r.get("scope") or {}
+            s = 0
+            if sc.get("categorie") not in (None, ""): s += 1
+            if sc.get("contract_type") not in (None, ""): s += 2
+            if sc.get("contract_duration_weeks_min") is not None: s += 2
+            if sc.get("contract_duration_weeks_max") is not None: s += 2
+            return s
+        code_candidates.sort(key=_code_specificity, reverse=True)
         chosen = code_candidates[0]
         bounds = _extract_bounds_from_rule(chosen)
         return bounds, {

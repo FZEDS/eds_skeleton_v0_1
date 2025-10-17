@@ -1,0 +1,104 @@
+<!-- CDD — Étape Motif & Durée (numéro paramétrable) -->
+<div class="step card" data-step="{{ step_num|default('4') }}" aria-hidden="true">
+  <h3>{{ "%02d"|format(step_num|default(4)) }}. Motif du CDD</h3>
+
+  <div class="hintbar" role="note" aria-live="polite">
+    Le motif du recours doit obligatoirement correspondre à un cas autorisé par le Code du travail (L1242‑2).
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Motif du recours au CDD -->
+  <h4 style="margin:0 0 6px">Motif du recours</h4>
+  <div class="vlist" style="gap:10px">
+    <div class="radio">
+      <input type="radio" name="cdd_reason" id="cdd_reason_remp" value="remplacement" data-required="true">
+      <label class="label" for="cdd_reason_remp">Remplacement d’un salarié absent</label>
+      <span></span>
+    </div>
+    <div class="radio">
+      <input type="radio" name="cdd_reason" id="cdd_reason_acc" value="accroissement">
+      <label class="label" for="cdd_reason_acc">Accroissement temporaire d’activité</label>
+      <span></span>
+    </div>
+    <div class="radio">
+      <input type="radio" name="cdd_reason" id="cdd_reason_sais" value="saisonnier">
+      <label class="label" for="cdd_reason_sais">Emploi saisonnier</label>
+      <span></span>
+    </div>
+    <div class="radio">
+      <input type="radio" name="cdd_reason" id="cdd_reason_usage" value="usage">
+      <label class="label" for="cdd_reason_usage">CDD d’usage</label>
+      <span></span>
+    </div>
+    <div class="radio">
+      <input type="radio" name="cdd_reason" id="cdd_reason_other" value="autre">
+      <label class="label" for="cdd_reason_other">Autre motif (à préciser)</label>
+      <span></span>
+    </div>
+  </div>
+
+  <!-- Accroissement : contrôle licenciement économique < 6 mois (rappel légal) -->
+  <div id="cdd_acc_box" class="fieldset" style="display:none; margin-top:8px">
+    <div class="callout callout-info" style="margin-bottom:6px">
+      En cas d'accroissement temporaire, un CDD est en principe <strong>interdit</strong> lorsqu'un licenciement économique est intervenu <strong>dans les 6 mois précédents</strong> sur le <em>même poste</em> au sein de l'établissement, sauf exception prévue par accord (ex. PSE, dispositions conventionnelles applicables).
+    </div>
+    <div class="grid3">
+      <div>
+        <label>Licenciement économique sur le poste (≤ 6 mois) ?</label>
+        <div class="vlist">
+          <label class="inline"><input type="radio" name="cdd_eco_layoff_6m" id="cdd_eco_layoff_yes" value="oui"> <span>Oui</span></label>
+          <label class="inline"><input type="radio" name="cdd_eco_layoff_6m" id="cdd_eco_layoff_no"  value="non"> <span>Non</span></label>
+        </div>
+      </div>
+      <div>
+        <label>Justification/exception (si oui)</label>
+        <input name="cdd_eco_layoff_notes" id="cdd_eco_layoff_notes" placeholder="Ex. exception prévue par PSE / accord de branche...">
+      </div>
+      <div></div>
+    </div>
+    <div id="cdd_acc_warn" class="callout callout-warn" style="display:none; margin-top:8px"></div>
+  </div>
+
+  <div id="cdd_reason_other_box" class="fieldset" style="display:none; margin-top:10px">
+    <label>Précision du motif</label>
+    <input name="cdd_reason_other_text" placeholder="Ex. attente d’un recrutement CDI…">
+  </div>
+
+  <!-- Détails en cas de remplacement -->
+  <div id="cdd_replacement_box" class="fieldset" style="display:none; margin-top:12px">
+    <div class="callout callout-info" style="margin-bottom:8px">
+      En cas de remplacement, précisez le nom et la fonction de la personne remplacée.
+    </div>
+    <div class="grid3">
+      <div>
+        <label>Salarié remplacé – Nom</label>
+        <input name="cdd_replace_last_name" placeholder="NOM">
+      </div>
+      <div>
+        <label>Prénom</label>
+        <input name="cdd_replace_first_name" placeholder="Prénom">
+      </div>
+      <div>
+        <label>Fonction / Poste</label>
+        <input name="cdd_replace_job" placeholder="Ex. Chargé de clientèle">
+      </div>
+    </div>
+    <div style="margin-top:8px">
+      <label>Raison de l’absence (optionnel)</label>
+      <input name="cdd_replace_reason" placeholder="Ex. congé maternité, arrêt maladie, etc.">
+    </div>
+  </div>
+
+  <!-- Carence — hint dynamique (motif + CCN) -->
+  <div id="cdd_carence_motif" class="callout" style="display:none; margin-top:10px"></div>
+
+  <div class="divider"></div>
+
+  <div class="actions" style="margin-top:10px">
+    <button class="btn" data-prev>Précédent</button>
+    <button class="btn-primary" data-next>Suivant</button>
+  </div>
+</div>
+
+{# JS déplacé dans app/static/js/cdd.js #}

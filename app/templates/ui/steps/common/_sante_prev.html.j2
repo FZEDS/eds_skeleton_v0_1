@@ -1,0 +1,102 @@
+{# Étape — Santé & prévoyance (commune) #}
+<div class="step card" data-step="{{ step_num|default('11') }}" aria-hidden="true">
+  <h3>{{ "%02d"|format(step_num|default(11)) }}. Santé & prévoyance</h3>
+
+  <!-- Prévoyance (obligatoire si affiliée) -->
+  <h4>Prévoyance
+    <span class="help" title="Garanties incapacité/invalidité/décès mises en place par l’entreprise ou la branche. Indiquez l’organisme et son adresse. À mentionner en CDD si l’entreprise est affiliée.">i</span>
+  </h4>
+  <label class="inline" style="margin-top:4px">
+    <input type="checkbox" id="prevoyance_affilie"> L’entreprise est affiliée à un organisme de prévoyance
+  </label>
+  <div class="grid2" style="margin-top:8px">
+    <div>
+      <label>Organisme</label>
+      <input name="welfare_org" id="welfare_org" placeholder="Ex. APICIL…">
+    </div>
+    <div>
+      <label>Adresse</label>
+      <input name="welfare_org_address" id="welfare_org_address" placeholder="Adresse complète (n°, voie, CP, ville)">
+    </div>
+  </div>
+
+  <!-- Retraite complémentaire (obligatoire : nom + adresse) -->
+  <h4 style="margin-top:14px">Retraite complémentaire
+    <span class="help" title="Régime AGIRC‑ARRCO du salarié. Renseignez le nom de la caisse et son adresse. Obligatoire en CDD, facultatif dans le CDI (information possible hors contrat).">i</span>
+  </h4>
+  <div class="grid2" style="margin-top:8px">
+    <div>
+      <label>Nom de la caisse</label>
+      <input name="retirement_org" id="retirement_org" placeholder="Ex. Agirc‑Arrco — caisse X" data-required="true" required>
+    </div>
+    <div>
+      <label>Adresse de la caisse</label>
+      <input name="retirement_org_address" id="retirement_org_address" placeholder="Adresse complète (n°, voie, CP, ville)" data-required="true" required>
+    </div>
+  </div>
+
+  <!-- Mutuelle / frais de santé (facultatif) -->
+  <h4 style="margin-top:14px">Mutuelle / frais de santé
+    <span class="help" title="Complémentaire santé collective de l’entreprise. Indiquez l’organisme et son adresse. Facultatif dans le contrat (mais l’employeur doit en proposer une).">i</span>
+  </h4>
+  <div class="grid2" style="margin-top:8px">
+    <div>
+      <label>Organisme</label>
+      <input name="health_org" id="health_org" placeholder="Ex. Harmonie Mutuelle, Alan…">
+    </div>
+    <div>
+      <label>Adresse</label>
+      <input name="health_org_address" id="health_org_address" placeholder="Adresse complète (n°, voie, CP, ville)">
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <h4>Poste à risques particuliers (L.4154‑2) ?
+    <span class="help" title="Poste inscrit sur la liste des postes présentant des risques particuliers de l’entreprise (référentiel/DUERP). Entraîne un suivi individuel renforcé avec examen d’aptitude préalable.">i</span>
+  </h4>
+  <div class="vlist">
+    <label class="inline"><input type="radio" name="poste_risques_particuliers" value="non" checked> Non</label>
+    <label class="inline"><input type="radio" name="poste_risques_particuliers" value="oui"> Oui</label>
+  </div>
+  <div id="risques_hint" class="callout callout-info" style="display:none; margin-top:8px">
+    Le poste figure sur la liste des postes présentant des <strong>risques particuliers</strong> au sens de l’article L.4154‑2.
+    Le salarié relève d’un <strong>suivi individuel renforcé</strong> avec examen d’aptitude préalable (R.4624‑23 et R.4624‑24). Une mention sera insérée dans le contrat.
+  </div>
+
+  <div class="actions" style="margin-top:10px">
+    <button class="btn" data-prev>Précédent</button>
+    <button class="btn-primary" data-next>Suivant</button>
+  </div>
+
+  <script>
+    (function(){
+      const $$ = (s)=>Array.from(document.querySelectorAll(s));
+      function refresh(){
+        const val = (document.querySelector('input[name="poste_risques_particuliers"]:checked')||{}).value;
+        const hint = document.getElementById('risques_hint');
+        if (hint) hint.style.display = (val === 'oui') ? 'block' : 'none';
+      }
+      $$('.step[data-step="{{ step_num|default('11') }}"] input[name="poste_risques_particuliers"]').forEach(el=>{
+        el.addEventListener('change', refresh);
+      });
+      // init après insertion dans le DOM
+      setTimeout(refresh, 0);
+
+      // Prévoyance — bascule requis si affilié
+      const aff = document.getElementById('prevoyance_affilie');
+      const prevOrg = document.getElementById('welfare_org');
+      const prevAdr = document.getElementById('welfare_org_address');
+      function togglePrevoyanceRequired(){
+        const on = !!aff?.checked;
+        [prevOrg, prevAdr].forEach(inp=>{
+          if (!inp) return;
+          if (on){ inp.setAttribute('data-required','true'); inp.setAttribute('required',''); }
+          else { inp.removeAttribute('data-required'); inp.removeAttribute('required'); }
+        });
+      }
+      if (aff){ aff.addEventListener('change', togglePrevoyanceRequired); }
+      togglePrevoyanceRequired();
+    })();
+  </script>
+</div>

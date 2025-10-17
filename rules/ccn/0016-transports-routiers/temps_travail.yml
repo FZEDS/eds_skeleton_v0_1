@@ -18,8 +18,8 @@ rules:
     scope: { work_time_mode: "standard", segment: "TRM_AAT", statut: "roulant" }
     constraint:
       weekly_hours_max: 39
-    notes: "Roulants TRM/AAT courte distance : 39 h/semaine considérées comme normales (équivalence)."
-    source_ref: "Équivalence conducteurs TRM/AAT"
+    notes: "TRM (roulants) — courte distance : 39 h/sem considérées comme normales (équivalence). Longue distance : repère 43 h (GAR 200 h/mois). Respect des plafonds légaux (48 h/sem ; moyenne 44 h/12 sem)."
+    source_ref: "TRM roulants — 39 h (équivalence courte distance). LD : 43 h (repère rémunération)."
 
   # Équivalence roulants — durée normale portée à 39 h/semaine sans surcoût (TRV)
   - key: "equivalence_roulants_trv"

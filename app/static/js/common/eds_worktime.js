@@ -116,7 +116,7 @@
         const trvMode = String(ctx.trv_fulltime_mode || '').trim().toLowerCase();
         if (idcc === 16 && seg === 'TRV'){
           if (trvMode === '39rtt') suffix = ' (TRV — 39 h + RTT)';
-          else suffix = ' (TRV — 35 h / 70 h quinzaine)';
+          else suffix = ' (TRV — 35 h)';
         }
       }catch(_){ /* ignore */ }
       lbl.textContent = `${h} heures par semaine${suffix}`;
@@ -879,6 +879,21 @@
       if (lastBounds.days_per_year_max!=null) fd.max = String(lastBounds.days_per_year_max);
       validateFJ();
     }
+
+    // Syntec (IDCC 1486) — Temps partiel : hint coupures journalières
+    try {
+      const idcc = getIdcc();
+      const reg  = getRegime();
+      if (idcc === 1486 && reg === 'temps_partiel'){
+        const n = document.getElementById('pt_coupures_card');
+        if (n && nodeEmpty(n)){
+          n.classList.remove('callout-info','callout-warn');
+          n.classList.add('callout-ccn');
+          n.innerHTML = '<strong>Syntec — Temps partiel — Coupures journalières.</strong><br>Au plus <strong>1 interruption</strong> par jour, d’une durée <strong>≤ 1&nbsp;heure</strong>.';
+          n.style.display = 'block';
+        }
+      }
+    } catch(_) { /* noop */ }
   }
 
   // ---------- Temps partiel : sérialisation & UI ----------
@@ -1303,9 +1318,17 @@
 
   // ---------- Init (sûr & idempotent) ----------
   let _inited = false;
+  function currentStep(){
+    try{
+      // Cherche un conteneur caractéristique de l'étape temps de travail
+      const host = document.getElementById('wt_modalities')?.closest('.step')
+               || document.getElementById('reg_full')?.closest('.step');
+      return host || null;
+    }catch(_){ return null; }
+  }
   function init(){
     if (_inited) return;
-    step = document.querySelector('.step[data-step="5"]');
+    step = currentStep();
     if (!step) return;
     _inited = true;
     // Recalcule quand le contexte (classification) change
@@ -1348,7 +1371,13 @@
         const v = document.querySelector('input[name="trm_service_kind"]:checked')?.value || 'autres_roulants';
         window.EDS_CTX = window.EDS_CTX || {};
         window.EDS_CTX.trm_service_kind = v;
+        // S'assurer qu'une modalité "standard" est sélectionnée (groupe requis)
+        const reg = getRegime();
+        if (reg === 'temps_complet' && !document.querySelector('input[name="work_time_mode"]:checked')){
+          const def = document.getElementById('wt_35'); if (def) def.checked = true;
+        }
         applyStdFulltimeDefaults();
+        onModeChange();
         document.dispatchEvent(new CustomEvent('eds:worktime_changed'));
       });
     });
@@ -1430,7 +1459,9 @@
 
     // Recalcul si la catégorie change (ex. après modification classification)
     document.getElementById('categorie')?.addEventListener('change', ()=>{
-      if (document.querySelector('.step[data-step="5"][aria-hidden="false"]')){
+      const host = currentStep();
+      const n = host?.getAttribute?.('data-step');
+      if (n && document.querySelector(`.step[data-step="${n}"][aria-hidden="false"]`)){
         refreshAll();
       }
     });

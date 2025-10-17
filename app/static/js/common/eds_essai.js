@@ -30,7 +30,16 @@
   }
 
   // ----- Helpers UI locaux (autonomes) -----
-  function stepEl(){ return document.querySelector('.step[data-step="7"]'); }
+  function getStepNumber(){
+    // Détection robuste: lire l'attribut data-step du conteneur du champ 'probation_months'
+    const host = document.getElementById('probation_months')?.closest('.step');
+    const n = host?.getAttribute?.('data-step');
+    const parsed = n ? parseInt(n, 10) : NaN;
+    if (!Number.isNaN(parsed)) return parsed;
+    // Fallback: selon le type de document
+    return (window.EDS_DOC === 'cdd') ? 8 : 7;
+  }
+  function stepEl(){ return document.querySelector(`.step[data-step="${getStepNumber()}"]`); }
   function setNextDisabled(disabled){
     const btn = stepEl()?.querySelector('[data-next]');
     if (btn){ btn.disabled = !!disabled; btn.classList.toggle('disabled', !!disabled); }
@@ -119,7 +128,8 @@
   // ----- Appel API + validation -----
   async function refresh(){
     // Ne rien faire si l'étape 7 (Période d’essai) n'est pas visible
-    const isStep7Visible = !!document.querySelector('.step[data-step="7"][aria-hidden="false"]');
+    const stepNum = getStepNumber();
+    const isStep7Visible = !!document.querySelector(`.step[data-step="${stepNum}"][aria-hidden="false"]`);
     if (!isStep7Visible) return;
     const idcc  = getIdcc();
     const cat   = getCategorie();
@@ -135,6 +145,33 @@
         const ctx = (window.EDS_CTX || {});
         if (ctx.annexe) q.append('annexe', String(ctx.annexe));
         if (ctx.statut) q.append('statut', String(ctx.statut));
+      }catch(_){ }
+
+      // Contexte CDD : type et durée estimée
+      try{
+        if (window.EDS_DOC === 'cdd'){
+          q.append('contract_type', 'cdd');
+          const end = document.getElementById('contract_end')?.value || '';
+          let durWeeks = null;
+          if (end){
+            const t0 = Date.parse(as_of);
+            const t1 = Date.parse(end);
+            if (!Number.isNaN(t0) && !Number.isNaN(t1) && t1>t0){
+              durWeeks = Math.round((t1 - t0) / (7*24*3600*1000));
+            }
+          } else {
+            // Sans terme précis: utiliser la durée minimale si présente
+            const v = document.getElementById('cdd_min_duration_value')?.value;
+            const u = document.getElementById('cdd_min_duration_unit')?.value || 'jours';
+            if (v){
+              const n = parseInt(String(v),10);
+              if (!Number.isNaN(n)){
+                durWeeks = (u === 'mois') ? Math.round((n*30)/7) : Math.round(n/7);
+              }
+            }
+          }
+          if (durWeeks!=null){ q.append('duration_weeks', String(durWeeks)); }
+        }
       }catch(_){ }
 
       // plus de pré‑check via /api/resolve: l'étape 4 collecte déjà les infos nécessaires
@@ -175,7 +212,7 @@
     const err   = ensureErrNode('probation_err', input?.parentElement);
     if(!input || !err) return;
 
-    const stepNumber = 7;
+    const stepNumber = getStepNumber();
     const ncKey = 'essai_ui';
 
     clearError(input, err, ncKey);
@@ -203,8 +240,8 @@
   window.EDS_ESSAI.refresh = refresh;
 
   document.addEventListener('DOMContentLoaded', ()=>{
-    // Ne lance pas le calcul tant que l'étape 7 n'est pas visible
-    if (document.querySelector('.step[data-step="7"][aria-hidden="false"]')){
+    const stepNum = getStepNumber();
+    if (document.querySelector(`.step[data-step="${stepNum}"][aria-hidden="false"]`)){
       refresh();
     }
   });

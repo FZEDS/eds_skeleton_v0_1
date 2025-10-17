@@ -5,6 +5,16 @@
 
   const $  = (sel, root=document)=> root.querySelector(sel);
   const $$ = (sel, root=document)=> Array.from(root.querySelectorAll(sel));
+  function classifStepRoot(){
+    try{
+      const el = document.getElementById('classif_pos_container')
+             || document.getElementById('classif_cat_container')
+             || document.getElementById('classif_questions')
+             || document.getElementById('classif_coeff_container');
+      const step = el ? el.closest('.step') : null;
+      return step || document;
+    }catch(_){ return document; }
+  }
 
   function escapeHtml(str){
     return String(str||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -162,7 +172,7 @@
   }
 
   function renderQuestions(schema){
-    const stepRoot = document.querySelector('.step[data-step="4"]') || document;
+    const stepRoot = classifStepRoot();
     const wrapper = $( '#classif_questions', stepRoot);
     const box = $( '#classif_questions_box', stepRoot);
     if (!wrapper || !box){
@@ -329,7 +339,7 @@
   }
 
   function renderCoefficients(schema){
-    const stepRoot = document.querySelector('.step[data-step="4"]') || document;
+    const stepRoot = classifStepRoot();
     const entry = bestCoeffEntry(schema);
     const { block, container } = ensureCoeffContainer(stepRoot);
 
@@ -385,7 +395,7 @@
   }
 
   function renderSchema(schema){
-    const stepRoot = document.querySelector('.step[data-step="4"]') || document;
+    const stepRoot = classifStepRoot();
     const catBox = $('#classif_cat_container', stepRoot);
     const posBox = $('#classif_pos_container', stepRoot);
     const fallback = $('#classif_fallback', stepRoot);
@@ -436,7 +446,7 @@
   }
 
   function renderPositions(schema, category){
-    const stepRoot = document.querySelector('.step[data-step="4"]') || document;
+    const stepRoot = classifStepRoot();
     const posBox = $('#classif_pos_container', stepRoot);
     if (!posBox) return;
     posBox.innerHTML = '';

@@ -1,0 +1,39 @@
+meta:
+  label: "CDD — Droit commun"
+  source:
+    article: "C. trav., L1242‑1 s., L1243‑8, L1244‑3 s."
+    url: "https://www.legifrance.gouv.fr/"
+  effective:
+    from: "2024-01-01"
+
+precarity:
+  default_rate_percent: 10.0
+  source: code
+  note: "Taux légal par défaut, sous réserve d'accord de branche étendu (6%) offrant des garanties de formation."
+
+recourse:
+  allow_imprecise_reasons: ["remplacement", "saisonnier", "usage"]
+
+duration:
+  max_months_by_reason:
+    remplacement: 18
+    accroissement: 18
+    saisonnier: null
+    usage: null
+  special_cases:
+    - when: "accroissement.export"
+      max_months: 24
+
+renewals:
+  max_count_by_reason:
+    remplacement: 2
+    accroissement: 2
+    saisonnier: null
+    usage: null
+
+carence:
+  method: "1_3_or_1_2"
+  exemptions: ["saisonnier", "usage", "remplacement_justifié", "accord"]
+  scope: "même poste"
+  note: "Délai = 1/3 si CDD > 14 j ; 1/2 si ≤ 14 j. Dispenses pour saisonnier, usage, remplacement justifié et cas prévus par accord."
+

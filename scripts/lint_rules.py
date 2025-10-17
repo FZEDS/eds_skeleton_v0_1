@@ -196,7 +196,8 @@ def main():
         if data is None:
             ok = False
             continue
-        if p.name == "ui_hints.yml":
+        # Valide les fichiers hints CCN : ui_hints.yml et variantes (ui_hints.cdi.yml / ui_hints.cdd.yml)
+        if p.name == "ui_hints.yml" or (p.name.startswith("ui_hints.") and p.name.endswith(".yml")):
             ok = check_ui_hints(p, data) and ok
         if p.name.endswith("temps_travail.yml"):
             ok = check_temps_travail(p, data) and ok

@@ -1,6 +1,6 @@
-{# app/templates/ui/steps/_07_essai.html.j2 #}
-<div class="step card flow-16" data-step="7" aria-hidden="true">
-  <h3>07. Période d’essai <span class="badge">Bloc 1 — la branche prime</span></h3>
+{# app/templates/ui/steps/common/_07_essai.html.j2 #}
+<div class="step card flow-16" data-step="{{ step_num|default('7') }}" aria-hidden="true">
+  <h3>{{ "%02d"|format(step_num|default(7)) }}. Période d’essai <span class="badge">Bloc 1 — la branche prime</span></h3>
 
   <div class="hintbar" style="margin-top:25px">
     <strong>Objet de la période d’essai</strong><br>
@@ -32,10 +32,13 @@
   <div class="fieldset flow-12">
     <div>
       <label>Renouvellement</label>
-      <select name="probation_renewal_requested">
+      <select name="probation_renewal_requested" {% if doc_type == 'cdd' %}disabled{% endif %}>
         <option value="non">Non</option>
         <option value="oui">Oui</option>
       </select>
+      {% if doc_type == 'cdd' %}
+      <small class="muted">CDD : la période d’essai n’est pas renouvelable (sauf accord de branche étendu très spécifique).</small>
+      {% endif %}
     </div>
 
     <div id="essai_renewal"

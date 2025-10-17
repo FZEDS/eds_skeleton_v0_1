@@ -27,8 +27,7 @@ meta:
 #     renewal_allowed: true
 #     source_ref: "Article … (Légifrance)"
 
-rul
-es:
+rules:
   # Ouvriers & Employés — hors niveau III : 1 mois (CDI)
   - key: "ouvriers_employes_autres"
     effective: { from: "2024-12-13" }

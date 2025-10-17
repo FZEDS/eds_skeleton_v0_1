@@ -1,6 +1,11 @@
 meta:
   label: "Clauses spécifiques — IDCC 2216"
 
+defaults:
+  auto_include:
+    - public_holidays_2216
+    - night_work_premiums_2216
+
 clauses:
 
   - key: sunday_work_premiums_2216

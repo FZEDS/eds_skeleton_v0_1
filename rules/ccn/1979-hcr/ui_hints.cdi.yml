@@ -1,4 +1,5 @@
-# rules/ccn/1979-hcr/ui_hints.yml
+# rules/ccn/1979-hcr/ui_hints.cdi.yml
+# rules/ccn/1979-hcr/ui_hints.cdi.yml
 hints:
   # ---- Classification (étape 4) ----
   - theme: "classification"

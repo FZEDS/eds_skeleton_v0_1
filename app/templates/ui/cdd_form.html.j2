@@ -1,11 +1,312 @@
 {% extends "layout.html.j2" %}
 {% block content %}
+  {% from 'components/macros.html.j2' import callout, error_msg %}
+
   <script>window.EDS_DOC = "cdd";</script>
-  <h2>CDD — Création</h2>
-  <div class="callout" style="margin:10px 0">
-    Formulaire en préparation. Il réutilisera les steps communs (CCN, classification, temps de travail,
-    rémunération, période d’essai, préavis) + un step spécifique CDD (motif, terme, renouvellements).
+  <link rel="stylesheet" href="{{ url_for('static', path='css/eds.css') }}">
+  <style></style>
+
+  <div class="toolbar">
+    <button type="button" class="btn-ghost" id="btn-save">Enregistrer</button>
+    <button type="button" class="btn" id="btn-preview">Aperçu</button>
   </div>
-  <p><a class="btn" href="{{ url_for('document_form', dockey='cdi') }}">Revenir au CDI</a>
-     <a class="btn-primary" href="{{ url_for('documents_list') }}">Tous les documents</a></p>
+
+  <h2>CDD — Création</h2>
+  <div class="progress"><i id="progress"></i></div>
+
+  <div class="formgrid">
+    <!-- Colonne principale -->
+    <section class="maincol">
+
+<!-- STEP 1 -->
+<div class="step card" data-step="1" aria-hidden="false">
+  <h3>01. L’entreprise employeur</h3>
+
+  <div class="grid2">
+    <div>
+      <label>Nom de l’entreprise</label>
+      <input name="employer_name" data-required="true" placeholder="Dénomination sociale">
+    </div>
+    <div>
+      <label>Forme sociale</label>
+      <input name="legal_form" data-required="true" placeholder="SAS, SARL, SA…">
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <label>Numéro SIREN
+        <span class="help" title="Numéro SIREN à 9 chiffres (également n° RCS). Visible sur le Kbis ou sur https://www.infogreffe.fr">i</span>
+      </label>
+      <input name="siren_number" inputmode="numeric" pattern="\d{9}" maxlength="9" placeholder="9 chiffres" data-required="true">
+    </div>
+    <div>
+      <label>Numéro Urssaf</label>
+      <input name="urssaf_number" data-required="true" placeholder="Ex. 75 1234567 89">
+    </div>
+  </div>
+
+  <div>
+    <label>Adresse du siège social</label>
+    <input name="employer_address" data-required="true" placeholder="N° et voie, compléments">
+  </div>
+
+  <div class="grid2">
+    <div>
+      <label>Code postal</label>
+      <input name="employer_postal_code" inputmode="numeric" pattern="\d{4,5}" maxlength="5" data-required="true">
+    </div>
+    <div>
+      <label>Commune</label>
+      <input name="employer_city" data-required="true" placeholder="Ville">
+    </div>
+  </div>
+
+  <h4 style="margin-top:10px">Représentant de l’entreprise</h4>
+  <div class="grid3">
+    <div>
+      <label>Civilité</label>
+      <select name="rep_civility" data-required="true">
+        <option>Madame</option><option>Monsieur</option>
+      </select>
+    </div>
+    <div>
+      <label>Nom</label>
+      <input name="rep_last_name" data-required="true" placeholder="NOM">
+    </div>
+    <div>
+      <label>Prénom</label>
+      <input name="rep_first_name" data-required="true" placeholder="Prénom">
+    </div>
+  </div>
+  <div>
+    <label>Fonction</label>
+    <input name="rep_title" data-required="true" placeholder="Président, Gérant…">
+  </div>
+  <!-- requis par le backend : rep_name (composé automatiquement) -->
+  <input type="hidden" name="rep_name" id="rep_name_hidden">
+
+  <div class="hintbar">
+    💡 Le contrat doit être signé par le représentant légal de l'entreprise ou à défaut par une personne en interne bénéficiaire d'une délégation de signature ou de pouvoirs valable.
+  </div>
+
+  <div class="actions">
+    <span></span>
+    <button class="btn-primary" data-next>Suivant</button>
+  </div>
+  </div>
+
+<!-- STEP 2 -->
+<div class="step card" data-step="2" aria-hidden="true">
+  <h3>02. Identité du salarié</h3>
+
+  <div class="grid3">
+    <div>
+      <label>Civilité</label>
+      <select name="employee_civility" data-required="true">
+        <option>Madame</option><option>Monsieur</option>
+      </select>
+    </div>
+    <div>
+      <label>Nom</label>
+      <input name="employee_last_name" data-required="true" placeholder="NOM">
+    </div>
+    <div>
+      <label>Prénom</label>
+      <input name="employee_first_name" data-required="true" placeholder="Prénom">
+    </div>
+  </div>
+
+  <div>
+    <label>Adresse postale</label>
+    <input name="employee_address" data-required="true" placeholder="N° et voie, compléments">
+  </div>
+
+  <div class="grid2">
+    <div>
+      <label>Code postal</label>
+      <input name="employee_postal_code" inputmode="numeric" pattern="\d{5}" maxlength="5" data-required="true" placeholder="75001">
+    </div>
+    <div>
+      <label>Commune</label>
+      <input name="employee_city" data-required="true" placeholder="Paris">
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <label>Nationalité</label>
+      <input name="nationality" data-required="true" placeholder="Française, …">
+    </div>
+    <div>
+      <label>N° de sécurité sociale
+        <span class="help" title="Numéro de sécurité sociale (NIR) — 15 chiffres. Visible sur la carte Vitale.">i</span>
+      </label>
+      <input name="ssn" inputmode="numeric" pattern="[0-9 ]{13,15}" data-required="true" placeholder="15 chiffres">
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <label>Date de naissance</label>
+      <input type="date" name="birth_date" data-required="true">
+    </div>
+    <div>
+      <label>Lieu de naissance</label>
+      <input name="birth_place" data-required="true" placeholder="Ville, pays">
+    </div>
+  </div>
+
+  <!-- requis par le backend : nom complet (composé automatiquement) -->
+  <input type="hidden" name="employee_name" id="employee_name_hidden">
+
+  <div class="actions">
+    <button class="btn" data-prev>Précédent</button>
+    <button class="btn-primary" data-next>Suivant</button>
+  </div>
+</div>
+
+{% include 'steps/common/_ccn_ae.html.j2' %}
+{% with %}{% set step_num = 4 %}{% include 'steps/cdd/_04_cdd_infos.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 5 %}{% set doc_type = 'cdd' %}{% include 'steps/common/_calendar.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 6 %}{% include 'steps/common/_poste_lieu.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 7 %}{% include 'steps/common/_classification.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 8 %}{% include 'steps/common/_work_time.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 9 %}{% set doc_type = 'cdd' %}{% include 'steps/common/_remuneration.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 10 %}{% set doc_type = 'cdd' %}{% include 'steps/common/_essai.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 11 %}{% set doc_type = 'cdd' %}{% include 'steps/common/_preavis.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 12 %}{% include 'steps/common/_sante_prev.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 13 %}{% include 'steps/common/_clauses.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 14 %}{% include 'steps/common/_formalites.html.j2' %}{% endwith %}
+
+    </section>
+
+    <!-- Sommaire -->
+    <aside class="summary">
+      <h4>Sommaire</h4>
+      <ol class="steps" id="steps">
+        <li data-step="1">1. L’entreprise employeur</li>
+        <li data-step="2">2. Identité du salarié</li>
+        <li data-step="3">3. Convention collective</li>
+        <li data-step="4">4. Motif du CDD</li>
+        <li data-step="5">5. Calendrier du contrat</li>
+        <li data-step="6">6. Poste & lieu</li>
+        <li data-step="7">7. Classification</li>
+        <li data-step="8">8. Durée du travail</li>
+        <li data-step="9">9. Rémunération</li>
+        <li data-step="10">10. Période d’essai</li>
+        <li data-step="11">11. Congés payés</li>
+        <li data-step="12">12. Santé & prévoyance</li>
+        <li data-step="13">13. Clauses additionnelles</li>
+        <li data-step="14">14. Formalités</li>
+      </ol>
+    </aside>
+  </div>
+
+  <!-- Overlay aperçu -->
+  <div class="overlay" id="overlay" style="display:none">
+    <div class="panel">
+      <header>
+        <strong>Aperçu (synthèse des champs)</strong>
+        <button class="btn" id="close-overlay">Fermer</button>
+      </header>
+      <div id="preview-body" class="muted"></div>
+    </div>
+  </div>
+
+  <!-- Overlay confirmation finale -->
+  <div class="overlay" id="confirm-overlay" style="display:none">
+    <div class="panel">
+      <header>
+        <strong>Vérification finale</strong>
+        <button class="btn" id="close-confirm">Annuler</button>
+      </header>
+      <div id="confirm-body" class="muted"></div>
+      <div style="display:flex; gap:8px; justify-content:flex-end; margin-top:10px">
+        <button class="btn" id="confirm-fix">Corriger</button>
+        <button class="btn-primary" id="confirm-submit">Confirmer et générer</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    'use strict';
+    const $  = (s)=>document.querySelector(s);
+    const $$ = (s)=>Array.from(document.querySelectorAll(s));
+
+    const steps = $$('.step');
+    let i = 0; // index courant (0‑based)
+
+    function setState(){
+      steps.forEach((s, idx)=>{
+        const on = (idx === i);
+        s.setAttribute('aria-hidden', on ? 'false' : 'true');
+        s.style.display = on ? '' : 'none';
+      });
+      updateProgressUI();
+      const items = $$('#steps li');
+      items.forEach((li, idx)=>{
+        li.classList.toggle('current', idx===i);
+        li.classList.toggle('done', idx < i);
+      });
+
+      // En entrant dans l'étape 7 (index 6), on commit l'IDCC et on rafraîchit la classification
+      if (i === 6) {
+        try { if (typeof window.setIdccFromInput === 'function') window.setIdccFromInput(); } catch(_){ /* noop */ }
+        try { if (window.EDS_CLASSIF?.refresh) window.EDS_CLASSIF.refresh(); } catch(_){ /* noop */ }
+      }
+    }
+
+    function updateProgressUI(){
+      const total = steps.length || 1;
+      const doneCount = Math.max(1, i+1);
+      const bar = $('#progress');
+      if (bar) bar.style.width = Math.round((doneCount/total)*100) + '%';
+    }
+
+    // Navigation boutons
+    $$('#steps li').forEach(li=>{
+      li.addEventListener('click', ()=>{
+        const n = parseInt(li.getAttribute('data-step')||'0',10);
+        if (Number.isInteger(n) && n>=1 && n<=steps.length){ i = n-1; setState(); }
+      });
+    });
+    document.querySelectorAll('[data-next]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{ e.preventDefault(); if (i < steps.length-1){ i++; setState(); } });
+    });
+    document.querySelectorAll('[data-prev]').forEach(btn=>{
+      btn.addEventListener('click', (e)=>{ e.preventDefault(); if (i>0){ i--; setState(); } });
+    });
+
+    // Init
+    setState();
+  })();
+  </script>
+
+  <script src="{{ url_for('static', path='js/common/eds_explain.js') }}"></script>
+  <script src="{{ url_for('static', path='js/common/eds_steps.js') }}"></script>
+  <script src="{{ url_for('static', path='js/cdd.js') }}"></script>
+  <script src="{{ url_for('static', path='js/common/eds_ccn_ae.js') }}"></script>
+  <script src="{{ url_for('static', path='js/common/eds_classif.js') }}?v=0016-ui-coeff"></script>
+  <script src="{{ url_for('static', path='js/common/eds_step4.js') }}"></script>
+  <script src="{{ url_for('static', path='js/common/eds_worktime.js') }}"></script>
+  <script src="{{ url_for('static', path='js/common/eds_salary.js') }}"></script>
+  <script src="{{ url_for('static', path='js/common/eds_essai.js') }}"></script>
+  <script src="{{ url_for('static', path='js/common/eds_preavis.js') }}"></script>
+  <script src="{{ url_for('static', path='js/common/eds_clauses.js') }}"></script>
+  <script src="{{ url_for('static', path='js/common/eds_submit.js') }}"></script>
+
+  <script>
+    // Initialisation CDD — modules communs (navigation minimale conservée)
+    (function(){
+      try{
+        // Clauses — prépare les hidden et charge le catalogue
+        if (window.EDS_CLAUSES){ EDS_CLAUSES.init(); EDS_CLAUSES.refresh(); }
+        // Soumission — aperçu / confirmation / génération
+        if (window.EDS_SUBMIT){ EDS_SUBMIT.init(); }
+      }catch(e){ if (window.EDS_DEBUG) console.warn('CDD init failed', e); }
+    })();
+  </script>
+
 {% endblock %}

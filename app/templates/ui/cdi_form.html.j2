@@ -167,111 +167,17 @@
   </div>
 </div>
 
-{% include 'steps/common/_03_ccn_ae.html.j2' %}
-{% include 'steps/common/_04_poste_classif.html.j2' %}
-{% include 'steps/common/_05_temps_travail.html.j2' %}
-{% include 'steps/common/_06_remuneration.html.j2' %}
-{% include 'steps/common/_07_essai.html.j2' %}
-{% include 'steps/common/_08_preavis.html.j2' %}
-
-
-<!-- STEP 9 -->
-<div class="step card" data-step="9" aria-hidden="true">
-  <h3>09. Clauses additionnelles</h3>
-
-  <div class="callout callout-info" style="margin-bottom:8px">
-    Cochez les clauses à ajouter au contrat. Vous pouvez aussi ajouter une clause spécifique rédigée librement.
-  </div>
-
-  <!-- Catalogue de clauses -->
-  <div id="clauses_catalog" class="clauses-list" aria-live="polite"></div>
-
-  <!-- Clauses spécifiques (custom) -->
-  <div class="fieldset" style="margin-top:12px">
-    <h4 style="margin:0 0 6px">Ajouter une autre clause spécifique</h4>
-    <div id="custom_clauses_list"></div>
-    <div class="muted-note" style="margin:6px 0 8px">
-      Renseignez un titre et le contenu ci‑dessous. 
-    </div>
-    <div class="warning-banner">
-      🚨 Vous êtes responsable de ce que vous écrivez ici. Relisez-la attentivement et, si vous avez un doute sur la rédaction, contactez un avocat.
-    </div>
-    <button type="button" class="btn" id="btn_add_custom_clause" style="margin-top:8px">+ ajouter une clause</button>
-  </div>
-
-  <!-- Hidden payloads pour le POST -->
-  <input type="hidden" id="clauses_selected_json" name="clauses_selected_json">
-  <input type="hidden" id="clauses_custom_json" name="clauses_custom_json">
-  <input type="hidden" id="clauses_params_json" name="clauses_params_json">
-
-  <div class="actions" style="margin-top:10px">
-    <button class="btn" data-prev>Précédent</button>
-    <button class="btn-primary" data-next>Suivant</button>
-  </div>
-</div>
-
-<!-- STEP 10 -->
-<div class="step card" data-step="10" aria-hidden="true">
-  <h3>10. Formalités</h3>
-
-  <hr class="divider">
-
-  <!-- Bloc A — Protection sociale -->
-  <div class="fieldset" style="margin-top:10px">
-    <h4 style="margin:0 0 6px">
-      Protection sociale
-      <span class="help" title="La mention des régimes de protection sociale est obligatoire en application du 14° de l'article R1221-24 du Code du travail.">i</span>
-    </h4>
-    <div class="grid2">
-      <div>
-        <label>Identité de l'organisme de mutuelle
-          <span class="help" title="Obligatoire pour toute entreprise du secteur privé">i</span>
-        </label>
-        <input name="health_org" placeholder="Ex. Harmonie Mutuelle, Alan…">
-      </div>
-      <div>
-        <label>Caisse de retraite complémentaire (facultatif)</label>
-        <input name="retirement_org" placeholder="Ex. Agirc‑Arrco / institution">
-      </div>
-    </div>
-    <div style="margin-top:8px">
-      <label>Prévoyance (facultatif)</label>
-      <input name="welfare_org" placeholder="Ex. APICIL…">
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <!-- Bloc B — DPAE & URSSAF -->
-  <div class="fieldset" style="margin-top:10px">
-    <h4 style="margin:0 0 6px">DPAE & URSSAF</h4>
-    <div class="grid3">
-      <div><label>URSSAF (ville)</label><input name="dpae_urssaf_city" placeholder="Ex. Paris"></div>
-      <div><label>Date DPAE</label><input type="date" name="dpae_date"></div>
-      <div></div>
-    </div>
-  </div>
-  
-  <hr class="divider">
-
-  <!-- Bloc C — Signatures -->
-  <div class="fieldset" style="margin-top:10px">
-    <h4 style="margin:0 0 6px">Signature</h4>
-    <div class="grid3">
-      <div><label>Fait à</label><input name="place_of_signature" data-required="true" placeholder="Ville"></div>
-      <div><label>Le</label><input type="date" name="date_of_signature" data-required="true"></div>
-      <div><label>Nb exemplaires</label><input type="number" min="1" value="2" name="copies_count" data-required="true"></div>
-    </div>
-  </div>
-
-  <hr class="divider">
-
-  <div class="actions">
-    <button class="btn" data-prev>Précédent</button>
-    <button class="btn-primary" id="btn-submit">Générer le PDF</button>
-  </div>
-  <p class="muted" style="margin-top:6px">Un PDF + un snapshot de conformité seront produits.</p>
-</div>
+{% include 'steps/common/_ccn_ae.html.j2' %}
+{% with %}{% set step_num = 4 %}{% include 'steps/common/_calendar.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 5 %}{% include 'steps/common/_poste_lieu.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 6 %}{% include 'steps/common/_classification.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 7 %}{% include 'steps/common/_work_time.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 8 %}{% include 'steps/common/_remuneration.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 9 %}{% include 'steps/common/_essai.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 10 %}{% include 'steps/common/_preavis.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 11 %}{% include 'steps/common/_sante_prev.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 12 %}{% include 'steps/common/_clauses.html.j2' %}{% endwith %}
+{% with %}{% set step_num = 13 %}{% include 'steps/common/_formalites.html.j2' %}{% endwith %}
 
   </section>
 
@@ -282,13 +188,16 @@
       <li data-step="1">1. L’entreprise employeur</li>
       <li data-step="2">2. Identité du salarié</li>
       <li data-step="3">3. Convention collective</li>
-      <li data-step="4">4. Poste & classification</li>
-      <li data-step="5">5. Durée du travail</li>
-      <li data-step="6">6. Rémunération</li>
-      <li data-step="7">7. Période d’essai</li>
-      <li data-step="8">8. Préavis & Congés</li>
-      <li data-step="9">9. Clauses additionnelles</li>
-      <li data-step="10">10. Formalités</li>
+      <li data-step="4">4. Calendrier du contrat</li>
+      <li data-step="5">5. Poste & lieu</li>
+      <li data-step="6">6. Classification</li>
+      <li data-step="7">7. Durée du travail</li>
+      <li data-step="8">8. Rémunération</li>
+      <li data-step="9">9. Période d’essai</li>
+      <li data-step="10">10. Préavis & Congés</li>
+      <li data-step="11">11. Santé & prévoyance</li>
+      <li data-step="12">12. Clauses additionnelles</li>
+      <li data-step="13">13. Formalités</li>
     </ol>
   </aside>
 </div>
@@ -613,6 +522,7 @@
   const selectedClauses = new Set();
   let customClauses = []; // [{title, text}]
   const clauseParamsByKey = {}; // { key: {param: value, param__label: '...'} }
+  let CLAUSES_REQUIRED_KEYS = new Set(); // CCN defaults.auto_include (UI : cochées + verrouillées)
 
   function ensureHidden(name){
     let el = document.getElementById(name);
@@ -823,7 +733,7 @@
       el.innerHTML = `
         <div class="clause-row">
           <input type="checkbox" id="${id}" data-key="${it.key}">
-          <label class="clause-title" for="${id}">${escapeHtml(it.label||'')}</label>
+          <label class="clause-title" for="${id}">${escapeHtml(it.label||'')}${CLAUSES_REQUIRED_KEYS.has(it.key) ? '<span style="margin-left:6px;font-size:12px;color:#374151;background:#e5e7eb;padding:1px 6px;border-radius:4px">obligatoire (CCN)</span>' : ''}</label>
           ${it.synopsis ? `<div class="clause-synopsis">${escapeHtml(it.synopsis)}</div>` : ''}
           ${renderClauseFlags(it.flags)}
           <details class="clause-more">
@@ -847,9 +757,13 @@
         paramsBlock.querySelectorAll('[data-param]').forEach(inp => { inp.disabled = true; });
       }
 
-      // restauration
+      // restauration + sélection obligatoire CCN (verrouillée)
+      if (CLAUSES_REQUIRED_KEYS.has(it.key)){
+        selectedClauses.add(it.key);
+      }
       if (selectedClauses.has(it.key)) {
         cb.checked = true;
+        if (CLAUSES_REQUIRED_KEYS.has(it.key)) cb.disabled = true;
         if (paramsBlock) {
           paramsBlock.style.display = (Array.isArray(it.params) && it.params.length) ? 'block' : 'none';
           paramsBlock.querySelectorAll('[data-param]').forEach(inp => { inp.disabled = false; });
@@ -933,6 +847,8 @@
     const box = document.getElementById('clauses_catalog'); if (box) box.innerHTML = '<div class="muted">Chargement…</div>';
     try{
       const q = new URLSearchParams(); const idcc = getIdcc(); if (idcc) q.set('idcc', String(idcc));
+      // Charger le catalogue CDI explicitement (schéma doc-aware)
+      q.set('doc', 'cdi');
       // Contexte pour un catalogue conditionnel (qualif pertinente)
       try{
         const cat = getCategorie(); if (cat) q.set('categorie', cat);
@@ -951,6 +867,7 @@
       const r = await fetch('/api/clauses/catalog?'+q.toString());
       const js = await r.json();
       const items = js?.items || [];
+      try{ CLAUSES_REQUIRED_KEYS = new Set(Array.isArray(js?.required_keys) ? js.required_keys : (Array.isArray(js?.requiredKeys) ? js.requiredKeys : [])); }catch(_){ CLAUSES_REQUIRED_KEYS = new Set(); }
       // Auto‑sélection des clauses à inclure par défaut (flags.auto_include)
       try{
         items.forEach(it=>{
@@ -1078,90 +995,7 @@
     'clauses_params_json'
   ]);
 
-  $('#btn-preview')?.addEventListener('click', async ()=>{
-    const fd = new FormData();
-
-    document.querySelectorAll('input,select,textarea').forEach((src)=>{
-      if(!src.name) return;
-      if (src.name === 'anciennete_months') return;
-      if(src.type==='radio' && !src.checked) return;
-      if(src.type==='checkbox' && !src.checked) return;
-
-      let val = src.value;
-      if (src.type==='number' && typeof val==='string'){ val = val.replace(',', '.'); }
-
-      const forceInclude = (src.name === 'ssn') || ALWAYS_INCLUDE.has(src.name);
-      const isRequired = src.required || src.dataset.required==='true';
-      if(!forceInclude && !isRequired && (val==='' || val==null)) return;
-
-      fd.append(src.name, val ?? '');
-    });
-
-    // Dimensions de classification (CCN 0016 etc.) pour l'aperçu PDF
-    try{
-      const ctx = (window.EDS_CTX || {});
-      if (ctx.annexe)  fd.append('annexe', String(ctx.annexe));
-      if (ctx.segment) fd.append('segment', String(ctx.segment));
-      if (ctx.statut)  fd.append('statut', String(ctx.statut));
-      const ck = ctx.coeff_key || ctx.coeff; // coeff_key exact si dispo
-      if (ck) fd.append('coeff_key', String(ck));
-    }catch(_){ /* ignore */ }
-
-    // ancienneté (même calcul que pour le submit)
-    const ancField = $('#anciennete_months');
-    let ancVal = ancField?.value;
-    if (ancVal == null || ancVal === '') {
-      const y = parseInt($('#seniority_years')?.value || '0', 10) || 0;
-      const m = parseInt($('#seniority_months')?.value || '0', 10) || 0;
-      ancVal = String((y*12) + m);
-    }
-    fd.append('anciennete_months', ancVal);
-
-    // états côté front
-    fd.append('non_compliance_json', JSON.stringify(Array.from(EDS_NON_COMPLIANCES.values())));
-    fd.append('overrides_steps', JSON.stringify(Array.from(EDS_OVERRIDES_STEPS)));
-    fd.append('capabilities_json', JSON.stringify(GLOBAL_CAPABILITIES || {}));
-
-    // flag d'aperçu
-    fd.append('preview', '1');
-
-    // Dimensions de classification et modes complémentaires (TRV)
-    try{
-      const ctx = (window.EDS_CTX || {});
-      if (ctx.trv_fulltime_mode) fd.append('trv_fulltime_mode', String(ctx.trv_fulltime_mode));
-    }catch(_){ }
-
-    // Overlay
-    const overlay = $('#overlay');
-    const body = $('#preview-body');
-    if (body) { body.innerHTML = '<div class="muted">Génération de l’aperçu…</div>'; }
-    overlay.style.display='block';
-
-    try{
-      const r = await fetch('/cdi/generate', { method:'POST', body: fd });
-      const ct = r.headers.get('content-type') || '';
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-
-      if (ct.includes('application/pdf')) {
-        const blob = await r.blob();
-        const url = URL.createObjectURL(blob);
-        if (body) {
-          body.innerHTML = '';
-          const iframe = document.createElement('iframe');
-          iframe.style.width = '100%';
-          iframe.style.height = '80vh';
-          iframe.setAttribute('title', 'Aperçu PDF');
-          iframe.src = url;
-          body.appendChild(iframe);
-        }
-      } else {
-        const txt = await r.text();
-        if (body) body.innerHTML = '<pre>'+escapeHtml(txt)+'</pre>';
-      }
-    } catch(e){
-      if (body) body.innerHTML = '<div class="callout callout-warn">Aperçu indisponible : '+escapeHtml(String(e))+'</div>';
-    }
-  });
+  // Aperçu PDF (délégué au module commun EDS_SUBMIT)
 
   $('#close-overlay')?.addEventListener('click', ()=> { $('#overlay').style.display='none'; });
 
@@ -1295,11 +1129,18 @@
     const idccOk = !!getIdcc(); const noCcnOk = !!$('#no_ccn')?.checked;
     done[2] = (idccOk || noCcnOk) && !hasVisibleError(2);
 
-    // 4. Classification
-    const classifOk = !!$('#classification_level')?.value?.trim();
-    done[3] = allRequiredFilled(3) && classifOk && !hasVisibleError(3);
+    // 4. Calendrier du contrat
+    done[3] = allRequiredFilled(3) && !hasVisibleError(3);
 
-    // 5. Durée du travail
+    // 5. Poste & lieu
+    done[4] = allRequiredFilled(4) && !hasVisibleError(4);
+
+    // 6. Classification — considérer complet si un niveau est présent OU un coefficient est coché
+    const classifOk = !!$('#classification_level')?.value?.trim();
+    const coeffChecked = !!document.querySelector('#classif_coeff_container input[name="ccn_coeff_auto"]:checked');
+    done[5] = allRequiredFilled(5) && (classifOk || coeffChecked) && !hasVisibleError(5);
+
+    // 7. Durée du travail
     let ttOk = false;
     const regSel  = document.querySelector('input[name="work_time_regime"]:checked')?.value || null;
     const modeSel = document.querySelector('input[name="work_time_mode"]:checked')?.value || null;
@@ -1307,55 +1148,61 @@
     if (regSel === 'temps_complet') {
       if (!modeSel) {
         ttOk = false;
-      } else if (modeSel === 'standard_35h') {
+      } else if (modeSel === 'standard_35h' || modeSel === 'trv_70q' || modeSel === 'trv_39rtt' || modeSel === 'san_39rtt' || modeSel === 'dem_39rtt') {
         const v = $('#weekly_hours_std')?.value;
-        ttOk = !!v && !hasVisibleError(4);
+        ttOk = !!v && !hasVisibleError(6);
       } else if (modeSel === 'forfait_hours') {
         const v = $('#weekly_hours_fh')?.value;
         const err = $('#fh_err'); const errVisible = err && getComputedStyle(err).display !== 'none';
-        ttOk = !!v && !errVisible && !hasVisibleError(4);
+        ttOk = !!v && !errVisible && !hasVisibleError(6);
       } else if (modeSel === 'forfait_days') {
         const v = $('#forfait_days_per_year')?.value;
-        ttOk = !!v && !hasVisibleError(4);
+        ttOk = !!v && !hasVisibleError(6);
       } else if (modeSel === 'modalite_2') {
         const v = $('#weekly_hours_m2')?.value;
         const err = $('#m2_err'); const errVisible = err && getComputedStyle(err).display !== 'none';
-        ttOk = !!v && !errVisible && !hasVisibleError(4);
+        ttOk = !!v && !errVisible && !hasVisibleError(6);
+      } else if (modeSel === 'modulation') {
+        // Modulation: considérer comme valide dès qu'un mode est sélectionné et qu'aucune erreur visible n'est affichée
+        ttOk = !hasVisibleError(6);
       }
     } else if (regSel === 'temps_partiel') {
       const w = $('#weekly_hours_std')?.value;
       const orgFixed = $('#pt_org_fixed')?.checked;
       const orgMonth = $('#pt_org_month')?.checked;
       const err = $('#std_err'); const errVisible = err && getComputedStyle(err).display !== 'none';
-      ttOk = !!w && (orgFixed || orgMonth) && !errVisible && !hasVisibleError(4);
+      ttOk = !!w && (orgFixed || orgMonth) && !errVisible && !hasVisibleError(6);
     } else {
       ttOk = false;
     }
-    done[4] = ttOk;
-    if (hasOverride(5)) done[4] = true; // Étape 5 overridée → considérer comme complète
-
-    // 6. Rémunération
-    const sal = $('#salary_gross_monthly')?.value;
-    const salErrVisible = $('#salary_err') && getComputedStyle($('#salary_err')).display!=='none';
-    done[5] = !!sal && !salErrVisible && !hasVisibleError(5);
-    if (hasOverride(6)) done[5] = true; // Étape 6 overridée → considérer comme complète
-
-    // 7. Essai
-    const essai = $('#probation_months')?.value;
-    const essErr = $('#probation_err'); const essErrVisible = essErr && getComputedStyle(essErr).display!=='none';
-    done[6] = (essai!=='' && essai!=null) && !essErrVisible && !hasVisibleError(6);
+    done[6] = ttOk;
     if (hasOverride(7)) done[6] = true; // Étape 7 overridée → considérer comme complète
 
-    // 8. Préavis & Congés
+    // 8. Rémunération
+    const sal = $('#salary_gross_monthly')?.value;
+    const salErrVisible = $('#salary_err') && getComputedStyle($('#salary_err')).display!=='none';
+    done[7] = !!sal && !salErrVisible && !hasVisibleError(7);
+    if (hasOverride(8)) done[7] = true; // Étape 8 overridée → considérer comme complète
+
+    // 9. Essai
+    const essai = $('#probation_months')?.value;
+    const essErr = $('#probation_err'); const essErrVisible = essErr && getComputedStyle(essErr).display!=='none';
+    done[8] = (essai!=='' && essai!=null) && !essErrVisible && !hasVisibleError(8);
+    if (hasOverride(9)) done[8] = true; // Étape 9 overridée → considérer comme complète
+
+    // 10. Préavis & Congés
     const dem = $('#notice_dem')?.value;
     const lic = $('#notice_lic')?.value;
     const demErrV = $('#notice_dem_err') && getComputedStyle($('#notice_dem_err')).display!=='none';
     const licErrV = $('#notice_lic_err') && getComputedStyle($('#notice_lic_err')).display!=='none';
     const cpErrV  = $('#cp_err') && getComputedStyle($('#cp_err')).display!=='none';
-    done[7] = !!dem && !!lic && !demErrV && !licErrV && !cpErrV && !hasVisibleError(7);
-    if (hasOverride(8)) done[7] = true; // Étape 8 overridée → considérer comme complète
+    done[9] = !!dem && !!lic && !demErrV && !licErrV && !cpErrV && !hasVisibleError(9);
+    if (hasOverride(10)) done[9] = true; // Étape 10 overridée → considérer comme complète
 
-    // 9. Clauses
+    // 11. Santé & prévoyance — exiger les champs requis visibles (ex. retraite complémentaire + prévoyance si affiliée)
+    done[10] = allRequiredFilled(10) && !hasVisibleError(10);
+
+    // 12. Clauses
     const selRaw = $('#clauses_selected_json')?.value || '[]';
     const cusRaw = $('#clauses_custom_json')?.value || '[]';
     let hasClauses = false;
@@ -1363,13 +1210,13 @@
       const sel = JSON.parse(selRaw); const cus = JSON.parse(cusRaw);
       hasClauses = (Array.isArray(sel) && sel.length>0) || (Array.isArray(cus) && cus.some(c => (c.title||c.text)));
     } catch(_) {}
-    done[8] = (i >= 8) || hasClauses;
+    done[11] = (i >= 11) || hasClauses;
 
-    // 10. Formalités
+    // 13. Formalités
     const sigPlace = $('input[name="place_of_signature"]')?.value;
     const sigDate  = $('input[name="date_of_signature"]')?.value;
     const copies   = $('input[name="copies_count"]')?.value;
-    done[9] = !!sigPlace && !!sigDate && !!copies && !cpErrV && !hasVisibleError(9);
+    done[12] = !!sigPlace && !!sigDate && !!copies && !cpErrV && !hasVisibleError(12);
 
     return done;
   }
@@ -1423,7 +1270,7 @@
     steps.forEach((s,idx)=> s.setAttribute('aria-hidden', idx===i ? 'false':'true'));
     window.scrollTo({top:0,behavior:'smooth'});
 
-    if (i === 3) {
+    if (i === 5) {
       // En entrant dans l'étape 4, s'assurer que l'IDCC tapé à l'étape 3
       // est bien commité même si l'utilisateur a sauté via le sommaire.
       try{ if (typeof window.setIdccFromInput === 'function') window.setIdccFromInput(); }catch(_){ }
@@ -1445,17 +1292,17 @@
       window.EDS_CCN_AE.refresh();
     }
 
-    if (i === 4) { refreshWorktimeDelegated(); }
+    if (i === 6) { refreshWorktimeDelegated(); }
 
-    if (i === 5 && window.EDS_SAL?.refresh) {
+    if (i === 7 && window.EDS_SAL?.refresh) {
       clearSalaryExplain();
       window.EDS_SAL.refresh();
     }
 
-    if (i === 6 && window.EDS_ESSAI?.refresh)   window.EDS_ESSAI.refresh();
-    if (i === 7 && window.EDS_PREAVIS?.refresh) window.EDS_PREAVIS.refresh();
+    if (i === 8 && window.EDS_ESSAI?.refresh)   window.EDS_ESSAI.refresh();
+    if (i === 9 && window.EDS_PREAVIS?.refresh) window.EDS_PREAVIS.refresh();
 
-    if (i === 8) { // Step 9 (index 8)
+    if (i === 11) { // Step 12 (index 11) — Clauses
       // Toujours recharger le catalogue de clauses pour coller au contexte CCN
       refreshClausesCatalog();
       renderCustomClauses();
@@ -1544,17 +1391,17 @@
   document.addEventListener('input', rafUpdate, true);
   document.addEventListener('change', rafUpdate, true);
 
-  // Overrides globaux étape 8 (bouton "Continuer quand même")
+  // Overrides globaux étape 9 (bouton "Continuer quand même")
   document.addEventListener('click', (e)=>{
     const t = e.target;
     if (!t) return;
     if (t.id && t.id.endsWith('_override')){
       const stepNode = t.closest('.step');
-      if (stepNode && stepNode.getAttribute('data-step') === '8'){
+      if (stepNode && stepNode.getAttribute('data-step') === '9'){
         const inp = stepNode.querySelector('input.input-error') ||
                     stepNode.querySelector('input[name="notice_resignation_months"], input[name="notice_dismissal_months"], input[name="cp_days_number"]');
         inp?.setCustomValidity?.('');
-        EDS_OVERRIDES_STEPS.add(8);
+        EDS_OVERRIDES_STEPS.add(9);
         const nextBtn = stepNode.querySelector('[data-next]');
         if (nextBtn) { nextBtn.disabled = false; nextBtn.classList.remove('disabled'); }
         updateProgressUI();
@@ -1604,113 +1451,9 @@
      Soumission PDF
   ===========================*/
 
-  const submitBtn = $('#btn-submit');
-  if(submitBtn){
-    submitBtn.addEventListener('click', function(e){
-      e.preventDefault();
+  // Soumission PDF (déléguée au module commun EDS_SUBMIT)
 
-      // Validation globale avant génération : toutes les étapes essentielles doivent être complètes
-      try{
-        const doneFlags = computeStepCompletion();
-        const overrides = new Set(Array.from(window.EDS_OVERRIDES_STEPS || []));
-        const items = Array.from(document.querySelectorAll('#steps li'));
-        const incompleteIdx = doneFlags.map((ok, idx)=> ok ? null : idx).filter(idx=> idx!==null);
-        // Étapes incomplètes qui ne sont PAS explicitement overridées
-        let blockingIdx = incompleteIdx.filter(idx => !overrides.has(idx+1));
-        if (blockingIdx.length){
-          // Cas particulier: toutes les étapes "bloquantes" correspondent en réalité à des non‑conformités (override conscient)
-          const issueSteps = new Set(Array.from(window.EDS_NON_COMPLIANCES?.values?.() || window.EDS_NON_COMPLIANCES || []).map(it=> parseInt(it.step||0,10)).filter(Boolean));
-          const stillBlocking = blockingIdx.filter(idx => !issueSteps.has(idx+1));
-          if (stillBlocking.length){
-            const missing = stillBlocking.map(idx => (items[idx]?.textContent||`Étape ${idx+1}`));
-            alert(`Veuillez compléter les champs essentiels avant de générer le PDF.\nÉtapes incomplètes :\n- ${missing.join('\n- ')}`);
-            // Redirige l’utilisateur vers la première étape réellement bloquante (non overridée et sans non‑conformité assumée)
-            i = stillBlocking[0];
-            setState();
-            return;
-          }
-          // Sinon: uniquement des non‑conformités assumées → laisser passer vers la confirmation finale
-        }
-      }catch(_){ /* si la validation jette, on laisse passer la soumission classique */ }
-
-      // S'il y a des overrides/alertes, afficher la confirmation finale
-      const issuesCount = (EDS_NON_COMPLIANCES?.size || 0);
-      const overridesCount = (EDS_OVERRIDES_STEPS?.size || 0);
-      if (issuesCount || overridesCount){
-        const cBody = document.getElementById('confirm-body');
-        if (cBody){ cBody.innerHTML = buildConfirmSummaryHTML(); }
-        document.getElementById('confirm-overlay').style.display = 'block';
-        return;
-      }
-
-      // sinon: soumission directe
-      buildAndSubmitForm();
-    });
-  }
-
-  function buildAndSubmitForm(){
-    const form = document.createElement('form');
-    form.method='post';
-    form.action='/cdi/generate';
-
-    document.querySelectorAll('input,select,textarea').forEach(function(src){
-      if(!src.name) return;
-      if (src.name === 'anciennete_months') return;
-      if(src.type==='radio' && !src.checked) return;
-      if(src.type==='checkbox' && !src.checked) return;
-
-      let val = src.value;
-      if (src.type==='number' && typeof val==='string'){ val = val.replace(',', '.'); }
-
-      const forceInclude = (src.name === 'ssn') || ALWAYS_INCLUDE.has(src.name);
-      const isRequired = src.required || src.dataset.required==='true';
-      if(!forceInclude && !isRequired && (val==='' || val==null)) return;
-
-      const hidden = document.createElement('input');
-      hidden.type='hidden'; hidden.name=src.name; hidden.value=val ?? '';
-      form.appendChild(hidden);
-    });
-
-    // Dimensions de classification (CCN 0016 etc.) maintenues en mémoire (EDS_CTX)
-    try{
-      const ctx = (window.EDS_CTX || {});
-      [ 'annexe', 'segment', 'statut', 'coeff_key', 'trv_fulltime_mode' ].forEach((k)=>{
-        const v = ctx[k];
-        if (v != null && String(v).trim() !== ''){
-          const h = document.createElement('input');
-          h.type = 'hidden'; h.name = k; h.value = String(v);
-          form.appendChild(h);
-        }
-      });
-    }catch(_){ /* ignore */ }
-
-    // ancienneté
-    const ancField = $('#anciennete_months');
-    let ancVal = ancField?.value;
-    if (ancVal == null || ancVal === '') {
-      const y = parseInt($('#seniority_years')?.value || '0', 10) || 0;
-      const m = parseInt($('#seniority_months')?.value || '0', 10) || 0;
-      ancVal = String((y*12) + m);
-    }
-    const ancHidden = document.createElement('input');
-    ancHidden.type = 'hidden'; ancHidden.name = 'anciennete_months'; ancHidden.value = ancVal;
-    form.appendChild(ancHidden);
-
-    const hNc = document.createElement('input');
-    hNc.type='hidden'; hNc.name='non_compliance_json'; hNc.value = JSON.stringify(Array.from(EDS_NON_COMPLIANCES.values()));
-    form.appendChild(hNc);
-
-    const hOv = document.createElement('input');
-    hOv.type='hidden'; hOv.name='overrides_steps'; hOv.value = JSON.stringify(Array.from(EDS_OVERRIDES_STEPS));
-    form.appendChild(hOv);
-
-    const hCap = document.createElement('input');
-    hCap.type='hidden'; hCap.name='capabilities_json'; hCap.value = JSON.stringify(GLOBAL_CAPABILITIES || {});
-    form.appendChild(hCap);
-
-    document.body.appendChild(form);
-    form.submit();
-  }
+  // buildAndSubmitForm supprimé (EDS_SUBMIT gère la soumission)
 
   function buildConfirmSummaryHTML(){
     const issues = Array.from(EDS_NON_COMPLIANCES.values() || []);
@@ -1756,22 +1499,7 @@
     return lines.join('');
   }
 
-  // Boutons overlay confirmation
-  document.getElementById('close-confirm')?.addEventListener('click', ()=>{
-    document.getElementById('confirm-overlay').style.display = 'none';
-  });
-  document.getElementById('confirm-fix')?.addEventListener('click', ()=>{
-    let targetStep = null;
-    const issues = Array.from(EDS_NON_COMPLIANCES.values() || []);
-    if (issues.length){ targetStep = Math.min(...issues.map(it=> parseInt(it.step||0,10)).filter(Boolean)); }
-    if (!targetStep && EDS_OVERRIDES_STEPS.size){ targetStep = Math.min(...Array.from(EDS_OVERRIDES_STEPS)); }
-    if (targetStep){ i = targetStep-1; setState(); }
-    document.getElementById('confirm-overlay').style.display = 'none';
-  });
-  document.getElementById('confirm-submit')?.addEventListener('click', ()=>{
-    document.getElementById('confirm-overlay').style.display = 'none';
-    buildAndSubmitForm();
-  });
+  // Overlay confirmation (handlers gérés par EDS_SUBMIT)
 
   /* ==========================
      INIT
@@ -1866,6 +1594,7 @@
 <script>window.EDS_DOC = 'cdi';</script>
 
 <script src="{{ url_for('static', path='js/cdi.js') }}"></script>  {# spécifique au formulaire CDI #}
+<script src="{{ url_for('static', path='js/common/eds_submit.js') }}"></script>
 <script src="{{ url_for('static', path='js/common/eds_ccn_ae.js') }}"></script>
 {# cache-busting simple pour forcer le rechargement du JS #}
 <script src="{{ url_for('static', path='js/common/eds_classif.js') }}?v=0016-ui-coeff"></script>
@@ -1874,5 +1603,82 @@
 <script src="{{ url_for('static', path='js/common/eds_salary.js') }}"></script>
 <script src="{{ url_for('static', path='js/common/eds_essai.js') }}"></script>
 <script src="{{ url_for('static', path='js/common/eds_preavis.js') }}"></script>
+
+<script>
+(function(){
+  try{ if (window.EDS_SUBMIT) EDS_SUBMIT.init(); }catch(_){ /* noop */ }
+})();
+</script>
+
+<script>
+(function(){
+  'use strict';
+  const $  = (s)=>document.querySelector(s);
+  const escapeHtml = (str)=> String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+  // Helper: convert FormData to a real <form> POST (to avoid popup blockers on window.open)
+  function submitFormData(url, fd){
+    const form = document.createElement('form');
+    form.method = 'post'; form.action = url;
+    for (const [k,v] of fd.entries()){
+      const inp = document.createElement('input'); inp.type='hidden'; inp.name=k; inp.value=String(v ?? '');
+      form.appendChild(inp);
+    }
+    document.body.appendChild(form);
+    form.submit();
+  }
+
+  // Override preview → affiche dans l’overlay avec iframe (comme avant)
+  const prevBtn = $('#btn-preview');
+  if (prevBtn){
+    prevBtn.addEventListener('click', async (e)=>{
+      e.preventDefault(); e.stopImmediatePropagation();
+      const ov = $('#overlay'); const body = $('#preview-body');
+      if (body) body.innerHTML = '<div class="muted">Génération de l’aperçu…</div>';
+      if (ov) ov.style.display = 'block';
+      try{
+        const fd = (window.EDS_SUBMIT && EDS_SUBMIT.buildFormData) ? EDS_SUBMIT.buildFormData() : new FormData();
+        fd.append('preview','1');
+        const r = await fetch('/cdi/generate', { method:'POST', body: fd });
+        const ct = r.headers.get('content-type') || '';
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        if (ct.includes('application/pdf')){
+          const blob = await r.blob();
+          const url = URL.createObjectURL(blob);
+          if (body){
+            body.innerHTML = '';
+            const iframe = document.createElement('iframe');
+            iframe.style.width='100%'; iframe.style.height='80vh';
+            iframe.setAttribute('title','Aperçu PDF'); iframe.src = url;
+            body.appendChild(iframe);
+          }
+        } else {
+          const txt = await r.text(); if (body) body.innerHTML = '<pre>'+escapeHtml(txt)+'</pre>';
+        }
+      }catch(err){ if (body) body.innerHTML = '<div class="callout callout-warn">Aperçu indisponible : '+escapeHtml(String(err))+'</div>'; }
+    }, { capture: true });
+  }
+
+  // Override confirm-submit → soumission par vrai POST (évite popup blocker)
+  const confirmSubmit = $('#confirm-submit');
+  if (confirmSubmit){
+    confirmSubmit.addEventListener('click', (e)=>{
+      e.preventDefault(); e.stopImmediatePropagation();
+      try{
+        const fd = (window.EDS_SUBMIT && EDS_SUBMIT.buildFormData) ? EDS_SUBMIT.buildFormData() : new FormData();
+        // fermer la modale et soumettre
+        const ov = $('#confirm-overlay'); if (ov) ov.style.display='none';
+        submitFormData('/cdi/generate', fd);
+      }catch(err){ if (window.EDS_DEBUG) console.warn('CDI confirm-submit failed', err); }
+    }, { capture: true });
+  }
+
+  // Bouton pour fermer l’aperçu (iframe)
+  const closeOverlay = $('#close-overlay');
+  if (closeOverlay){
+    closeOverlay.addEventListener('click', (e)=>{ e.preventDefault(); const ov = $('#overlay'); if (ov) ov.style.display='none'; }, { capture: true });
+  }
+})();
+</script>
 
 {% endblock %}

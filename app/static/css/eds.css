@@ -252,37 +252,37 @@ label.inline{ display:inline-flex; align-items:center; gap:8px; line-height:1.4 
 }
 
 /* =========================
-   Step 5 — Temps partiel (alignements)
+   Temps partiel (alignements)
    ========================= */
-.step[data-step="5"] .pt-grid{
+.pt-grid{
   display:flex; flex-direction:column; gap:8px;
 }
-.step[data-step="5"] .pt-row{
+.pt-row{
   display:grid;
   grid-template-columns: 1fr 26px 140px; /* libellé | checkbox | heures */
   align-items:center;
   gap:10px;
 }
-.step[data-step="5"] .pt-daylabel{
+.pt-daylabel{
   margin:0; cursor:pointer;  /* cliquer sur le jour coche/décoche */
 }
-.step[data-step="5"] .pt-check{
+.pt-check{
   margin:0; justify-self:start; /* colonne des cases bien alignée */
 }
-.step[data-step="5"] .pt-hours{
+.pt-hours{
   max-width:140px; justify-self:start;
 }
-.step[data-step="5"] .pt-total{ margin-top:8px; display:flex; gap:12px; align-items:center; }
+.pt-total{ margin-top:8px; display:flex; gap:12px; align-items:center; }
 
 /* Responsive : empile heures sous la case si l’espace manque */
 @media (max-width:640px){
-  .step[data-step="5"] .pt-row{
+  .pt-row{
     grid-template-columns: 1fr 26px 1fr;
   }
 }
 
-/* Sous‑titres discrets sous "Organisation souple" (Step 5) */
-.step[data-step="5"] .subtle-label{
+/* Sous‑titres discrets sous "Organisation souple" */
+.pt-subtle .subtle-label, .subtle-label{
   margin: 8px 0 4px;          /* un peu d’air mais compact */
   font-size: .95rem;          /* plus petit que la radio au‑dessus */
   line-height: 1.45;
@@ -291,8 +291,8 @@ label.inline{ display:inline-flex; align-items:center; gap:8px; line-height:1.4 
 }
 
 /* Si un groupe de champs suit directement, on garde un rythme régulier */
-.step[data-step="5"] .subtle-label + .grid2,
-.step[data-step="5"] .subtle-label + .grid3{
+.subtle-label + .grid2,
+.subtle-label + .grid3{
   margin-top: 6px;
 }
 

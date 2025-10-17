@@ -1,0 +1,8 @@
+# rules/ccn/1501-restauration-rapide/ui_hints.cdd.yml
+meta:
+  variant: "CDD"
+  ccn_dir: "1501-restauration-rapide"
+  last_checked: null
+
+hints: []
+

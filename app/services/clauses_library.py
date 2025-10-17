@@ -134,6 +134,7 @@ def _norm_clause_item(raw: Dict[str, Any]) -> Dict[str, Any]:
             "needs_parameters": bool(flags.get("needs_parameters", False)),
             "sensitive": bool(flags.get("sensitive", False)),
             "auto_include": bool(flags.get("auto_include", False)),
+            "required": bool(flags.get("required", False)),
         },
         # --- NOUVEAU : spécification des paramètres (pour le front) ---
         "params": [_norm_param_spec(p) for p in (raw.get("params") or [])],
@@ -196,21 +197,27 @@ def _clause_matches(raw: Dict[str, Any], ctx: Optional[Dict[str, Any]]) -> bool:
 
 def load_clauses_catalog(idcc: Optional[int] = None, ctx: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Charge un catalogue fusionné : common.yml + (éventuel) ccn/<idcc>/clauses.yml
+    Charge un catalogue fusionné strictement par type de document (doc=cdi|cdd) :
+      - rules/clauses/common_<doc>.yml
+      - + rules/ccn/<idcc>/clauses_<doc>.yml (si présent)
+
     Sortie front :
       {
-        "items":[
-          {key,label,synopsis,learn_more_html,flags,params:[...]},
-          ...
-        ],
+        "items":[ {key,label,synopsis,learn_more_html,flags,params:[...]}, ... ],
         "meta": {...}
       }
     (NB : on n'expose PAS text_html ici pour alléger le payload)
     """
-    common = _load_yaml(RULES_DIR / "clauses" / "common.yml")
+    doc = None
+    if ctx and isinstance(ctx, dict):
+        ddoc = str(ctx.get("doc") or "").strip().lower()
+        if ddoc in ("cdi", "cdd"):
+            doc = ddoc
+    # Pas de fallback implicite : le client doit préciser doc=cdi|cdd
+    common = _load_yaml(RULES_DIR / "clauses" / f"common_{doc}.yml") if doc else {}
     merged = common
     d = _find_ccn_dir(idcc)
-    ccn_doc = _load_yaml(d / "clauses.yml") if (d and (d / "clauses.yml").exists()) else {"clauses": []}
+    ccn_doc = _load_yaml(d / f"clauses_{doc}.yml") if (doc and d and (d / f"clauses_{doc}.yml").exists()) else {"clauses": []}
     if ccn_doc.get("clauses"):
         merged = _merge_catalogs(common, ccn_doc)
 
@@ -239,7 +246,61 @@ def load_clauses_catalog(idcc: Optional[int] = None, ctx: Optional[Dict[str, Any
             "group": group,
         })
 
-    return {"items": ui_items, "meta": merged.get("meta") or {}}
+    # Expose required keys to let UI show + lock them
+    # Union of CCN defaults.auto_include and per-clause flags.required (context-filtered)
+    required_keys: list[str] = []
+    try:
+        # CCN-wide defaults
+        doc_type = str((ctx or {}).get("doc") or "").strip().lower()
+        if doc_type in ("cdi", "cdd"):
+            required_keys = get_auto_include_keys(idcc, doc_type)
+    except Exception:
+        required_keys = []
+
+    try:
+        flagged_required = [it.get("key") for it in items if (it.get("flags") or {}).get("required")]
+        # Merge unique
+        seen = set(required_keys)
+        for k in flagged_required:
+            if k and k not in seen:
+                required_keys.append(k); seen.add(k)
+    except Exception:
+        pass
+
+    return {"items": ui_items, "meta": merged.get("meta") or {}, "required_keys": required_keys}
+
+
+# -----------------------
+# Defaults (auto-includes)
+# -----------------------
+
+def get_auto_include_keys(idcc: Optional[int], doc_type: str) -> List[str]:
+    """Retourne la liste des clés de clauses à auto-inclure pour un doc donné ("cdi" | "cdd").
+    Lecture stricte depuis rules/ccn/<idcc>/clauses_<doc_type>.yml > defaults.auto_include (liste)
+    """
+    d = _find_ccn_dir(idcc)
+    if not d:
+        return []
+    doc = str(doc_type or "").strip().lower()
+    if doc not in ("cdi", "cdd"):
+        return []
+    p = d / f"clauses_{doc}.yml"
+    data = _load_yaml(p)
+    defaults = (data.get("defaults") or {})
+    auto = defaults.get("auto_include") if isinstance(defaults, dict) else None
+    try:
+        keys = auto or []
+        if not isinstance(keys, list):
+            return []
+        out = []
+        seen = set()
+        for k in keys:
+            kk = (str(k) if k is not None else '').strip()
+            if kk and kk not in seen:
+                out.append(kk); seen.add(kk)
+        return out
+    except Exception:
+        return []
 
 
 # -----------------------
@@ -283,6 +344,7 @@ def get_clause_texts(
     idcc: Optional[int],
     keys: List[str],
     params_by_key: Optional[Dict[str, Any]] = None,
+    doc_type: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     """
     Retourne, pour un ensemble de clés, les textes prêts à injecter dans le PDF.
@@ -291,15 +353,19 @@ def get_clause_texts(
       Si absent, aucun remplacement n'est effectué (compat ascendante).
     """
     # Index UI (pour titres/refs)
-    cat = load_clauses_catalog(idcc)
+    ctx: Dict[str, Any] = {}
+    if doc_type:
+        ctx["doc"] = str(doc_type).strip().lower()
+    cat = load_clauses_catalog(idcc, ctx)
     by_key_ui = {it["key"]: it for it in (cat.get("items") or [])}
 
     # Version complète avec text_html (pour les contenus)
-    common_full = _load_yaml(RULES_DIR / "clauses" / "common.yml")
+    doc = str(doc_type or "").strip().lower()
+    common_full = _load_yaml(RULES_DIR / "clauses" / f"common_{doc}.yml") if doc in ("cdi","cdd") else {}
     full = _index_by_key(common_full.get("clauses") or [])
     d = _find_ccn_dir(idcc)
-    if d and (d / "clauses.yml").exists():
-        ov_full = _index_by_key(_load_yaml(d / "clauses.yml").get("clauses") or [])
+    if d and (d / f"clauses_{doc}.yml").exists():
+        ov_full = _index_by_key(_load_yaml(d / f"clauses_{doc}.yml").get("clauses") or [])
         full.update(ov_full)
 
     out: List[Dict[str, Any]] = []

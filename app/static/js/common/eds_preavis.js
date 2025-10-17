@@ -48,7 +48,15 @@
     return (!txt && !hasChild);
   }
 
-  function stepEl(){ return document.querySelector('.step[data-step="8"]'); }
+  function getStepNumber(){
+    // Détecte le conteneur de l'input 'cp_days_number' (présent dans ce step)
+    const host = document.getElementById('cp_days_number')?.closest('.step');
+    const n = host?.getAttribute?.('data-step');
+    const parsed = n ? parseInt(n, 10) : NaN;
+    if (!Number.isNaN(parsed)) return parsed;
+    return (window.EDS_DOC === 'cdd') ? 9 : 8; // fallback
+  }
+  function stepEl(){ return document.querySelector(`.step[data-step="${getStepNumber()}"]`); }
   function setNextDisabled(disabled){
     const btn = stepEl()?.querySelector('[data-next]');
     if (btn){ btn.disabled = !!disabled; btn.classList.toggle('disabled', !!disabled); }
@@ -234,10 +242,13 @@
 
   // ---------- Orchestrateur ----------
   async function refresh(){
-    // Ne rien faire si l'étape 8 (Préavis & Congés) n'est pas visible
-    const isStep8Visible = !!document.querySelector('.step[data-step="8"][aria-hidden="false"]');
-    if (!isStep8Visible) return;
-    await refreshNotice();
+    const stepNum = getStepNumber();
+    const isVisible = !!document.querySelector(`.step[data-step="${stepNum}"][aria-hidden="false"]`);
+    if (!isVisible) return;
+    // Neutraliser le calcul de préavis pour le CDD
+    if (window.EDS_DOC !== 'cdd') {
+      await refreshNotice();
+    }
     await refreshLeaves();
   }
 
@@ -254,8 +265,8 @@
   window.EDS_PREAVIS.refresh = refresh;
 
   document.addEventListener('DOMContentLoaded', ()=>{
-    // Ne lance pas le calcul tant que l'étape 8 n'est pas visible
-    if (document.querySelector('.step[data-step="8"][aria-hidden="false"]')){
+    const stepNum = getStepNumber();
+    if (document.querySelector(`.step[data-step="${stepNum}"][aria-hidden="false"]`)){
       refresh();
     }
   });

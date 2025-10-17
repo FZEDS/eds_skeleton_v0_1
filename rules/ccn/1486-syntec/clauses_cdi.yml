@@ -1,0 +1,18 @@
+# rules/ccn/1486-syntec/clauses.yml
+
+meta:
+  label: "Clauses — CCN Syntec (IDCC 1486)"
+
+clauses:
+  - key: forfait_jours
+    label: "Forfait‑jours — garanties Syntec"
+    synopsis: "Garanties CCN : entretien annuel de suivi, contrôle de la charge, droit à la déconnexion, repos."
+    when: { work_time_mode: "forfait_days" }
+    flags: { auto_include: true, required: true }
+    source_ref: "Syntec — Accord 22/06/1999 + avenant 01/04/2014 + avenant n° 2 du 13/12/2022 (étendu 12/06/2024)"
+    learn_more_html: |
+      <p>Depuis le 01/07/2024 (avenant n° 2 étendu), un <strong>entretien annuel</strong> de suivi suffit (au lieu de deux). Le dispositif impose en outre le <strong>contrôle de la charge</strong> (alerte si dérive), le respect des <strong>repos</strong> quotidiens/hebdomadaires et le <strong>droit à la déconnexion</strong>. Référence : accord du 22/06/1999, avenant du 01/04/2014, avenant n° 2 du 13/12/2022.</p>
+    text_html: |
+      <p><strong>Convention de forfait en jours — Garanties Syntec.</strong> Le Salarié est soumis à une convention individuelle de forfait en jours sur l’année, conformément aux dispositions de la CCN Syntec et à l’accord collectif habilitant. Le nombre de jours travaillés est fixé à <em>[218]</em> jours maximum par année civile, sous réserve des dispositions applicables.</p>
+      <p><strong>Suivi et prévention des risques.</strong> L’Employeur met en œuvre un <strong>suivi annuel spécifique</strong> (entretien portant sur la charge de travail, l’amplitude, l’organisation et la rémunération), assure un <strong>contrôle effectif de la charge</strong> (avec dispositif d’alerte), veille au respect des <strong>repos quotidiens et hebdomadaires</strong> et rappelle le <strong>droit à la déconnexion</strong>.</p>
+      <p><strong>Jours rachetés (le cas échéant).</strong> La renonciation à des jours de repos se fait par accord écrit distinct, dans les limites et avec les <strong>majorations</strong> prévues par les textes applicables.</p>

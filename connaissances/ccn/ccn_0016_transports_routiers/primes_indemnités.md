@@ -2,7 +2,7 @@
 
 ## 1 - Frais de déplacement, primes et indemnités des ouvriers
 
-a - Frais de déplacement
+### a - Frais de déplacement
 
 Pour les entreprises de transports routiers de marchandises et activités auxiliaires du transport, ainsi que les entreprises de déménagement,  le  transport  de  fonds  et  de  valeurs  et  les activités de prestations logistiques :
 
@@ -34,7 +34,7 @@ Pour les entreprises de transports routiers de voyageurs et les entreprises de t
 
 - Avenant n° 80 du 20 mars 2025 relatif aux frais de déplacement des ouvriers (annexe I), étendu par arrêté du 27 mai 2025 (JORF n°0128 du 3 juin 2025)
 
-## b  -  Treizième  mois  dans  les  entreprises  de  transport routier de voyageurs
+### b  -  Treizième  mois  dans  les  entreprises  de  transport routier de voyageurs
 
 Il est versé à tous les ouvriers justifiant d'un an d'ancienneté au 31  décembre  de  chaque  année.  Il  s'entend  sur  la  base  de  35 heures  hebdomadaires  dans  le  cadre  d'une  activité  à  temps complet et pro rata temporis dans les autres hypothèses.
 
@@ -44,7 +44,7 @@ Le calcul  de la prime de  treizième  s'établit  en  fonction  du  taux horair
 
 - Accord de révision du 20 septembre 2019 relatif à la transposition du protocole d'accord du 4 octobre 2017, étendu par arrêté du 8 juin 2023 (JORF n°0150 du 30 juin 2023)
 
-c - Remplacement à un poste supérieur
+### c - Remplacement à un poste supérieur
 
 La  durée  maximale  du  remplacement  est  de  4  mois.  Elle  peut toutefois  être  portée  à  6  mois  en  cas  de  remplacement  d'un ouvrier  absent  pour  cause  de  maladie  de  longue  durée  ou d'accident du travail.
 
@@ -54,7 +54,7 @@ Il  existe  des  dispositions  spéciales  pour  le  personnel  roulant marchand
 
 - Articles 4 et 24 de l'Annexe I : Ouvriers - Accord du 16 juin 1961, étendu par arrêté du 22 juillet 1963
 
-d - Indemnisation des jours fériés et dimanches travaillés
+### d - Indemnisation des jours fériés et dimanches travaillés
 
 L'indemnisation des jours fériés et dimanches travaillés s'établit comme suit :
 
@@ -68,7 +68,7 @@ Pour les entreprises de transport routier de marchandises, activités auxiliaire
 
 - Accord  du 11 octobre 2023  relatif à la revalorisation des rémunérations,  étendu  par  arrêté  du  19  décembre  2023  (JORF n°0296 du 22 décembre 2023)
 
-## Pour les entreprises de transport de déménagement :
+Pour les entreprises de transport de déménagement :
 
 | Date d'applica- tion       | Durée inférieure  à 3 heures   | Durée égale ou  supérieure à 3 heures |
 |----------------------------------|--------------------------------|------------------------------------------|
@@ -169,9 +169,7 @@ S'agissant de la remise effective des médailles d'honneur du travail au  sein  
 
 ## 2 - Primes et indemnités des ETAM
 
-a - Treizième mois dans les entreprises de transport routier
-
-## de voyageurs
+### a - Treizième mois dans les entreprises de transport routier de voyageurs
 
 Il est versé à tous les ouvriers justifiant d'un an d'ancienneté au 31 décembre de chaque année. Il s'entend sur la base de 35 heures hebdomadaires dans le cadre d'une activité à temps complet et pro rata temporis dans les autres hypothèses.
 
@@ -184,7 +182,7 @@ Le calcul de la prime de treizième s'établit en fonction du taux horaire et de
 
 2023 (JORF n°0150 du 30 juin 2023)
 
-## b - Remplacement à un poste supérieur
+###  b - Remplacement à un poste supérieur
 
 Dans la situation  où  un  employé  doit  remplir  les  fonctions  d'un supérieur absent, il reçoit pendant la durée du remplacement une indemnité différentielle lui assurant au moins le salaire garanti à l'emploi confié. Une indemnité de fonction est également due en cas  de  surcroît  de  travail  ou  de  responsabilité  en  raison  de l'absence d'un supérieur.
 
@@ -195,7 +193,7 @@ Néanmoins pour les TAM, la durée de remplacement pour être portée  à  un  a
 - Article 12 de l'Annexe II : Employés - Accord du 27 février 1951, étendu par arrêté du 1er février 1955
 - Article 13 de l'Annexe III : Techniciens et agents de maîtrise Accord du 30 mars 1951, étendu par arrêté du 1er février 1955
 
-## c - Indemnité pour langues étrangères
+###  c - Indemnité pour langues étrangères
 
 Pour un emploi nécessitant la connaissance  d'une  langue étrangère suffisante pour assurer la traduction ou la rédaction d'un texte, l'employé bénéficie d'une indemnité mensuelle égale à 8,80 % du salaire garanti au coefficient 148,5 pour les employés et 150 pour les TAM sans ancienneté lorsqu'il n'est que traducteur.
 
@@ -224,7 +222,7 @@ Pour les entreprises de transport routier de marchandises, activités auxiliaire
 
 - Accord  du 11 octobre 2023  relatif à la revalorisation des rémunérations,  étendu  par  arrêté  du  19  décembre  2023  (JORF n°0296 du 22 décembre 2023)
 
-## d - Indemnité de tutorat
+### d - Indemnité de tutorat
 
 Il appartient aux entreprises de fixer les conditions de versement et le  montant  de  la  prime.  Le  montant  de  prime  ne  peut  pas  être inférieur à :
 
@@ -239,16 +237,14 @@ Dans les entreprises de transport de déménagement, pour le personnel non cadre
 - Annexe VII  -  Formation  professionnelle  - Accord  du  1er  février 2011, étendu par arrêté du 24 août 2012
 - Accord du 3 novembre 2010 relatif à la prévention et à la réduction de la pénibilité, étendu par arrêté du 20 janvier 2012
 
-## e - Surveillance du travail d'un groupe d'employés ou de
-
-## techniciens
+### e - Surveillance du travail d'un groupe d'employés ou de techniciens
 
 Lorsqu'un  employé  ou  un  technicien  est  chargé  de  surveiller respectivement le travail d'un groupe d'employés ou de techniciens ayant des fonctions analogues, il perçoit une indemnité différentielle assurant  un  salaire  total  au  moins  égal  à  celui  des  employés  ou techniciens du groupe supérieur.
 
 - Article  5  de  l'Annexe  II :  Employés - Accord du 27 février 1951, étendu par arrêté du 1er février 1955
 - Article 6 de l'Annexe III : Techniciens et agents de maîtrise - Accord du 30 mars 1951, étendu par arrêté du 1er février 1955
 
-f - Gratification liée à la médaille d'honneur du travail dans les entreprises du transport de déménagement
+### f - Gratification liée à la médaille d'honneur du travail dans les entreprises du transport de déménagement
 
 S'agissant de la remise effective des médailles d'honneur du travail au  sein  des  entreprises  qu'il  conviendrait  d'assortir  avec  une gratification conventionnelle minimale, les montants sont déterminés de la manière suivante :
 
@@ -260,7 +256,7 @@ S'agissant de la remise effective des médailles d'honneur du travail au  sein  
 
 ## 3 - Primes et indemnités des ingénieurs et cadres
 
-## a - Remplacement à un poste supérieur
+### a - Remplacement à un poste supérieur
 
 La durée de remplacement est limitée à 6 mois mais peut être portée à 1 an si la prolongation permet de conserver son emploi à un ingénieur ou cadre absent pour raison de santé.
 
@@ -270,7 +266,7 @@ Dans la situation  où la  rémunération  effective  de l'ingénieur  ou cadre 
 - -Remplit toutes les fonctions de l'agent remplacé : indemnité différentielle lui assurant au moins la rémunération garantie correspondant à son emploi temporaire.
 - Article 10 de l'Annexe IV : Ingénieurs et cadres - Accord du 30 octobre 1951, étendu par arrêté du 1er février 1955
 
-## b - Indemnité de tutorat
+### b - Indemnité de tutorat
 
 Il appartient aux entreprises de fixer les conditions de versement et le montant de la prime. Le montant de prime ne peut pas être inférieur à :
 
@@ -285,17 +281,16 @@ Dans  les  entreprises  de  transport  de  déménagement,  pour  le personnel n
 - Annexe VII - Formation professionnelle - Accord du 1er février 2011, étendu par arrêté du 24 août 2012
 - Accord  du  3  novembre  2010  relatif  à  la  prévention  et  à  la réduction de la pénibilité, étendu par arrêté du 20 janvier 2012
 
-c  -  Gratification  liée  à  la  médaille  d'honneur  du  travail dans les entreprises du transport de déménagement
+### c -  Gratification  liée  à  la  médaille  d'honneur  du  travail dans les entreprises du transport de déménagement
 
 S'agissant  de  la  remise  effective  des  médailles  d'honneur  du travail  au sein  des  entreprises  qu'il  conviendrait  d'assortir  avec une  gratification  conventionnelle  minimale,  les  montants  sont déterminés de la manière suivante :
 
 - -1/4 de mois de salaire pour la médaille de vermeil (30 ans de services) ;
 - -1/2 de mois de salaire pour la médaille d'or (35 ans de services) ;
 - -1 mois pour la grande médaille d'or (40 ans de services).
-- Accord  du  3  novembre  2010  relatif  à  la  prévention  et  à  la réduction de la pénibilité, étendu par arrêté du 20 janvier 2012
-- Avenant n°2 du 11 février 2019 relatif à la prévention et à la
 
-réduction de la pénibilité, étendu par arrêté du 18 septembre 2020 (JORF n°0238 du 30 septembre 2020)
+- Accord  du  3  novembre  2010  relatif  à  la  prévention  et  à  la réduction de la pénibilité, étendu par arrêté du 20 janvier 2012
+- Avenant n°2 du 11 février 2019 relatif à la prévention et à la réduction de la pénibilité, étendu par arrêté du 18 septembre 2020 (JORF n°0238 du 30 septembre 2020)
 
 ## 4 - Indemnité de licenciement
 
@@ -333,7 +328,7 @@ Cette indemnité est versée dans les hypothèses suivantes :
 
 (*) A partir du 1er septembre 2023 et en lien avec la réforme des retraite, l'âge minimale de départ à la retraite est fixé à 59 ans. Cet âge peut être inférieur à 59 ans pour adapter l'évolution des régimes et sa progressivité. Se référer à la partie « Congé de fin d'activité (CFA) » .
 
-## a - Ouvriers, employés, techniciens et agents de maîtrise
+### a - Ouvriers, employés, techniciens et agents de maîtrise
 
 Cette indemnité est fixée en fonction de l'ancienneté du salarié dans l'entreprise :
 
@@ -351,7 +346,7 @@ Elle  est  calculée  sur  la  base  de  la  rémunération  moyenne  des salair
 - Article 17 Ter de l'Annexe II : Employés - Accord du 27 février 1951, étendu par arrêté du 1er février 1955
 - Article 21 Ter de l'Annexe III : Techniciens et agents de maîtrise - Accord du 30 mars 1951, étendu par arrêté du 1er février 1955
 
-## b - Cadres
+### b - Cadres
 
 Le  montant  de  cette  indemnité  est  fixé  en  pourcentage  de  la rémunération réelle annuelle. Le minimum de cette indemnité est indiqué en pourcentage de la rémunération annuelle garantie au groupe de la nomenclature dans laquelle le cadre est classé. Le maximum  de  l'indemnité  est  exprimé  en  pourcentage  de  la rémunération annuelle garantie du groupe 1 sans ancienneté.
 
@@ -371,9 +366,7 @@ Le  montant  de  cette  indemnité  est  fixé  en  pourcentage  de  la rémuné
 
 En ce qui concerne plus particulièrement les coursiers à vélo des entreprises  de  transport  routier  de  marchandises  et  activités auxiliaires du transport, les partenaires sociaux ont eu l'occasion de se réunir au sujet de la conclusion d'un nouveau texte relatif aux indemnités kilométriques des coursiers à vélo.
 
-Bien que l'employeur reste tenu de mettre à disposition de ses salariés un véhicule adapté, il demeure possible que ces derniers utilisent  leur  véhicule  personnel.  Cela  nécessite  néanmoins
-
-l'établissement d'un accord individuel écrit avec l'employeur.
+Bien que l'employeur reste tenu de mettre à disposition de ses salariés un véhicule adapté, il demeure possible que ces derniers utilisent  leur  véhicule  personnel.  Cela  nécessite  néanmoins l'établissement d'un accord individuel écrit avec l'employeur.
 
 Ainsi,  dans  la  situation  où  le  salarié  utilise  son  vélo  en  tant  que véhicule personnel non motorisé pour effectuer son activité professionnelle,  il  perçoit  des  indemnités  kilométriques  dont  le montant minimum « est fixé à 0,13 centimes d'euros par kilomètre parcouru à titre professionnel » .
 

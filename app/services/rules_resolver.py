@@ -96,7 +96,8 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
     # ---- CLASSIFICATION ----------------------------------------------------
     if theme in {"classification", "classif"}:
         explain = load_ui_hints(idcc, "classification", {
-            "idcc": idcc, "categorie": categorie, "coeff": coeff
+            "idcc": idcc, "categorie": categorie, "coeff": coeff,
+            "contract_type": (ctx.get("contract_type") or ctx.get("doc_type")),
         })
         return {
             "theme": "classification",
@@ -167,6 +168,7 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             "segment": ctx.get("segment"),
             "statut": ctx.get("statut"),
             "annexe": ctx.get("annexe"),
+            "contract_type": (ctx.get("contract_type") or ctx.get("doc_type")),
         }))
 
         # Ventilation & majorations — forfait-heures (hint générique légal)
@@ -205,6 +207,142 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         }
         return res
 
+    # ---- CDD (motif / durée / renouvellement / carence / précarité) --------
+    if theme in {"cdd", "cdd_rules"}:
+        from app.services.rules_engine import _load_rules_bundle  # local import to avoid cycles at module import
+        bundle = _load_rules_bundle("cdd", idcc)
+        # deep-merge extras: code_extras <- ccn_extras
+        def _deepmerge(a: Dict[str, Any], b: Dict[str, Any]) -> Dict[str, Any]:
+            out = dict(a or {})
+            for k, v in (b or {}).items():
+                if isinstance(v, dict) and isinstance(out.get(k), dict):
+                    out[k] = _deepmerge(out[k], v)
+                else:
+                    out[k] = v
+            return out
+
+        extras = _deepmerge(bundle.get("code_extras") or {}, bundle.get("ccn_extras") or {})
+
+        # Capabilities exposées à l'UI
+        recourse = (extras.get("recourse") or {})
+        duration = (extras.get("duration") or {})
+        renewals = (extras.get("renewals") or {})
+        carence  = (extras.get("carence")  or {})
+        prec     = (extras.get("precarity") or {})
+
+        capabilities = {
+            "allow_imprecise_reasons": list((recourse.get("allow_imprecise_reasons") or [])),
+            "duration_max_months_by_reason": (duration.get("max_months_by_reason") or {}),
+            "renewals_max_count_by_reason": (renewals.get("max_count_by_reason") or {}),
+            "carence": {
+                "method": carence.get("method"),
+                "exemptions": carence.get("exemptions") or [],
+                "scope": carence.get("scope"),
+            },
+        }
+
+        # Suggestions (taux de précarité)
+        if isinstance(prec.get("default_rate_percent"), (int, float)):
+            suggest.append({"field": "precarity_rate_percent", "value": float(prec["default_rate_percent"])})
+        if prec.get("source"):
+            suggest.append({"field": "precarity_rate_source", "value": str(prec["source"])})
+
+        # Explains concis pour Step 4 & Step 8
+        reason = (ctx.get("reason") or "").strip().lower()
+        dur_map = capabilities["duration_max_months_by_reason"]
+        if reason:
+            mx = dur_map.get(reason)
+            if mx is not None:
+                explain.append({
+                    "slot": "step4.duration",
+                    "kind": "info",
+                    "text": f"Durée maximale (motif {reason}) : {mx} mois (renouvellements inclus, hors cas spéciaux).",
+                    "ref": (extras.get("meta") or {}).get("source", {}).get("article"),
+                })
+            # Renouvellements — communiquer le plafond recommandé pour ce motif
+            try:
+                ren_map = capabilities.get("renewals_max_count_by_reason") or {}
+                rmax = ren_map.get(reason)
+                if rmax is not None:
+                    explain.append({
+                        "slot": "step4.renewals",
+                        "kind": "info",
+                        "text": f"Renouvellements recommandés (motif {reason}) : au plus {int(rmax)} renouvellement(s).",
+                        "ref": (extras.get("meta") or {}).get("source", {}).get("article"),
+                    })
+                    suggest.append({"field": "cdd_renewals_max", "value": int(rmax)})
+            except Exception:
+                pass
+        # Carence
+        note = carence.get("note")
+        if note:
+            explain.append({
+                "slot": "step4.carence",
+                "kind": "info",
+                "text": note,
+                "ref": (extras.get("meta") or {}).get("source", {}).get("article"),
+            })
+        # Prime de précarité — taux de référence + cas spéciaux
+        if isinstance(prec.get("default_rate_percent"), (int, float)):
+            r = float(prec["default_rate_percent"])
+            src = prec.get("source") or "code"
+            explain.append({
+                "slot": "step6.precarity",
+                "kind": "info",
+                "text": f"Prime de précarité : taux de référence {r:.1f}% (source : {src}).",
+                "ref": (extras.get("meta") or {}).get("source", {}).get("article"),
+            })
+        try:
+            sc = prec.get("special_cases") or []
+            for it in sc:
+                lbl = it.get("label") or it.get("when")
+                note = it.get("note")
+                if lbl or note:
+                    explain.append({
+                        "slot": "step6.precarity",
+                        "kind": "ccn",
+                        "text": note or f"Cas particulier : {lbl}",
+                        "ref": (extras.get("meta") or {}).get("source", {}).get("article"),
+                    })
+        except Exception:
+            pass
+
+        # Carence — cas spéciaux (communication UI)
+        try:
+            car_sc = carence.get("special_cases") or []
+            for it in car_sc:
+                lbl = it.get("label") or it.get("when")
+                rule_txt = it.get("rule")
+                if lbl or rule_txt:
+                    explain.append({
+                        "slot": "step4.carence",
+                        "kind": "ccn",
+                        "text": (f"{lbl} — {rule_txt}" if lbl and rule_txt else (rule_txt or lbl)),
+                        "ref": (extras.get("meta") or {}).get("source", {}).get("article"),
+                    })
+        except Exception:
+            pass
+
+        # rule source
+        source = "ccn" if bundle.get("ccn_extras") else "code_travail"
+        rule = {"source": source, "source_ref": (extras.get("meta") or {}).get("source", {}).get("article")}
+
+        return {
+            "theme": "cdd",
+            "cdd": {
+                "recourse": recourse,
+                "duration": duration,
+                "renewals": renewals,
+                "carence": carence,
+                "precarity": prec,
+            },
+            "rule": _safe_rule(rule),
+            "capabilities": capabilities,
+            "explain": explain,
+            "suggest": suggest,
+            "trace": trace,
+        }
+
     # ---- PÉRIODE D’ESSAI ---------------------------------------------------
     if theme in {"periode_essai", "essai", "probation"}:
         bounds, rule, considered = compute_probation_bounds(
@@ -214,6 +352,8 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
             coeff=coeff,
             annexe=ctx.get("annexe"),
             statut=ctx.get("statut"),
+            contract_type=(ctx.get("contract_type") or ctx.get("doc_type")),
+            contract_duration_weeks=ctx.get("contract_duration_weeks"),
         )
         trace["considered"] = considered
 
@@ -222,7 +362,11 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         if bounds.get("max_months") is not None:
             suggest.append({"field": "probation_months", "value": float(bounds["max_months"])})
         # Hints CCN
-        explain.extend(load_ui_hints(idcc, "periode_essai", {"idcc": idcc, "categorie": categorie, "coeff": coeff}))
+        explain.extend(load_ui_hints(idcc, "periode_essai", {
+            "idcc": idcc, "categorie": categorie, "coeff": coeff,
+            "contract_type": (ctx.get("contract_type") or ctx.get("doc_type")),
+            "contract_duration_weeks": ctx.get("contract_duration_weeks"),
+        }))
 
         # --- Hints "droit commun" affichés partout (slots dédiés) ---
         explain.append({
@@ -284,7 +428,10 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
 
         # Encarts factorisés + hints
         explain.extend(build_rule_explain("preavis", notice, rule, ctx))
-        explain.extend(load_ui_hints(idcc, "preavis", {"idcc": idcc, "categorie": categorie, "coeff": coeff}))
+        explain.extend(load_ui_hints(idcc, "preavis", {
+            "idcc": idcc, "categorie": categorie, "coeff": coeff,
+            "contract_type": (ctx.get("contract_type") or ctx.get("doc_type")),
+        }))
 
         res = {
             "theme": "preavis",
@@ -324,7 +471,8 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
         explain.extend(build_rule_explain("remuneration", minima, rule, ctx))
         explain.extend(load_ui_hints(idcc, "remuneration", {
             "idcc": idcc, "categorie": categorie, "coeff": coeff,
-            "work_time_mode": work_time_mode
+            "work_time_mode": work_time_mode,
+            "contract_type": (ctx.get("contract_type") or ctx.get("doc_type")),
         }))
 
         # --- HCR : simulateur mensuel avec HS (10/20/50) ---
@@ -379,7 +527,10 @@ def resolve(theme: str, ctx: Dict[str, Any]) -> Dict[str, Any]:
 
         # Encarts + hints
         explain.extend(build_rule_explain("conges", conges, rule, ctx))
-        explain.extend(load_ui_hints(idcc, "conges_payes", {"idcc": idcc, "categorie": categorie, "coeff": coeff}))
+        explain.extend(load_ui_hints(idcc, "conges_payes", {
+            "idcc": idcc, "categorie": categorie, "coeff": coeff,
+            "contract_type": (ctx.get("contract_type") or ctx.get("doc_type")),
+        }))
 
         return {
             "theme": "conges_payes",

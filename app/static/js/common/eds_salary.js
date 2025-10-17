@@ -16,6 +16,7 @@
   window.SLOT_TARGETS['step6.footer'] = '#salary_card';
   window.SLOT_TARGETS['step6.more.minima'] = '#salary_more_minima_body';
   window.SLOT_TARGETS['step6.more.ccn_primes'] = '#salary_more_primes_body';
+  window.SLOT_TARGETS['step6.precarity'] = '#precarity_card';
 
   // ---------- Contexte ----------
   function getIdcc(){ const v = parseInt($('#idcc')?.value || '', 10); return Number.isNaN(v) ? null : v; }
@@ -43,6 +44,9 @@
     }
     if (ui === 'forfait_hours') return parseNum($('#weekly_hours_fh')?.value);
     if (ui === 'modalite_2')    return parseNum($('#weekly_hours_m2')?.value);
+    // Fallback standard si rien n'est saisi
+    const modeApi = getWorkTimeModeForApi();
+    if (modeApi === 'standard') return 35.0;
     return null;
   }
   function getForfaitDays(){
@@ -68,6 +72,7 @@
     }catch(_){ return null; }
   }
   function getAsOf(){ return $('#contract_start')?.value || new Date().toISOString().slice(0,10); }
+  function getCddReason(){ try{ return document.querySelector('input[name="cdd_reason"]:checked')?.value || ''; }catch(_){ return ''; } }
   function getSeniorityMonths(){
     const y = parseInt($('#seniority_years')?.value || '0', 10) || 0;
     const m = parseInt($('#seniority_months')?.value || '0', 10) || 0;
@@ -84,7 +89,18 @@
   const errHourly  = ()=> document.getElementById('sal_hourly_err')  || (inpHourly() ? ensureErrNode('sal_hourly_err',  inpHourly()?.parentElement) : null);
 
   // ---------- UI helpers ----------
-  function stepEl(){ return document.querySelector('.step[data-step="6"]'); }
+  function stepNumber(){
+    try{
+      const host = document.getElementById('salary_gross_monthly')?.closest('.step');
+      const n = host?.getAttribute?.('data-step');
+      const parsed = n ? parseInt(n, 10) : NaN;
+      return Number.isNaN(parsed) ? null : parsed;
+    }catch(_){ return null; }
+  }
+  function stepEl(){
+    const n = stepNumber();
+    return (n!=null) ? document.querySelector(`.step[data-step="${n}"]`) : null;
+  }
   function setNextDisabled(disabled){
     const btn = stepEl()?.querySelector('[data-next]');
     if (btn){ btn.disabled = !!disabled; btn.classList.toggle('disabled', !!disabled); }
@@ -121,7 +137,10 @@
       });
       const overrideBtn = $('#'+errNode.id+'_override');
       if (overrideBtn) overrideBtn.addEventListener('click', ()=> {
-        try{ if (window.EDS_OVERRIDES_STEPS) window.EDS_OVERRIDES_STEPS.add(6); }catch(_){ }
+        try{
+          const sn = stepNumber();
+          if (window.EDS_OVERRIDES_STEPS && sn!=null) window.EDS_OVERRIDES_STEPS.add(sn);
+        }catch(_){ }
         setNextDisabled(false);
       });
     },0);
@@ -234,9 +253,9 @@
 
   // ---------- API + validation ----------
   async function refreshSalaire(){
-    // Ne rien faire si l'étape 6 (Rémunération) n'est pas l'étape visible
-    const isStep6Visible = !!document.querySelector('.step[data-step="6"][aria-hidden="false"]');
-    if (!isStep6Visible) return;
+    // Ne rien faire si l’étape Rémunération n’est pas visible (détection dynamique)
+    const n = stepNumber();
+    if (n==null || !document.querySelector(`.step[data-step="${n}"][aria-hidden="false"]`)) return;
     // nettoyage erreurs
     clearError(inpMonthly(), errMonthly());
     clearError(inpYearly(),  errYearly());
@@ -307,6 +326,31 @@
     if (floorH!=null && vH!=null && vH < floorH && errHourly()) showError(inpHourly(),  errHourly(),  `Doit être ≥ ${fmt2(floorH)} € / heure.`, floorH);
 
     if (typeof window.updateProgressUI === 'function') window.updateProgressUI();
+
+    // ----- Prime de précarité (CDD) : suggestion CCN -----
+    try{
+      if ((window.EDS_DOC || '').toLowerCase() === 'cdd'){
+        const idcc  = getIdcc();
+        const reason = getCddReason();
+        const q2 = new URLSearchParams({});
+        if (idcc) q2.append('idcc', String(idcc));
+        if (reason) q2.append('reason', String(reason));
+        const r2 = await fetch('/api/cdd/rules?'+q2.toString());
+        const js2 = await r2.json();
+        const sug = Array.isArray(js2?.suggest) ? js2.suggest : [];
+        const rate = sug.find(s => s.field === 'precarity_rate_percent')?.value;
+        const src  = sug.find(s => s.field === 'precarity_rate_source')?.value;
+        const inpRate = document.getElementById('precarity_rate_percent');
+        const selSrc  = document.getElementById('precarity_rate_source');
+        if (inpRate && (inpRate.value==='' || inpRate.value==null)){
+          if (typeof rate === 'number') inpRate.value = String(rate);
+        }
+        if (selSrc && (selSrc.value==='' || selSrc.value==null)){
+          if (typeof src === 'string') selSrc.value = src;
+        }
+        if (js2?.explain && typeof window.renderExplain === 'function') window.renderExplain(js2.explain);
+      }
+    }catch(e){ if(window.EDS_DEBUG) console.warn('cdd/rules failed', e); }
   }
 
   // ---------- Listeners ----------
@@ -343,13 +387,29 @@
     toggle13thBoxes();
     fromMonthly();         // initialise annuel/horaire si mensuel présent
     // Ne pas déclencher de calcul tant que l'étape 6 n'est pas visible
-    if (document.querySelector('.step[data-step="6"][aria-hidden="false"]')){
+    const n = stepNumber();
+    if (n!=null && document.querySelector(`.step[data-step="${n}"][aria-hidden="false"]`)){
       refreshSalaire();
     }
   });
   attachListeners();
   // Recalcul quand le contexte (AskOnDemand) évolue
   document.addEventListener('eds:ctx_updated', refreshSalaire, false);
+  // Recalcul quand le temps de travail change
+  document.addEventListener('eds:worktime_changed', refreshSalaire, false);
+  // Recalcul lors de la navigation (arrivée sur la step rémunération)
+  document.addEventListener('click', (e)=>{
+    const t = e.target;
+    if (!t) return;
+    if (t.matches('[data-next]') || t.matches('[data-prev]') || t.closest('[data-next]') || t.closest('[data-prev]')){
+      setTimeout(()=>{
+        const n = stepNumber();
+        if (n!=null && document.querySelector(`.step[data-step="${n}"][aria-hidden="false"]`)){
+          refreshSalaire();
+        }
+      }, 0);
+    }
+  }, false);
 
   // API externe minimale
   window.EDS_SAL = window.EDS_SAL || {};

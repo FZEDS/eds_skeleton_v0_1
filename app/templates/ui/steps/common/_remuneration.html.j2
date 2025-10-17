@@ -1,12 +1,24 @@
 {% from 'components/macros.html.j2' import callout, error_msg %}
 
-<div class="step card" data-step="6" aria-hidden="true">
-  <h3>06. Rémunération
+<div class="step card" data-step="{{ step_num|default('6') }}" aria-hidden="true">
+  <h3>{{ "%02d"|format(step_num|default(6)) }}. Rémunération
     <span class="help" title="Pour prévoir une rémunération variable (objectifs/commissions), ajoutez une clause dédiée à l’étape 9 (« Clauses additionnelles » → Rémunération variable).">i</span>
   </h3>
 
   <!-- Bandeau d’info (minima / plancher) alimenté par l’API -->
   <div id="salary_card" class="callout" data-slot="step6.footer" style="display:none;margin-top:10px"></div>
+
+  {# Info CDD uniquement — équivalence de rémunération (L.1242‑15) #}
+  {% if doc_type == 'cdd' %}
+  <div class="callout callout-info" style="margin-top:10px">
+    <strong>Rémunération équivalente (CDD)</strong><br>
+    L’Article L. 1242‑15 du Code du travail impose que la rémunération d’un salarié en CDD soit au moins celle d’un salarié en CDI « de qualification professionnelle équivalente et occupant les mêmes fonctions », ce qui correspond à l’idée de « poste équivalent ».
+    <br>
+    <small>
+      <a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000006901209" target="_blank" rel="noopener">Consulter l’article L. 1242‑15</a>
+    </small>
+  </div>
+  {% endif %}
 
 
   <!-- Saisie principale -->
@@ -106,6 +118,41 @@
       </div>
     </div>
   </div>
+  
+  {# ===== Prime de précarité (CDD) ===== #}
+  {% if doc_type == 'cdd' %}
+  <div class="divider"></div>
+  <h4 class="mb-4">Prime de précarité (indemnité de fin de contrat)</h4>
+  <div class="callout-muted">
+    <p class="small" style="margin:0">
+      Taux par défaut: 10% (Code du travail). Certaines conventions collectives étendues peuvent prévoir 6% en contrepartie de garanties de formation. 
+      Les événements d’exclusion (poursuite en CDI, refus CDI équivalent, certaines ruptures anticipées, emplois saisonniers, etc.) sont rappelés dans le contrat et s’apprécient à l’issue du CDD.
+    </p>
+  </div>
+  <div class="grid3" style="margin-top:8px">
+    <div>
+      <label for="precarity_rate_percent">Taux applicable</label>
+      <div class="input-with-suffix">
+        <input id="precarity_rate_percent" name="precarity_rate_percent" type="number" step="0.1" min="0" max="20" placeholder="10">
+        <span class="suffix">%</span>
+      </div>
+    </div>
+    <div>
+      <label for="precarity_rate_source">Source</label>
+      <select id="precarity_rate_source" name="precarity_rate_source">
+        <option value="" selected>Code du travail (10%)</option>
+        <option value="accord_etendu">Accord de branche étendu (ex. 6%)</option>
+        <option value="accord_entreprise">Accord d’entreprise</option>
+        <option value="autre">Autre</option>
+      </select>
+    </div>
+    <div>
+      <label for="precarity_notes">Notes (optionnel)</label>
+      <input id="precarity_notes" name="precarity_notes" placeholder="Référence conventionnelle / précision utile">
+    </div>
+  </div>
+  <div id="precarity_card" class="callout" style="display:none; margin-top:8px"></div>
+  {% endif %}
   
     <div class="divider"></div>
 

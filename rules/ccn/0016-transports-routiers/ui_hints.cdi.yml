@@ -1,15 +1,33 @@
-# rules/ccn/0016-transports-routiers/ui_hints.yml
+# rules/ccn/0016-transports-routiers/ui_hints.cdi.yml
+# rules/ccn/0016-transports-routiers/ui_hints.cdi.yml
 hints:
   # ---- Temps de travail (étape 5) ----
+  # TRM — messages spécifiques
   - theme: "temps_travail"
     slot: "step5.header"
     kind: "ccn"
-    when: { theme: "temps_travail" }
+    when: { segment: "TRM_AAT", statut: "roulant" }
     text: >
-      Transports routiers : la durée de référence est 35 h/sem (151,67 h/mois). Pour le personnel roulant des segments TRM/TRV,
-      des équivalences portent la durée normale hebdomadaire au‑delà de 35 h sans surcoût (ex. courte distance ≈ 39 h/sem).
-      À défaut de précision, appliquer une équivalence usuelle de 39 h pour les roulants TRM/TRV.
-    ref: { label: "CCN 16 — Durée/équivalences", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+      TRM — roulants (courte distance) : équivalence à 39 h/sem sans surcoût. En « longue distance », l'horaire de référence est 43 h (GAR 200 h/mois).
+      Les plafonds légaux demeurent applicables (48 h/sem, moyenne 44 h/12 sem). Choisissez l'organisation correspondante (39 h vs 43 h) car elle impacte les minima (GAR) et la planification.
+    ref: { label: "CCN 16 — TRM : équivalences & repères (39 h / 43 h)", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "info"
+    when: { segment: "TRM_AAT", statut: "sedentaire" }
+    text: >
+      TRM — sédentaires : pas d'équivalence. Référence 35 h/sem (151,67 h/mois). Les heures au‑delà relèvent du régime des heures supplémentaires (dans les plafonds légaux 48 h/sem ; moyenne 44 h/12 sem) et des accords applicables.
+    ref: { label: "TRM sédentaires — repères (35 h)", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  # TRV — rappel générique (équivalences roulants)
+  - theme: "temps_travail"
+    slot: "step5.header"
+    kind: "ccn"
+    when: { segment: "TRV" }
+    text: >
+      TRV — la durée de référence est 35 h/sem (151,67 h/mois). Pour le personnel roulant, des équivalences peuvent porter la durée normale hebdomadaire au‑delà de 35 h sans surcoût (ex. 39 h selon organisation).
+    ref: { label: "CCN 16 — TRV : durée/équivalences", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
 
   - theme: "temps_travail"
     slot: "step5.header"
@@ -102,6 +120,15 @@ hints:
       Transport voyageurs (TRV) : vérifiez l'organisation des services discontinus (amplitudes/coupures), les repos et les contreparties associées.
       Les plafonds et modalités peuvent être précisés par avenant d'entreprise.
     ref: { label: "CCN 16 — TRV (services discontinus)", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
+
+  # TRV — Travail de nuit : contreparties
+  - theme: "temps_travail"
+    slot: "step5.more.night"
+    kind: "info"
+    when: { segment: "TRV" }
+    text: >
+      Travail de nuit (TRV) : décompte spécifique et contreparties (repos compensateur, majorations) selon accords.
+    ref: { label: "Accords TRV — nuit", url: "https://www.legifrance.gouv.fr/conv_coll/id/KALICONT000005635624" }
 
   # Temps partiel — prévenance (planning)
   - theme: "temps_travail"

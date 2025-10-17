@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
-<title>CDI - {{ employee_name }}</title>
+<title>CDD - {{ employee_name }}</title>
 <style>
   /* --------- Page & typo (WeasyPrint) --------- */
   @page {
@@ -18,8 +18,10 @@
 
   h1 { font-size: 14pt; margin: 0 0 10px; font-weight: 700; }
   h2 { font-size: 12pt; margin: 14px 0 6px; font-weight: 700; page-break-after: avoid; }
+  h3 { font-size: 11pt; margin: 10px 0 4px; font-weight: 700; }
   .sec { margin: 10px 0; }
   .small { font-size: 9.5pt; color: #4b5563; }
+  .muted { color: #6b7280; }
   .no-break { break-inside: avoid; page-break-inside: avoid; }
 
   /* Table générique */
@@ -38,30 +40,34 @@
   .badge { display: inline-block; font-size: 9pt; padding: 1px 6px; border: 1px solid #374151; color: #374151; border-radius: 3px; }
   .note { font-size: 9pt; color:#6b7280; }
 
-  /* Eviter les coupures malheureuses */
   h1, h2, .no-break { page-break-inside: avoid; }
 </style>
 </head>
 <body>
 
-<h1>Contrat à durée indéterminée à temps plein</h1>
+{% set is_part_time = (work_time_regime or '') == 'temps_partiel' %}
+<h1>
+  Contrat à durée déterminée
+  {% if is_part_time %}à temps partiel{% else %}à temps plein{% endif %}
+</h1>
 
 <div class="sec">
   <strong>Entre les soussignés</strong><br/>
-  La Société {{ employer_name }}<br/>
-  Adresse : {{ employer_address }}<br/>
+  La Société {{ employer_name }}{% if legal_form %} ({{ legal_form }}){% endif %}{% if siren_number %}, SIREN {{ siren_number }}{% endif %}<br/>
+  Adresse : {{ employer_address }}{% if employer_postal_code or employer_city %} — {{ employer_postal_code or '' }} {{ employer_city or '' }}{% endif %}<br/>
   Numéro Urssaf : {{ urssaf_number }}<br/>
   {% if rep_entity_name %}
     Représentée par {{ rep_entity_name }}{% if rep_entity_legal_form %} ({{ rep_entity_legal_form }}){% endif %}{% if rep_entity_siren %}, SIREN {{ rep_entity_siren }}{% endif %},<br/>
-    elle‑même représentée par {{ rep_name }}, en qualité de {{ rep_title }},<br/>
+    elle‑même représentée par {{ rep_civility or '' }} {{ rep_name }}, en qualité de {{ rep_title }},<br/>
   {% else %}
-    Représentée par {{ rep_name }}, en qualité de {{ rep_title }},<br/>
+    Représentée par {{ rep_civility or '' }} {{ rep_name }}, en qualité de {{ rep_title }},<br/>
   {% endif %}
   d'une part,
   <br/><br/>
   {{ employee_civility }} {{ employee_name }}<br/>
   Né(e) le {{ birth_date }} à {{ birth_place }}<br/>
   Nationalité : {{ nationality }}<br/>
+  {% if employee_address %}Adresse : {{ employee_address }}{% if employee_postal_code or employee_city %} — {{ employee_postal_code or '' }} {{ employee_city or '' }}{% endif %}<br/>{% endif %}
   Numéro de Sécurité sociale : {{ ssn }}<br/>
   d'autre part,
   <br/><br/>
@@ -70,11 +76,11 @@
 
 <h2>Article 1 — Objet du contrat</h2>
 <div class="sec">
-  La société {{ employer_name }} engage {{ employee_civility }} {{ employee_name }} par le présent <strong>contrat à durée indéterminée</strong>, prenant effet à compter du {{ contract_start }}{% if workplace_base %} à {{ workplace_base }}{% endif %};
+  La société {{ employer_name }} engage {{ employee_civility }} {{ employee_name }} par le présent <strong>contrat à durée déterminée</strong>, prenant effet à compter du {{ contract_start }}{% if workplace_base %} à {{ workplace_base }}{% endif %};
   en qualité de « {{ job_title }} »{% if coeff %} au coefficient hiérarchique « {{ coeff }} »{% elif classification_level %} relevant de la classification « {{ classification_level }} »{% endif %}{% if idcc %} de la convention collective (IDCC {{ idcc }}){% endif %}.
   {% if poste_risques_particuliers == 'oui' %}
     <br/><br/>
-    Le poste objet du présent CDI figure sur la liste des postes présentant des risques particuliers au sens de l’article L.4154‑2&nbsp;; le salarié relève d’un suivi individuel renforcé avec examen d’aptitude préalable (art. R.4624‑23 et R.4624‑24).
+    Le poste objet du présent CDD figure sur la liste des postes présentant des risques particuliers au sens de l’article L.4154‑2&nbsp;; le salarié relève d’un suivi individuel renforcé avec examen d’aptitude préalable (art. R.4624‑23 et R.4624‑24).
   {% endif %}
 </div>
 
@@ -83,36 +89,74 @@
   Les dispositions conventionnelles applicables au présent contrat sont celles en vigueur dans l’entreprise
   {% if idcc %}(CCN : {{ idcc }}){% else %}(à défaut de convention collective déclarée){% endif %},
   ainsi que, le cas échéant, les accords d’entreprise applicables.
-  {% if ae_exists %}
-    {% for a in ae_items %}
-        <li>
-        {{ a.title or "Accord d’entreprise" }}
-        {% if a.date %} — {{ a.date }}{% else %}{% endif %}
-      </li>
-    {% endfor %}
+  {% if ae and ae.exists %}
+    <ul>
+      {% for a in ae.items %}
+        <li>{{ a.title or 'Accord d’entreprise' }}{% if a.date %} — {{ a.date }}{% endif %}</li>
+      {% endfor %}
+    </ul>
   {% endif %}
-
 </div>
 
+<h2>Article 3 — Motif du recours</h2>
+<div class="sec">
+  {% set r = (cdd_reason or (cdd.reason if cdd else None)) or '' %}
+  {% if r == 'remplacement' %}
+    Le présent CDD est conclu pour le <strong>remplacement temporaire</strong>
+    {% if replaced_employee_name %} de {{ replaced_employee_name }}{% endif %}
+    {% if replaced_employee_position %} ({{ replaced_employee_position }}){% endif %}
+    {% if replacement_reason %}, absent(e) pour {{ replacement_reason }}{% endif %}.
+  {% elif r == 'accroissement' %}
+    Le présent CDD est conclu pour faire face à un <strong>accroissement temporaire d’activité</strong>.
+    {% if cdd_eco_layoff_6m and (cdd_eco_layoff_6m|lower in ['oui','on','true','1']) %}
+      <br/><span class="small muted">Note interne : un licenciement économique récent (≤ 6 mois) a été renseigné sur le poste. En principe, le CDD est interdit sauf dérogation (PSE/accord).</span>
+      {% if cdd_eco_layoff_notes %}<br/><span class="small">Justification/exception : {{ cdd_eco_layoff_notes }}</span>{% endif %}
+    {% endif %}
+  {% elif r == 'saisonnier' %}
+    Le présent CDD est conclu pour un <strong>emploi saisonnier</strong>, lié à une période d’activité déterminée.
+  {% elif r == 'usage' %}
+    Le présent CDD est conclu dans un <strong>secteur d’usage</strong> au sens de l’article D1242‑1 du Code du travail.
+  {% else %}
+    Le présent CDD est conclu pour le motif suivant : {{ (cdd.reason_other if cdd else None) or cdd_reason_other_text or '—' }}.
+  {% endif %}
+</div>
 
-<h2>Article 3 — Période d’essai</h2>
+<h2>Article 4 — Durée du contrat</h2>
+<div class="sec">
+  {% if no_term %}
+    Le contrat est conclu <strong>sans terme précis</strong>.
+    {% if min_duration %}
+      Sa <strong>durée minimale</strong> est fixée à {{ min_duration }} {{ min_duration_unit or 'jours' }}.
+    {% endif %}
+    {% if cdd and cdd.term and cdd.term.event_desc %}
+      Il prendra fin lors de la réalisation de l’événement suivant : {{ cdd.term.event_desc }}.
+    {% else %}
+      Il prendra fin lors de la réalisation de l’événement objectif ayant motivé le recours.
+    {% endif %}
+  {% else %}
+    Le contrat est conclu <strong>à terme précis</strong> et prendra fin automatiquement à l’échéance du terme, soit le {{ contract_end or '—' }}.
+  {% endif %}
+  {% if cdd and cdd.renewable %}
+    <br/>Renouvellement : le contrat est <strong>renouvelable</strong> dans le respect des dispositions légales et conventionnelles, dans la limite de
+    {% if cdd.renewals_max is not none %}{{ cdd.renewals_max }} renouvellement(s){% else %}deux renouvellements{% endif %}.
+  {% endif %}
+</div>
+
+<h2>Article 5 — Période d’essai</h2>
 <div class="sec">
   Le présent engagement est conclu sous réserve d’une période d’essai de
-  {% if probation_months is not none %}{{ probation_months }} mois{% else %}—{% endif %},
-  au cours de laquelle il pourra être mis fin au contrat, par l’une ou l’autre des parties, selon les règles légales et conventionnelles.
-  {% if probation_renewal_requested == 'oui' %}
-  <br/>Cette période d’essai pourra être renouvelée si la convention applicable l’autorise et dans ses limites.
-  {% endif %}
+  {% if probation_months is not none %}{{ probation_months }} mois{% else %}—{% endif %}.
+  Elle <strong>n’est pas renouvelable</strong> pour un CDD, sauf stipulation conventionnelle étendue dérogatoire.
 </div>
 
-<h2>Article 4 — Emploi et qualification</h2>
+<h2>Article 6 — Emploi et qualification</h2>
 <div class="sec">
   {{ employee_civility }} {{ employee_name }} occupera le poste de <strong>{{ job_title }}</strong>{% if classification_level %}, niveau/strate/coefficient : {{ classification_level }}{% endif %}.
   {% if main_mission %}<br/>Attributions principales : {{ main_mission }}.{% endif %}
   {% if annex_activities %}<br/>Activités annexes : {{ annex_activities }}.{% endif %}
 </div>
 
-<h2>Article 5 — Rémunération</h2>
+<h2>Article 7 — Rémunération</h2>
 <div class="sec">
   {% set civ = (employee_civility or '')|lower %}
   {% set is_f = 'madame' in civ %}
@@ -121,7 +165,7 @@
 
   {% if has_13th_month %}
     <p>
-      Un <strong>treizième mois</strong> est applicable{% if bonus13_when or bonus13_when_free %} (échéance&nbsp;: {{ bonus13_when_free if bonus13_when == 'autre' else bonus13_when }}){% endif %}{% if bonus13_base or bonus13_base_free %}, base de calcul&nbsp;: {{ bonus13_base_free if bonus13_base == 'autre' else bonus13_base }}{% endif %}.
+      Un <strong>treizième mois</strong> est applicable{% if bonus13_when or bonus13_when_free %} (échéance&nbsp;: {{ bonus13_when_free or bonus13_when }}){% endif %}{% if bonus13_base or bonus13_base_free %}, base de calcul&nbsp;: {{ bonus13_base_free or bonus13_base }}{% endif %}.
     </p>
   {% endif %}
 
@@ -136,29 +180,21 @@
   <p class="small">Le cas échéant, s’ajoutent les accessoires de rémunération prévus par la convention collective applicable et/ou par les clauses additionnelles du présent contrat.</p>
 </div>
 
-<h2>Article 6 — Durée du travail</h2>
+<h2>Article 8 — Durée du travail</h2>
 <div class="sec">
-  {% if work_time_mode in ['standard','standard_35h','trv_70q','trv_39rtt','san_39rtt','dem_39rtt'] %}
-    La durée de travail est fixée à {{ weekly_hours }} heures par semaine.
-    {% if schedule_info %} Organisation indicative : {{ schedule_info }}.{% endif %}
-    {% if idcc == 16 and (segment or '')|upper == 'TRM_AAT' and (statut or '')|upper == 'ROULANT' and work_time_regime == 'temps_complet' %}
-      <br/>
-      <span class="small">TRM (roulants) — temps de service de référence :
-        {% set _k = trm_service_kind %}
-        {% if _k == 'longue_distance' %}<strong>43 h</strong> (longue distance){% elif _k == 'messagerie_fonds' %}<strong>35 h</strong> (messagerie / convoyeurs de fonds){% else %}<strong>39 h</strong> (autres roulants){% endif %}.
-        Au‑delà de cette référence : heures supplémentaires (temps de service).
-      </span>
+  {% set wtm = work_time_mode or 'standard_35h' %}
+  {% if wtm in ['standard','standard_35h','trv_70q','trv_39rtt','san_39rtt','dem_39rtt'] %}
+    Durée hebdomadaire de référence : <strong>{{ '%.2f'|format((weekly_hours or 35.0)|float) }}</strong> heures.
+    {% if schedule_info %}
+      <br/>Organisation indicative : {{ schedule_info }}.
     {% endif %}
-    {% if idcc == 16 and (segment or '')|upper == 'TRV' and work_time_regime == 'temps_complet' %}
-      {% if trv_fulltime_mode == '70q' or work_time_mode == 'trv_70q' %}
-        <br/>Organisation sur deux semaines&nbsp;: <strong>70&nbsp;heures par quinzaine</strong> (moyenne <strong>35&nbsp;h/sem</strong>){% if trv_ref_desc %}, {{ trv_ref_desc }}{% endif %}.
-      {% elif trv_fulltime_mode == '39rtt' or work_time_mode == 'trv_39rtt' %}
+    {% if idcc == 16 and ((segment or '')|upper == 'TRV') and work_time_regime == 'temps_complet' %}
+      {% if work_time_mode == 'trv_39rtt' or trv_fulltime_mode == '39rtt' %}
         <br/>Organisation <strong>39&nbsp;h/sem</strong> compensées par des jours de RTT, ramenant la durée moyenne à <strong>35&nbsp;h/sem</strong>.
-        {% if trv_rtt_days_per_year is not none %}JRTT/an&nbsp;: <strong>{{ trv_rtt_days_per_year }}</strong>.{% endif %}
         Le salaire de base demeure calculé sur <strong>151,67&nbsp;h/mois</strong>.
-        {% if trv_ref_desc %}<br/>Référence/organisation&nbsp;: {{ trv_ref_desc }}.{% endif %}
+      {% elif trv_fulltime_mode == '70q' %}
+        <br/><span class="small">Rappel TRV : plafond d’amplitude à 70 h (transport routier voyageurs), sous réserve des contreparties applicables.</span>
       {% endif %}
-      <br/><span class="small">TRV — prévenance des plannings : <strong>7 jours</strong> (réduction possible à <strong>24&nbsp;heures</strong> avec contrepartie), sous réserve des dispositions applicables.</span>
     {% elif idcc == 16 and ((segment or '')|upper == 'SANITAIRE' or (segment or '')|upper == 'DEMENAGEMENT') and work_time_regime == 'temps_complet' %}
       {% if work_time_mode == 'san_39rtt' or work_time_mode == 'dem_39rtt' %}
         <br/>Organisation <strong>39&nbsp;h/sem</strong> compensées par des jours de RTT, ramenant la durée moyenne à <strong>35&nbsp;h/sem</strong>.
@@ -170,53 +206,22 @@
       {% if schedule_info %}
         <br/>Ces précisions n’ont qu’une valeur indicative et pourront être adaptées en fonction des impératifs d’exploitation, dans le respect des règles applicables.
       {% else %}
-        <br/>Les horaires de {{ employee_civility }} {{ employee_name }} et leur aménagement pourront être modifiés en fonction des impératifs de production, dans le respect des règles applicables.
+        <br/>Les horaires et leur aménagement pourront être modifiés en fonction des impératifs de production, dans le respect des règles applicables.
       {% endif %}
-      <br/>Il pourra par ailleurs être demandé au salarié d’effectuer des heures supplémentaires si nécessaire, conformément aux dispositions légales et conventionnelles.
+      <br/>Des heures supplémentaires pourront être demandées si nécessaire, conformément aux dispositions légales et conventionnelles.
     {% endif %}
-  {% set fhv = fh_variant or '' %}
-  {% if work_time_mode == 'forfait_hours' %}
-    {% if fhv == 'repos' %}
-      <p>Les heures effectuées au‑delà de la valeur hebdomadaire de référence
-      seront compensées par un repos d’une durée équivalente, le cas échéant
-      majoré conformément aux dispositions applicables.</p>
-    {% else %}
-      <p>Les heures effectuées au‑delà de la valeur hebdomadaire de référence
-      seront rémunérées avec les majorations applicables conformément aux
-      dispositions légales et conventionnelles.</p>
-      {% if weekly_hours and weekly_hours|float > 35 %}
-        {% set hs = (weekly_hours|float - 35.0) %}
-        <p class="small">Ventilation indicative : base 35&nbsp;h + {{ '%.2f'|format(hs) }}&nbsp;h supplémentaires incluses.
-        Majoration légale de référence&nbsp;: +25&nbsp;% (36–43&nbsp;h), +50&nbsp;% (≥&nbsp;44&nbsp;h), sauf dispositions conventionnelles plus favorables.</p>
-      {% endif %}
-    {% endif %}
-    {% if forfait_hours_per_year %}
-      <p>Forfait annuel en heures&nbsp;: <strong>{{ forfait_hours_per_year }}</strong> h.{% if forfait_hours_ref %} Référence&nbsp;: {{ forfait_hours_ref }}.{% endif %}</p>
-      <p class="small">Sous réserve des dispositions d’ordre public (repos quotidien/hebdomadaire et durées maximales), ainsi que des garanties prévues par la convention ou l’accord applicable.</p>
-    {% endif %}
-  {% endif %}
-  {% elif work_time_mode == 'forfait_days' %}
+  {% elif wtm == 'forfait_hours' %}
+    Le salarié est au <strong>forfait annuel en heures</strong>.
+    {% if forfait_hours_per_year %}Volume annuel : <strong>{{ forfait_hours_per_year }}</strong> h.{% endif %}
+    {% if forfait_hours_ref %} Référence conventionnelle/AE : {{ forfait_hours_ref }}.{% endif %}
+  {% elif wtm == 'forfait_days' %}
     Le salarié relève d’un <strong>forfait annuel en jours</strong> de <strong>{{ forfait_days_per_year }}</strong> jours par an.
     {% if ref_period_desc %}Période de référence : {{ ref_period_desc }}.{% endif %}
     {% if forfait_days_ref %}<br/>Référence conventionnelle/AE&nbsp;: {{ forfait_days_ref }}.{% endif %}
     <br/><span class="small">Sous réserve des dispositions d’ordre public du forfait en jours (suivi de la charge, entretien, repos).</span>
-  {% elif work_time_mode == 'modulation' %}
-    Organisation en <strong>modulation</strong> du temps de travail (cadre annuel).
-    {% if mod_annual_hours_max %}Volume annuel de référence (max) : <strong>{{ mod_annual_hours_max }}</strong> h.{% endif %}
-    {% if mod_weekly_hours_cap %} Plafond hebdomadaire : <strong>{{ '%.1f'|format(mod_weekly_hours_cap|float) }}</strong> h.{% endif %}
-    {% if mod_ref_desc %}<br/>Référence / période : {{ mod_ref_desc }}.{% endif %}
-    <br/><span class="small">Les plannings sont communiqués avec la prévenance applicable selon le segment (TRV / sanitaire / déménagement) et les accords en vigueur.</span>
-  {% endif %}
-
-  {# Modalité 2 (Syntec) — Forfait heures sur la semaine avec plafond annuel en jours #}
-  {% if work_time_mode in ['modalite_2','forfait_hours_mod2'] %}
-    <p>
-      Organisation de la durée du travail en <strong>Modalité 2</strong> (Syntec) :
-      plafond hebdomadaire de <strong>{{ weekly_hours }}</strong> h.
-      {% if m2_days_cap %}
-        Plafond annuel en jours (contrat) : <strong>{{ m2_days_cap }}</strong> j.
-      {% endif %}
-    </p>
+  {% elif wtm in ['modalite_2','forfait_hours_mod2'] %}
+    Organisation de la durée du travail en <strong>Modalité 2</strong> (Syntec) : plafond hebdomadaire <strong>{{ weekly_hours }}</strong> h.
+    {% if m2_days_cap %}Plafond annuel en jours (contrat) : <strong>{{ m2_days_cap }}</strong> j.{% endif %}
   {% endif %}
 
   {% if part_time %}
@@ -241,7 +246,6 @@
          durée max {{ part_time.flex.break_max_hours or '—' }} h. {{ part_time.flex.counterparties or '' }}</p>
     {% endif %}
   {% endif %}
-  {# Bloc générique coupures & amplitude si fourni par l'UI/CCN/AE #}
   {% set fx = part_time.flex or {} %}
   {% if fx.breaks_max or fx.break_max_hours or fx.breaks_per_week_max or fx.min_sequence_hours or fx.daily_amplitude_max or fx.break_threshold_hours or fx.daily_amplitude_max_if_break or fx.daily_amplitude_max_inventory or fx.break_premium_mg_ratio or fx.break_premium_min_eur or fx.forbid_breaks_if_weekly_hours_lt or fx.forbid_breaks_if_monthly_hours_lt %}
     <p>
@@ -265,34 +269,28 @@
       {% if part_time.flex.counterparties %} Contreparties complémentaires : {{ part_time.flex.counterparties }}.{% endif %}
     </p>
   {% endif %}
-  {% if part_time.modif.reasons %}
+  {% if part_time.modif and part_time.modif.reasons %}
     <p>Modification possible de la répartition pour les motifs suivants : {{ part_time.modif.reasons }}.
        Prévenance : {{ part_time.modif.notice_days or '—' }} {{ part_time.modif.notice_unit or '' }}.</p>
   {% endif %}
-{% endif %}
-
-{% if auto_clauses and auto_clauses|length %}
-  <h3>Clauses spécifiques (temps partiel)</h3>
-  {% for c in auto_clauses %}
-    <h4>{{ c.title }}</h4>
-    <p>{{ c.body }}</p>
-  {% endfor %}
-{% endif %}
+  {% endif %}
 </div>
 
-<h2>Article 7 — Lieu de travail</h2>
+<h2>Article 9 — Lieu de travail</h2>
 <div class="sec">
   <p>{{ employee_civility }} {{ employee_name }} exercera ses fonctions dans les locaux de la société {{ employer_name }} à {{ workplace_base }}.</p>
   {% if work_area %}<p>Secteur géographique : {{ work_area }}.</p>{% endif %}
   {% if mobility_clause == 'oui' %}<p>Une clause de mobilité pourra être mise en œuvre dans l’intérêt de l’entreprise, dans des limites compatibles avec la vie personnelle et familiale et moyennant un délai de prévenance raisonnable.</p>{% endif %}
+  
 </div>
 
-<h2>Article 8 — Congés payés</h2>
+<h2>Article 10 — Congés payés</h2>
 <div class="sec">
-  Droits à congés : {{ cp_days_number }} jours {{ cp_unit }} par an. La fixation des dates tient compte des nécessités de service et des règles applicables.
+  Droits à congés : {{ cp_days_number }} jours {{ cp_unit }} par an (proratisation selon la durée du contrat).
+  <br/>En cas d’impossibilité de prise effective des congés, il sera versé une <strong>indemnité compensatrice de congés payés</strong> à l’issue du contrat, sauf poursuite de la relation en CDI.
 </div>
 
-<h2>Article 9 — Sécurité sociale, retraite et prévoyance</h2>
+<h2>Article 11 — Sécurité sociale, retraite et prévoyance</h2>
 <div class="sec">
   {% set civ = (employee_civility or '')|lower %}
   {% set is_f = 'madame' in civ %}
@@ -317,29 +315,56 @@
   {% endif %}
 </div>
 
-<h2>Article 10 — Obligations professionnelles</h2>
+<h2>Article 12 — Autres avantages sociaux</h2>
 <div class="sec">
-  {{ employee_civility }} {{ employee_name }} sera tenu(e) d’observer les dispositions réglementant les conditions de travail applicables à l’ensemble des salariés de l’entreprise, ainsi que les règles générales concernant la discipline et la sécurité du travail telles qu’elles figurent dans le règlement intérieur de l’entreprise qui lui a été communiqué.
+  {{ employee_civility }} {{ employee_name }} bénéficie, dans les mêmes conditions que les autres salariés, des avantages accordés par l’entreprise.
+</div>
+
+<h2>Article 13 — Obligations professionnelles</h2>
+<div class="sec">
+  {{ employee_civility }} {{ employee_name }} s’engage à respecter les consignes et procédures en vigueur (discipline, sécurité, confidentialité) ainsi que le règlement intérieur lorsqu’il est applicable. {{ employee_civility }} {{ employee_name }} déclare être libre de tout engagement.
+</div>
+
+<h2>Article 14 — Indemnité de fin de contrat</h2>
+<div class="sec">
+  {% set reason = (cdd_reason or (cdd.reason if cdd else None)) %}
+  {% if reason == 'saisonnier' %}
+    Pour un <strong>emploi saisonnier</strong>, l’indemnité de fin de contrat n’est en principe <strong>pas due</strong>, sauf dispositions conventionnelles plus favorables.
+  {% else %}
+    À l’issue du contrat, il sera versé, le cas échéant, une <strong>indemnité de fin de contrat</strong> (prime de précarité) conformément aux dispositions légales et conventionnelles applicables.
+    {% if precarity_rate_percent %}
+      <br/>Taux indicatif contractuel: <strong>{{ '%.1f'|format(precarity_rate_percent|float) }}%</strong>
+      {% if precarity_rate_source %} (source: {{ precarity_rate_source }}){% endif %}.
+    {% else %}
+      <br/>À défaut de disposition conventionnelle étendue applicable, le taux de référence est de <strong>10%</strong> de la rémunération brute totale.
+    {% endif %}
+    {% if precarity_notes %}<br/><span class="small">Note: {{ precarity_notes }}</span>{% endif %}
+    <br/>Elle n’est pas due notamment en cas de poursuite en CDI, de refus d’un CDI sur emploi similaire assorti d’une rémunération au moins équivalente, ou dans les cas de rupture anticipée visés ci‑après.
+  {% endif %}
+  {% if auto_clauses and auto_clauses|length %}
+    <h3>Clauses spécifiques (temps partiel)</h3>
+    {% for c in auto_clauses %}
+      <h4>{{ c.title }}</h4>
+      <p>{{ c.body }}</p>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<h2>Article 15 — Rupture anticipée</h2>
+<div class="sec">
+  Après la période d’essai, le CDD ne peut être rompu avant le terme qu’en cas d’accord des parties, faute grave, faute lourde, force majeure, inaptitude constatée par le médecin du travail, ou à l’initiative du salarié justifiant de la conclusion d’un CDI dans une autre entreprise (préavis d’1 jour par semaine compte tenu de la durée du contrat, dans la limite de 2 semaines).
+</div>
+
+<h2>Article 16 — Formalités et entretien professionnel</h2>
+<div class="sec">
+  Le recrutement de {{ employee_civility }} {{ employee_name }} a fait l’objet d’une déclaration auprès de l’Urssaf de {{ dpae_urssaf_city }} en date du {{ dpae_date }} par le biais de la déclaration préalable à l’embauche (DPAE).
   <br/>
-  {{ employee_civility }} {{ employee_name }} s’engage par ailleurs :
-  <ul>
-    <li>à se conformer aux directives et instructions émanant de la direction ou de son représentant ;</li>
-    <li>à observer une discrétion professionnelle absolue pour tout ce qui concerne les faits ou informations dont il/elle aura connaissance dans l’exercice ou à l’occasion de ses fonctions ;</li>
-    <li>à informer la société {{ employer_name }} en cas d’exercice d’une activité professionnelle complémentaire ;</li>
-    <li>à informer immédiatement la société {{ employer_name }} en cas d’absence, quel qu’en soit le motif, et à produire dans les 48 heures les justificatifs appropriés ;</li>
-    <li>à faire connaître sans délai tout changement de situation le/la concernant (domicile, situation familiale, enfants à charge, etc.).</li>
-  </ul>
-  <p class="small">Le cas échéant, et notamment avant l’expiration de la période d’essai, {{ employee_civility }} {{ employee_name }} se soumettra à la visite d’information et de prévention auprès du service de prévention et de santé au travail.</p>
-  <p>{{ employee_civility }} {{ employee_name }} déclare être libre de tout engagement.</p>
+  En outre, conformément aux dispositions du Code du travail, {{ employee_civility }} {{ employee_name }} bénéficiera
+  {% set ep = entretien_periodicity if entretien_periodicity and entretien_periodicity|length>0 else 'tous les deux ans' %}
+  {{ ep }} d’un entretien professionnel consacré à l’examen de ses perspectives d’évolution professionnelle, notamment en termes de qualifications et d’emploi.
 </div>
 
-<h2>Article 11 — Préavis</h2>
-<div class="sec">
-  À l’issue de la période d’essai, le contrat peut être rompu dans les conditions légales et conventionnelles, sous réserve des préavis :
-  licenciement : {{ notice_dismissal_months }} mois — démission : {{ notice_resignation_months }} mois (sauf faute grave ou lourde).
-</div>
-
-{# --- Clauses additionnelles --- #}
+{# --- Clauses additionnelles (catalogue + custom) --- #}
 {% if clauses_selected or clauses_custom %}
   <h2>Clauses additionnelles</h2>
 
@@ -359,16 +384,6 @@
   {% endfor %}
 {% endif %}
 
-
-<h2>Article 12 — Formalités et entretien professionnel</h2>
-<div class="sec">
-  Le recrutement de {{ employee_civility }} {{ employee_name }} a fait l’objet d’une déclaration auprès de l’Urssaf de {{ dpae_urssaf_city }} en date du {{ dpae_date }} par le biais de la déclaration préalable à l’embauche (DPAE).
-  <br/>
-  En outre, conformément aux dispositions du Code du travail, {{ employee_civility }} {{ employee_name }} bénéficiera
-  {% set ep = entretien_periodicity if entretien_periodicity and entretien_periodicity|length>0 else 'tous les deux ans' %}
-  {{ ep }} d’un entretien professionnel consacré à l’examen de ses perspectives d’évolution professionnelle, notamment en termes de qualifications et d’emploi.
-</div>
-
 <div class="sec">
   Fait à {{ place_of_signature }}, le {{ date_of_signature }}, en {{ copies_count }} exemplaires.
 </div>
@@ -384,20 +399,53 @@
     {{ employee_civility }} {{ employee_name }}<br/>
     <div class="sigbox">Signature précédée de la mention « lu et approuvé »</div>
   </div>
-</div>
+  </div>
 
 {# ===================== ANNEXE (HORS CORPS DU CONTRAT) ===================== #}
 <div class="annexe">
   <h2>Annexe — Conformité & Traçabilité <span class="badge">document non contractuel</span></h2>
   <p class="note">
-    Feuille d’information automatiquement générée d’après les données saisies.
-    Elle récapitule les bornes appliquées et, le cas échéant, les écarts assumés par l’utilisateur.
+    Feuille d’information automatiquement générée d’après les données saisies. Elle récapitule les bornes appliquées, les paramètres CDD (motif/terme) et, le cas échéant, les écarts assumés par l’utilisateur.
   </p>
+
+  <h3>Paramètres CDD</h3>
+  <table class="table small no-break">
+    <thead><tr><th>Élément</th><th>Valeur</th></tr></thead>
+    <tbody>
+      <tr><td>Motif</td><td>{{ (cdd_reason or (cdd.reason if cdd else None)) or '—' }}</td></tr>
+      {% if replaced_employee_name or replaced_employee_position or replacement_reason %}
+        <tr><td>Remplacement</td><td>
+          {% if replaced_employee_name %}Personne remplacée : {{ replaced_employee_name }}{% endif %}
+          {% if replaced_employee_position %}{% if replaced_employee_name %} — {% endif %}Poste : {{ replaced_employee_position }}{% endif %}
+          {% if replacement_reason %}{% if replaced_employee_name or replaced_employee_position %} — {% endif %}Raison : {{ replacement_reason }}{% endif %}
+        </td></tr>
+      {% endif %}
+      {% if no_term %}
+        <tr><td>Terme</td><td>Sans terme précis</td></tr>
+        <tr><td>Durée minimale</td><td>{{ min_duration or '—' }} {{ min_duration_unit or '' }}</td></tr>
+        <tr><td>Événement fin</td><td>{{ (cdd.term.event_desc if cdd and cdd.term else None) or '—' }}</td></tr>
+      {% else %}
+        <tr><td>Terme</td><td>À terme précis</td></tr>
+        <tr><td>Date de fin</td><td>{{ contract_end or '—' }}</td></tr>
+      {% endif %}
+      <tr><td>Renouvellement</td><td>{% if cdd and cdd.renewable %}Oui{% else %}Non{% endif %}{% if cdd and cdd.renewable %} — max {{ cdd.renewals_max if cdd.renewals_max is not none else '2' }}{% endif %}</td></tr>
+      <tr>
+        <td>Indemnité de fin de contrat</td>
+        <td>
+          {% if reason == 'saisonnier' %}
+            Non due (emploi saisonnier)
+          {% else %}
+            Taux {{ '%.1f'|format(precarity_rate_percent|float) if precarity_rate_percent else '10.0' }}%{% if precarity_rate_source %} — source: {{ precarity_rate_source }}{% endif %}
+          {% endif %}
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
   {# Bornes appliquées #}
   {% set wb = worktime_bounds or {} %}
   {% set has_tt = (wb.weekly_hours_min is not none) or (wb.weekly_hours_max is not none) or (wb.average_12_weeks_max is not none) or (wb.days_per_year_max is not none) %}
-  {% set has_bounds = (probation_max or notice_min_resignation or notice_min_dismissal or has_tt) %}
+  {% set has_bounds = (probation_max or has_tt) %}
   {% if has_bounds %}
     <h3>Bornes appliquées</h3>
     <table class="table small no-break">
@@ -429,14 +477,6 @@
         {% if probation_max %}
           <tr><td>Période d’essai</td><td>Plafond</td><td>{{ probation_max }} mois{% if probation_max_total %} — Total après renouvellement ≤ {{ probation_max_total }} mois{% endif %}</td></tr>
         {% endif %}
-        {% if notice_min_resignation is not none or notice_min_dismissal is not none %}
-          <tr><td>Préavis</td><td>Minima</td>
-            <td>
-              Démission : {{ notice_min_resignation if notice_min_resignation is not none else "—" }} mois ·
-              Licenciement : {{ notice_min_dismissal if notice_min_dismissal is not none else "—" }} mois
-            </td>
-          </tr>
-        {% endif %}
       </tbody>
     </table>
   {% endif %}
@@ -467,7 +507,7 @@
 
   {# Overrides (continuer quand même) #}
   {% if overrides_steps and overrides_steps|length>0 %}
-    {% set step_labels = {1:"Entreprise",2:"Identité",3:"Convention",4:"Poste",5:"Durée du travail",6:"Rémunération",7:"Période d’essai",8:"Préavis",9:"Formalités"} %}
+    {% set step_labels = {1:"Entreprise",2:"Identité",3:"Convention",4:"CDD",5:"Poste",6:"Durée du travail",7:"Rémunération",8:"Essai",9:"Formalités"} %}
     <h3>Overrides effectués</h3>
     <p class="small">
       Étapes concernées :

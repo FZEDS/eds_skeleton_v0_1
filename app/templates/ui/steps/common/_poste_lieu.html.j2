@@ -1,0 +1,68 @@
+{# app/templates/ui/steps/common/_poste_lieu.html.j2 (common, sans numérotation dans le nom) #}
+<div class="step card" data-step="{{ step_num|default('4') }}" aria-hidden="true">
+  <h3>{{ "%02d"|format(step_num|default(4)) }}. Poste &amp; conditions d'exercice</h3>
+
+  <hr class="divider">
+
+  <!-- Poste -->
+  <h4 style="margin:0 0 6px">Poste
+    <span class="help" title="Le poste de travail correspond à la relation entre un salarié et un établissement pendant une période donnée.">i</span>
+  </h4>
+  
+  <div class="grid2">
+    <div>
+      <label>Intitulé du poste du salarié
+        <span class="help" title="Précisez le poste exact. Il sera repris sur le bulletin de paie, l’organigramme, etc.">i</span>
+      </label>
+      <input name="job_title" data-required="true" placeholder="Ex. Développeur back‑end, Chef de projet…">
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- Missions : wording + choix d’emplacement -->
+  <h4 style="margin:0 0 6px">Missions</h4>
+  <p class="subtle-label" style="margin-top:10px">
+    Les missions principales du salarié sont mentionnées
+    <span class="help" title="La mission peut figurer dans le contrat ou dans une fiche de poste annexée.">i</span>
+  </p>
+  <div class="grid2">
+    <label class="inline">
+      <input type="checkbox" id="mission_in_contract" name="mission_in_contract" value="on"> <span>Dans le contrat de travail</span>
+    </label>
+    <label class="inline">
+      <input type="checkbox" id="mission_in_annex" name="mission_in_annex" value="on"> <span>Dans une fiche de poste en annexe du contrat</span>
+    </label>
+  </div>
+  <div id="mission_contract_fields" class="callout-muted" style="display:none">
+    <div><label>Mission principale</label><textarea name="main_mission" rows="3"></textarea></div>
+    <div><label>Activités annexes (optionnel)</label><textarea name="annex_activities" rows="2"></textarea></div>
+  </div>
+  <div id="mission_annex_banner" class="callout" style="display:none;margin-top:8px">
+    Le contrat ne contiendra pas de descriptif du poste. Une fiche de poste devra être annexée.
+  </div>
+
+  <hr class="divider">
+
+  <!-- Lieu de travail -->
+  <div class="fieldset" style="margin-top:8px">
+    <h4 style="margin:0 0 6px">Lieu de travail
+       <span class="help" title="Le lieu de travail s'entend du lieu où le travail habituel s'accomplit.">i</span>
+    </h4>
+    <div class="grid2">
+      <div>
+        <label>Lieu principal</label>
+        <input name="workplace_base" data-required="true" placeholder="Adresse / site / ville">
+      </div>
+      <div>
+        <label>Secteur géographique (optionnel)</label>
+        <input name="work_area" placeholder="Ex. Île‑de‑France, Grand Ouest…">
+      </div>
+    </div>
+  </div>
+
+  <div class="actions" style="margin-top:10px">
+    <button class="btn" data-prev>Précédent</button>
+    <button class="btn-primary" data-next>Suivant</button>
+  </div>
+</div>

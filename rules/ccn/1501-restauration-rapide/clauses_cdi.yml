@@ -1,0 +1,16 @@
+meta:
+  label: "Clauses CCN — IDCC 1501"
+
+clauses:
+  - key: work_program_prevenance_1501
+    label: "Programme de travail — J‑10 / J‑3 & échanges"
+    synopsis: "Affichage des horaires J‑10 et modification J‑3 avec accord du salarié. Échanges de créneau possibles."
+    learn_more_html: |
+      <ul>
+        <li><strong>Programme de travail</strong> : affichage du programme (début/fin de service) au moins <strong>10 jours</strong> avant la semaine concernée.</li>
+        <li><strong>Modification</strong> : possible jusqu’à <strong>J‑3</strong> uniquement avec l’accord du salarié.</li>
+        <li><strong>Échanges de créneau</strong> : possibles entre deux salariés pour un volume d’heures équivalent, avec inscription au programme.</li>
+      </ul>
+    source_ref: "Art. 29.5 (programme de travail, prévenance) ; renvoi TP art. 4.9 (avenant temps partiel)"
+    text_html: |
+      <p><strong>Programme de travail.</strong> L’Employeur affiche et notifie le programme de travail (début et fin de service) au moins <strong>10</strong> jours calendaires avant la semaine concernée. Toute modification sera possible jusqu’à <strong>J‑3</strong> seulement avec l’accord du Salarié. Les échanges de créneau entre Salariés sont autorisés pour des volumes d’heures équivalents, sous réserve d’une inscription au programme et du respect des garanties applicables (repos, amplitudes, durées maximales).</p>

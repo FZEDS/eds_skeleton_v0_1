@@ -1,0 +1,34 @@
+<!-- STEP 9 (paramétrable) -->
+<div class="step card" data-step="{{ step_num|default('9') }}" aria-hidden="true">
+  <h3>{{ "%02d"|format(step_num|default(9)) }}. Clauses additionnelles</h3>
+
+  <div class="callout callout-info" style="margin-bottom:8px">
+    Cochez les clauses à ajouter au contrat. Vous pouvez aussi ajouter une clause spécifique rédigée librement.
+  </div>
+
+  <!-- Catalogue de clauses -->
+  <div id="clauses_catalog" class="clauses-list" aria-live="polite"></div>
+
+  <!-- Clauses spécifiques (custom) -->
+  <div class="fieldset" style="margin-top:12px">
+    <h4 style="margin:0 0 6px">Ajouter une autre clause spécifique</h4>
+    <div id="custom_clauses_list"></div>
+    <div class="muted-note" style="margin:6px 0 8px">
+      Renseignez un titre et le contenu ci‑dessous. 
+    </div>
+    <div class="warning-banner">
+      🚨 Vous êtes responsable de ce que vous écrivez ici. Relisez-la attentivement et, si vous avez un doute sur la rédaction, contactez un avocat.
+    </div>
+    <button type="button" class="btn" id="btn_add_custom_clause" style="margin-top:8px">+ ajouter une clause</button>
+  </div>
+
+  <!-- Hidden payloads pour le POST -->
+  <input type="hidden" id="clauses_selected_json" name="clauses_selected_json">
+  <input type="hidden" id="clauses_custom_json" name="clauses_custom_json">
+  <input type="hidden" id="clauses_params_json" name="clauses_params_json">
+
+  <div class="actions" style="margin-top:10px">
+    <button class="btn" data-prev>Précédent</button>
+    <button class="btn-primary" data-next>Suivant</button>
+  </div>
+</div>

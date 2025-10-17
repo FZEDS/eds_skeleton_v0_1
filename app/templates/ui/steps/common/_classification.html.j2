@@ -1,0 +1,73 @@
+{# app/templates/ui/steps/common/_classification.html.j2 (common, sans numérotation dans le nom) #}
+<div class="step card" data-step="{{ step_num|default('5') }}" aria-hidden="true">
+  <h3>{{ "%02d"|format(step_num|default(5)) }}. Classification</h3>
+
+  <!-- Classification CCN : deux colonnes, listes verticales -->
+  <h4 style="margin:0 0 6px">Classification
+     <span class="help" title="La classification professionnelle d'un salarié revient à définir le niveau du salarié dans l'entreprise en fonction de ses compétences et de son ancienneté dans l'emploi proposé, ainsi qu'en fonction des tâches demandées. ">i</span>
+  </h4>
+  <div style="margin-top:10px">
+    <div class="grid2 align-top">
+      <div>
+        <label class="subtle-label">Catégorie (selon la CCN sélectionnée)</label>
+        <div id="classif_cat_container" class="vlist" role="radiogroup" aria-label="Catégorie CCN"></div>
+      </div>
+      <div>
+        <label class="subtle-label">Niveau / coefficient</label>
+        <div id="classif_pos_container" class="vlist" role="radiogroup" aria-label="Niveau / coefficient"></div>
+      </div>
+    </div>
+
+    <!-- Fallback générique si pas de schéma CCN -->
+    <div id="classif_fallback" style="display:none;margin-top:12px">
+      <div class="grid2">
+        <div>
+          <label>Catégorie (générique)</label>
+          <select id="fallback_cat">
+            <option value="cadre">Cadre</option>
+            <option value="non-cadre" selected>Non‑cadre</option>
+          </select>
+        </div>
+        <div>
+          <label>Niveau / coefficient (texte libre)</label>
+          <input id="fallback_level" placeholder="Ex. Coef 240">
+        </div>
+      </div>
+      <small class="muted">Aucune classification CCN disponible : saisie libre.</small>
+    </div>
+  </div>
+
+  <!-- Q&A classification (inline) si la CCN déclare des questions -->
+  <div id="classif_questions" class="fieldset" style="margin-top:10px; display:none">
+    <h4 style="margin:0 0 6px">
+      Affiner la classification (CCN)
+      <span class="help" title="Répondez aux questions ci‑dessous pour préciser le segment/statut et le groupe/coefficient si nécessaire.">i</span>
+    </h4>
+    <div id="classif_questions_box" class="vlist"></div>
+  </div>
+
+  <div id="classif_coeff_block" class="fieldset" style="margin-top:10px; display:none">
+    <h4 style="margin:0 0 6px">Coefficient / groupe</h4>
+    <div class="muted" style="margin-top:2px; margin-bottom:6px">
+      Sélectionnez le coefficient correspondant au poste. Les libellés résument la position conventionnelle.
+    </div>
+    <div id="classif_coeff_container" class="vlist" role="radiogroup" aria-label="Coefficient CCN"></div>
+  </div>
+
+  <!-- Requis backend -->
+  <input type="hidden" name="categorie" id="categorie" value="non-cadre">
+  <input type="hidden" name="classification_level" id="classification_level">
+  <input type="hidden" name="coeff" id="coeff_value">
+
+  <hr class="divider">
+
+  {# Ancienneté déplacée vers l’étape Calendrier #}
+
+      {# ---- HINTS (classification) ---- #}
+  <div id="step4_header_card" class="callout" data-slot="step4.header" style="display:none"></div>
+
+  <div class="actions" style="margin-top:10px">
+    <button class="btn" data-prev>Précédent</button>
+    <button class="btn-primary" data-next>Suivant</button>
+  </div>
+</div>

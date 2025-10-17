@@ -1,0 +1,40 @@
+<!-- STEP 10 (paramétrable) -->
+<div class="step card" data-step="{{ step_num|default('10') }}" aria-hidden="true">
+  <h3>{{ "%02d"|format(step_num|default(10)) }}. Formalités</h3>
+
+  <hr class="divider">
+
+  <!-- Bloc A — Protection sociale déplacé à l'étape "Santé & prévoyance" -->
+
+  <hr class="divider">
+
+  <!-- Bloc B — DPAE & URSSAF -->
+  <div class="fieldset" style="margin-top:10px">
+    <h4 style="margin:0 0 6px">DPAE & URSSAF</h4>
+    <div class="grid3">
+      <div><label>URSSAF (ville)</label><input name="dpae_urssaf_city" placeholder="Ex. Paris"></div>
+      <div><label>Date DPAE</label><input type="date" name="dpae_date"></div>
+      <div></div>
+    </div>
+  </div>
+  
+  <hr class="divider">
+
+  <!-- Bloc C — Signatures -->
+  <div class="fieldset" style="margin-top:10px">
+    <h4 style="margin:0 0 6px">Signature</h4>
+    <div class="grid3">
+      <div><label>Fait à</label><input name="place_of_signature" data-required="true" placeholder="Ville"></div>
+      <div><label>Le</label><input type="date" name="date_of_signature" data-required="true"></div>
+      <div><label>Nb exemplaires</label><input type="number" min="1" value="2" name="copies_count" data-required="true"></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="actions">
+    <button class="btn" data-prev>Précédent</button>
+    <button class="btn-primary" id="btn-submit">Générer le PDF</button>
+  </div>
+  <p class="muted" style="margin-top:6px">Un PDF + un snapshot de conformité seront produits.</p>
+</div>

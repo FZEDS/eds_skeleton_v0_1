@@ -364,6 +364,7 @@ def _temps_bounds_payload(
     categorie: Optional[str] = None,
     statut: Optional[str] = None,
     segment: Optional[str] = None,
+    contract_type: Optional[str] = None,
 ) -> Dict[str, Any]:
     # ⚙️ mapping UI→API systématique
     mapped_mode = _map_worktime_mode_ui_to_api(work_time_mode or "standard")
@@ -377,6 +378,8 @@ def _temps_bounds_payload(
         "statut": (statut or None),
         "segment": (segment or None),
     }
+    # Hints CDI/CDD stricts (pas de fallback) — par défaut, on considère CDI si non précisé
+    ctx["contract_type"] = (str(contract_type).strip().lower() if contract_type else "cdi")
     res = _call_resolver("temps_travail", ctx)
 
     bounds = dict(res.get("bounds") or {})
@@ -413,7 +416,7 @@ async def api_temps_bounds(
     statut: Optional[str] = None,
     segment: Optional[str] = None,
 ):
-    payload = _temps_bounds_payload(idcc, work_time_mode, weekly_hours, forfait_days_per_year, as_of, categorie, statut, segment)
+    payload = _temps_bounds_payload(idcc, work_time_mode, weekly_hours, forfait_days_per_year, as_of, categorie, statut, segment, contract_type=None)
     return payload
 
 # Alias (pour compat éventuelle)
@@ -428,7 +431,7 @@ async def api_temps_travail_bounds(
     statut: Optional[str] = None,
     segment: Optional[str] = None,
 ):
-    payload = _temps_bounds_payload(idcc, work_time_mode, weekly_hours, forfait_days_per_year, as_of, categorie, statut, segment)
+    payload = _temps_bounds_payload(idcc, work_time_mode, weekly_hours, forfait_days_per_year, as_of, categorie, statut, segment, contract_type=None)
     return payload
 
 
@@ -442,7 +445,23 @@ async def api_essai_bounds(
     coeff: Optional[int] = None,
     annexe: Optional[str] = None,
     statut: Optional[str] = None,
+    contract_type: Optional[str] = None,
+    duration_weeks: Optional[int] = None,
+    contract_end: Optional[str] = None,
 ):
+    # Calculer la durée (semaines) si contract_end fourni
+    dur_weeks = duration_weeks
+    try:
+        if not dur_weeks and contract_end and (date or _today_iso()):
+            from datetime import date as _date
+            d0 = _date.fromisoformat(date or _today_iso())
+            d1 = _date.fromisoformat(contract_end)
+            delta_days = (d1 - d0).days
+            if delta_days > 0:
+                dur_weeks = int(round(delta_days / 7.0))
+    except Exception:
+        dur_weeks = duration_weeks
+
     ctx = {
         "idcc": idcc,
         "categorie": categorie,
@@ -450,6 +469,9 @@ async def api_essai_bounds(
         "as_of": date or _today_iso(),
         "annexe": annexe,
         "statut": statut,
+        # Par défaut CDI si non fourni (UI CDI ne transmet pas contract_type)
+        "contract_type": (contract_type or 'cdi'),
+        "contract_duration_weeks": dur_weeks,
     }
     res = _call_resolver("periode_essai", ctx)
     bounds = res.get("bounds") or {}
@@ -495,6 +517,7 @@ async def api_preavis_bounds(
         "segment": segment,
         "statut": statut,
         "coeff_key": coeff_key,
+        "contract_type": 'cdi',
     }
     res = _call_resolver("preavis", ctx)
     # ✅ le resolver renvoie "notice"
@@ -561,6 +584,7 @@ async def api_salaire_bounds(
         "annexe": annexe,
         "segment": segment,
         "statut": statut,
+        "contract_type": 'cdi',
     }
     # 1) Resolver principal
     res = _call_resolver("remuneration", ctx)
@@ -647,6 +671,7 @@ async def api_conges_bounds(
         "anciennete_months": anciennete_months,
         "unit": unit,
         "as_of": as_of or _today_iso(),
+        "contract_type": 'cdi',
     }
     res = _call_resolver("conges", ctx)
     # ✅ le resolver renvoie "conges" (avec min_days / suggested_days)
@@ -654,6 +679,28 @@ async def api_conges_bounds(
 
     return ({
         "conges": conges_payload,
+        "rule": _safe_rule(res.get("rule")),
+        "capabilities": res.get("capabilities") or {},
+        "explain": res.get("explain") or [],
+        "suggest": res.get("suggest") or [],
+    })
+
+# ========== API — CDD (règles de recours / durée / carence / précarité) ==========
+
+@app.get("/api/cdd/rules")
+async def api_cdd_rules(
+    idcc: Optional[int] = None,
+    reason: Optional[str] = None,
+    as_of: Optional[str] = None,
+):
+    ctx = {
+        "idcc": idcc,
+        "reason": (reason or "").strip().lower(),
+        "as_of": as_of or _today_iso(),
+    }
+    res = _call_resolver("cdd", ctx)
+    return ({
+        "cdd": res.get("cdd") or {},
         "rule": _safe_rule(res.get("rule")),
         "capabilities": res.get("capabilities") or {},
         "explain": res.get("explain") or [],
@@ -671,6 +718,7 @@ async def api_clauses_catalog(
     annexe: Optional[str] = None,
     segment: Optional[str] = None,
     statut: Optional[str] = None,
+    doc: Optional[str] = None,
 ):
     ctx = {
         "idcc": idcc,
@@ -681,6 +729,9 @@ async def api_clauses_catalog(
         "segment": segment,
         "statut": statut,
     }
+    # Doc type (cdi/cdd) pour charger le YAML idoine
+    if doc:
+        ctx["doc"] = str(doc).strip().lower()
     cat = load_clauses_catalog(idcc, ctx)
     return JSONResponse(cat)
 
@@ -831,8 +882,13 @@ async def cdi_generate(
     cp_days_number: Optional[int] = Form(None),
     cp_unit: str = Form("ouvrables"),
     retirement_org: Optional[str] = Form(None),
+    retirement_org_address: Optional[str] = Form(None),
     health_org: Optional[str] = Form(None),
+    health_org_address: Optional[str] = Form(None),
     welfare_org: Optional[str] = Form(None),
+    welfare_org_address: Optional[str] = Form(None),
+    # --- Santé & sécurité
+    poste_risques_particuliers: Optional[str] = Form(None),
 
     # --- Préavis saisis
     notice_dismissal_months: Optional[float] = Form(None),
@@ -913,6 +969,23 @@ async def cdi_generate(
     # ---------- Server‑side rechecks via resolve() ----------
 
     # Essai
+    # Calcul durée estimée (semaines) pour CDD
+    _dur_weeks = None
+    try:
+        if contract_end:
+            _d0 = date.fromisoformat(contract_start)
+            _d1 = contract_end if isinstance(contract_end, date) else date.fromisoformat(str(contract_end))
+            _dd = (_d1 - _d0).days
+            if _dd > 0:
+                _dur_weeks = int(round(_dd/7.0))
+        elif cdd_min_duration_value is not None:
+            _v = int(cdd_min_duration_value)
+            _unit = (cdd_min_duration_unit or 'jours').strip().lower()
+            _days = _v * (30 if _unit == 'mois' else 1)
+            _dur_weeks = int(round(_days/7.0))
+    except Exception:
+        _dur_weeks = None
+
     ess_ctx = {
         "idcc": idcc,
         "categorie": categorie,
@@ -920,6 +993,8 @@ async def cdi_generate(
         "as_of": contract_start,
         "annexe": annexe,
         "statut": statut,
+        "contract_type": "cdi",
+        "contract_duration_weeks": _dur_weeks,
         "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
     }
     ess_res = _call_resolver("periode_essai", ess_ctx)
@@ -930,7 +1005,7 @@ async def cdi_generate(
     if probation_months is not None and float(probation_months) > float(max_essai):
         conformity_issues.append({
             "key": "essai_srv",
-            "step": 7,
+            "step": 9,
             "field": "probation_months",
             "severity": "hard",
             "message": f"Période d’essai saisie ({probation_months} mois) > plafond ({max_essai}).",
@@ -950,6 +1025,7 @@ async def cdi_generate(
         "segment": segment,
         "statut": statut,
         "coeff_key": coeff_key,
+        "contract_type": "cdi",
         "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
     }
     prv_res = _call_resolver("preavis", prv_ctx)
@@ -971,7 +1047,7 @@ async def cdi_generate(
     if notice_resignation_months is not None and dem_min is not None and float(notice_resignation_months) < float(dem_min):
         conformity_issues.append({
             "key": "preavis_dem_srv",
-            "step": 8,
+            "step": 10,
             "field": "notice_resignation_months",
             "severity": "hard",
             "message": f"Préavis démission saisi ({notice_resignation_months} mois) < minimum ({dem_min}).",
@@ -982,7 +1058,7 @@ async def cdi_generate(
     if notice_dismissal_months is not None and lic_min is not None and float(notice_dismissal_months) < float(lic_min):
         conformity_issues.append({
             "key": "preavis_lic_srv",
-            "step": 8,
+            "step": 10,
             "field": "notice_dismissal_months",
             "severity": "hard",
             "message": f"Préavis licenciement saisi ({notice_dismissal_months} mois) < minimum ({lic_min}).",
@@ -1004,10 +1080,11 @@ async def cdi_generate(
     if (work_time_regime or "").lower() == "temps_partiel" and wt_api == "standard":
         wt_api = "part_time"
 
-    # Rémunération: pour TRV temps complet en standard, les minimas restent sur 35h (151,67 h/mois)
+    # Rémunération: pour TRV/SAN/DEM temps complet en standard, les minimas restent sur 35h (151,67 h/mois)
     _sal_weekly = weekly_hours
     try:
-        if idcc == 16 and str(segment or '').strip().upper() == 'TRV' and (work_time_regime or '').lower() == 'temps_complet' and wt_api == 'standard':
+        seg_up = str(segment or '').strip().upper()
+        if idcc == 16 and seg_up in {'TRV','SANITAIRE','DEMENAGEMENT'} and (work_time_regime or '').lower() == 'temps_complet' and wt_api == 'standard':
             _sal_weekly = 35.0
     except Exception:
         _sal_weekly = weekly_hours
@@ -1027,6 +1104,7 @@ async def cdi_generate(
         "annexe": annexe,
         "segment": segment,
         "statut": statut,
+        "contract_type": "cdi",
         "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
     }
 
@@ -1060,6 +1138,7 @@ async def cdi_generate(
         "as_of": contract_start,
         "segment": segment,
         "statut": statut,
+        "contract_type": "cdi",
         "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
     }
 
@@ -1083,13 +1162,13 @@ async def cdi_generate(
         wmax = tt_bounds.get("weekly_hours_max")
         if wmin is not None and float(weekly_hours) < float(wmin):
             conformity_issues.append({
-                "key": "tt_min_srv", "step": 5, "field": "weekly_hours", "severity": "hard",
+                "key": "tt_min_srv", "step": 7, "field": "weekly_hours", "severity": "hard",
                 "message": f"Heures/semaine saisies ({weekly_hours}) < minimum ({wmin}).",
                 "ref": (tt_res.get("rule") or {}).get("source_ref"), "suggested": wmin,
             })
         if wmax is not None and float(weekly_hours) > float(wmax):
             conformity_issues.append({
-                "key": "tt_max_srv", "step": 5, "field": "weekly_hours", "severity": "hard",
+                "key": "tt_max_srv", "step": 7, "field": "weekly_hours", "severity": "hard",
                 "message": f"Heures/semaine saisies ({weekly_hours}) > plafond ({wmax}).",
                 "ref": (tt_res.get("rule") or {}).get("source_ref"), "suggested": wmax,
             })
@@ -1097,7 +1176,7 @@ async def cdi_generate(
         dmax = tt_bounds.get("days_per_year_max")
         if dmax is not None and int(forfait_days_per_year) > int(dmax):
             conformity_issues.append({
-                "key": "fj_max_srv", "step": 5, "field": "forfait_days_per_year", "severity": "hard",
+                "key": "fj_max_srv", "step": 7, "field": "forfait_days_per_year", "severity": "hard",
                 "message": f"Forfait-jours saisi ({forfait_days_per_year}) > plafond ({dmax}).",
                 "ref": (tt_res.get("rule") or {}).get("source_ref"), "suggested": dmax,
             })
@@ -1107,7 +1186,7 @@ async def cdi_generate(
         try:
             if dmax is not None and int(m2_days_cap) > int(dmax):
                 conformity_issues.append({
-                    "key": "m2_jours_max_srv", "step": 5, "field": "m2_days_cap", "severity": "hard",
+                    "key": "m2_jours_max_srv", "step": 7, "field": "m2_days_cap", "severity": "hard",
                     "message": f"Plafond annuel saisi ({m2_days_cap}) > plafond ({dmax}).",
                     "ref": (tt_res.get("rule") or {}).get("source_ref"), "suggested": dmax,
                 })
@@ -1120,6 +1199,7 @@ async def cdi_generate(
         "anciennete_months": anciennete_months,
         "unit": cp_unit,
         "as_of": contract_start,
+        "contract_type": "cdi",
         "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
     }
     cp_res = _call_resolver("conges", cp_ctx)
@@ -1154,18 +1234,12 @@ async def cdi_generate(
     except Exception:
         selected_keys = []
 
-    # Auto‑inclusions obligatoires (branche)
+    # Auto‑inclusions (branche) basées sur YAML — CDI
     try:
-        if idcc == 2216:
-            # Clause jours fériés (obligatoire de branche) — ajoutée même si non cochée côté UI
-            if 'public_holidays_2216' not in selected_keys:
-                selected_keys.append('public_holidays_2216')
-            # Prime annuelle (obligation conventionnelle structurante)
-            if 'annual_bonus_2216' not in selected_keys:
-                selected_keys.append('annual_bonus_2216')
-            # Travail de nuit — majorations (clause fixe)
-            if 'night_work_premiums_2216' not in selected_keys:
-                selected_keys.append('night_work_premiums_2216')
+        from app.services.clauses_library import get_auto_include_keys as _auto_inc
+        for kk in _auto_inc(idcc, 'cdi'):
+            if kk not in selected_keys:
+                selected_keys.append(kk)
     except Exception:
         pass
 
@@ -1240,7 +1314,7 @@ async def cdi_generate(
         })
 
     # Résolution des textes “catalogue” → HTML prêt PDF   
-    selected_clause_texts = get_clause_texts(idcc, selected_keys, clauses_params)
+    selected_clause_texts = get_clause_texts(idcc, selected_keys, clauses_params, doc_type='cdi')
 
 
     # 4) Contexte PDF
@@ -1343,8 +1417,13 @@ async def cdi_generate(
         "cp_days_number": cp_days_number,
         "cp_unit": cp_unit,
         "retirement_org": retirement_org,
+        "retirement_org_address": retirement_org_address,
         "health_org": health_org,
+        "health_org_address": health_org_address,
         "welfare_org": welfare_org,
+        "welfare_org_address": welfare_org_address,
+        # Santé & sécurité
+        "poste_risques_particuliers": poste_risques_particuliers,
         # Entretien professionnel
         "entretien_periodicity": entretien_periodicity,
         # Préavis (saisis)
@@ -1454,3 +1533,799 @@ async def cdi_generate(
         logger.warning("snapshot write failed: %s", e)
 
     return FileResponse(pdf_path, media_type="application/pdf", filename="cdi.pdf")
+
+
+# ========== Génération CDD ==========
+
+@app.post("/cdd/generate")
+async def cdd_generate(
+    # --- Employeur
+    employer_name: str = Form(...),
+    employer_address: str = Form(...),
+    urssaf_number: str = Form(...),
+    rep_name: str = Form(...),
+    rep_title: str = Form(...),
+    rep_civility: Optional[str] = Form(None),
+    # Signataire personne morale (optionnel)
+    rep_signatory_kind: Optional[str] = Form(None),
+    rep_entity_name: Optional[str] = Form(None),
+    rep_entity_legal_form: Optional[str] = Form(None),
+    rep_entity_siren: Optional[str] = Form(None),
+    rep_entity_rep_civility: Optional[str] = Form(None),
+    rep_entity_rep_last_name: Optional[str] = Form(None),
+    rep_entity_rep_first_name: Optional[str] = Form(None),
+    rep_entity_rep_title: Optional[str] = Form(None),
+
+    # --- Salarié
+    employee_civility: str = Form(...),
+    employee_name: str = Form(...),
+    birth_date: str = Form(...),
+    birth_place: str = Form(...),
+    nationality: str = Form(...),
+    employee_address: Optional[str] = Form(None),
+    employee_postal_code: Optional[str] = Form(None),
+    employee_city: Optional[str] = Form(None),
+    ssn: Optional[str] = Form(None),
+
+    # --- Contexte conventionnel
+    idcc: Optional[int] = Form(None),
+    categorie: str = Form(...),
+    classification_level: Optional[str] = Form(None),
+    # Dimensions de classification CCN
+    annexe: Optional[str] = Form(None),
+    segment: Optional[str] = Form(None),
+    statut: Optional[str] = Form(None),
+    coeff_key: Optional[str] = Form(None),
+    adhesion_syndicat: Optional[str] = Form(None),
+    # Accords d'entreprise (optionnel)
+    ae_exists: Optional[str] = Form(None),
+    ae_count: Optional[int] = Form(None),
+    ae_json: Optional[str] = Form(None),
+
+    # --- Étape CDD : motif & durée
+    # Noms "natifs" du formulaire CDD
+    cdd_reason: Optional[str] = Form(None),
+    cdd_reason_other_text: Optional[str] = Form(None),
+    cdd_replace_last_name: Optional[str] = Form(None),
+    cdd_replace_first_name: Optional[str] = Form(None),
+    cdd_replace_job: Optional[str] = Form(None),
+    cdd_replace_reason: Optional[str] = Form(None),
+    cdd_term_kind: Optional[str] = Form(None),  # "fixed" | "imprecise"
+    contract_end: Optional[date] = Form(None),  # si terme fixe
+    cdd_min_duration_value: Optional[int] = Form(None),  # si terme imprécis
+    cdd_min_duration_unit: Optional[str] = Form(None),   # "jours" | "mois"
+    cdd_term_event: Optional[str] = Form(None),          # événement déclencheur (sans terme précis)
+    # Contrôle licenciement économique (< 6 mois) — accroissement
+    cdd_eco_layoff_6m: Optional[str] = Form(None),
+    cdd_eco_layoff_notes: Optional[str] = Form(None),
+    cdd_renewable: Optional[str] = Form(None),
+    cdd_renewals_max: Optional[int] = Form(0),
+    # Alias éventuels (interop)
+    cdd_type: Optional[str] = Form(None),
+    replaced_employee_name: Optional[str] = Form(None),
+    replaced_employee_position: Optional[str] = Form(None),
+    replacement_reason: Optional[str] = Form(None),
+    no_term: Optional[str] = Form(None),
+    minimum_duration: Optional[int] = Form(None),
+    renewal_count: Optional[int] = Form(None),
+
+    # --- Emploi
+    job_title: str = Form(...),
+    main_mission: Optional[str] = Form(None),
+    annex_activities: Optional[str] = Form(None),
+    mission_in_contract: Optional[str] = Form(None),
+    mission_in_annex: Optional[str] = Form(None),
+
+    # --- Temps de travail
+    work_time_regime: str = Form(...),
+    work_time_mode: Optional[str] = Form(None),
+    part_time_payload: Optional[str] = Form(None),
+    trv_fulltime_mode: Optional[str] = Form(None),
+    trv_rtt_days_per_year: Optional[int] = Form(None),
+    trv_ref_desc: Optional[str] = Form(None),
+    trm_service_kind: Optional[str] = Form(None),
+    mod_annual_hours_max: Optional[int] = Form(None),
+    mod_weekly_hours_cap: Optional[float] = Form(None),
+    mod_ref_desc: Optional[str] = Form(None),
+    weekly_hours: Optional[float] = Form(None),
+    schedule_info: Optional[str] = Form(None),
+    forfait_hours_per_year: Optional[int] = Form(None),
+    forfait_hours_ref: Optional[str] = Form(None),
+    forfait_days_per_year: Optional[int] = Form(None),
+    forfait_days_ref: Optional[str] = Form(None),
+    m2_days_cap: Optional[int] = Form(None),
+    ref_period_desc: Optional[str] = Form(None),
+
+    # --- Dates & essai
+    contract_start: str = Form(...),
+    probation_months: Optional[float] = Form(None),
+    probation_renewal_requested: str = Form("non"),
+
+    # --- Rémunération
+    salary_gross_monthly: float = Form(...),
+    has_13th_month: Optional[str] = Form(None),
+    remuneration_accessories: Optional[str] = Form(None),
+    expense_policy: Optional[str] = Form(None),
+    bonus13_when: Optional[str] = Form(None),
+    bonus13_when_free: Optional[str] = Form(None),
+    bonus13_base: Optional[str] = Form(None),
+    bonus13_base_free: Optional[str] = Form(None),
+
+    # --- Prime de précarité (CDD)
+    precarity_rate_percent: Optional[float] = Form(None),
+    precarity_rate_source: Optional[str] = Form(None),
+    precarity_notes: Optional[str] = Form(None),
+
+    # --- Lieu / mobilité
+    workplace_base: str = Form(...),
+    work_area: Optional[str] = Form(None),
+    mobility_clause: str = Form("non"),
+    employer_postal_code: Optional[str] = Form(None),
+    employer_city: Optional[str] = Form(None),
+    legal_form: Optional[str] = Form(None),
+    siren_number: Optional[str] = Form(None),
+
+    # --- Congés / organismes
+    cp_days_number: Optional[int] = Form(None),
+    cp_unit: str = Form("ouvrables"),
+    retirement_org: Optional[str] = Form(None),
+    retirement_org_address: Optional[str] = Form(None),
+    health_org: Optional[str] = Form(None),
+    health_org_address: Optional[str] = Form(None),
+    welfare_org: Optional[str] = Form(None),
+    welfare_org_address: Optional[str] = Form(None),
+
+    # --- Entretien pro
+    entretien_periodicity: Optional[str] = Form(None),
+
+    # --- Clauses (Step 10)
+    clauses_selected_json: Optional[str] = Form(None),
+    clauses_custom_json: Optional[str] = Form(None),
+    clauses_params_json:   Optional[str] = Form(None),
+
+    # --- DPAE / signatures
+    dpae_urssaf_city: Optional[str] = Form(None),
+    dpae_date: Optional[str] = Form(None),
+    place_of_signature: str = Form(...),
+    date_of_signature: str = Form(...),
+    copies_count: int = Form(...),
+
+    # --- Données front (issues/overrides) + diverses
+    non_compliance_json: Optional[str] = Form(None),
+    overrides_steps: Optional[str] = Form(None),
+    anciennete_months: Optional[int] = Form(None),
+    preview: Optional[str] = Form(None),
+):
+    # 0) Issues / overrides
+    try:
+        conformity_issues = json.loads(non_compliance_json) if non_compliance_json else []
+        if not isinstance(conformity_issues, list):
+            conformity_issues = []
+    except Exception:
+        conformity_issues = []
+    try:
+        override_steps_set = set(json.loads(overrides_steps)) if overrides_steps else set()
+    except Exception:
+        override_steps_set = set()
+
+    # 1) coefficient éventuel dans classification_level
+    coeff: Optional[int] = None
+    if classification_level:
+        m = re.search(r"(\d{2,3})", classification_level)
+        if m:
+            try:
+                coeff = int(m.group(1))
+            except Exception:
+                coeff = None
+
+    # 1-bis) Accords d'entreprise (parse JSON caché)
+    ae_exists_flag = False
+    ae_count_val: Optional[int] = None
+    ae_items: list[dict[str, Any]] = []
+    if ae_exists and str(ae_exists).strip().lower() in {"on", "true", "oui", "1"}:
+        ae_exists_flag = True
+    try:
+        if ae_json:
+            data = json.loads(ae_json)
+            if isinstance(data, dict):
+                ae_exists_flag = bool(data.get("exists", ae_exists_flag))
+                ae_count_val = int(data.get("count") or 0) or ae_count
+                items = data.get("items") or []
+                if isinstance(items, list):
+                    for it in items[:5]:
+                        title = (it.get("title") or "").strip()
+                        dt    = (it.get("date") or "").strip()
+                        if title or dt:
+                            ae_items.append({"title": title, "date": dt})
+    except Exception:
+        ae_count_val = ae_count
+
+    # ---------- Server‑side rechecks via resolve() ----------
+
+    # Essai (step 9 en CDD)
+    ess_ctx = {
+        "idcc": idcc,
+        "categorie": categorie,
+        "coeff": coeff,
+        "as_of": contract_start,
+        "annexe": annexe,
+        "statut": statut,
+        "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
+    }
+    ess_res = _call_resolver("periode_essai", ess_ctx)
+    ess_bounds = ess_res.get("bounds") or {}
+    max_essai = ess_bounds.get("max_months")
+    if max_essai is None:
+        max_essai = 4 if (categorie or "").lower() == "cadre" else 2
+    if probation_months is not None and float(probation_months) > float(max_essai):
+        conformity_issues.append({
+            "key": "essai_srv",
+            "step": 10,
+            "field": "probation_months",
+            "severity": "hard",
+            "message": f"Période d’essai saisie ({probation_months} mois) > plafond ({max_essai}).",
+            "ref": (ess_res.get("rule") or {}).get("source_ref"),
+            "url": (ess_res.get("rule") or {}).get("url"),
+            "suggested": max_essai,
+        })
+
+    # Rémunération minimale (step 8 en CDD)
+    has_13th_flag = False
+    try:
+        if has_13th_month and str(has_13th_month).strip().lower() in {"on","true","oui","1"}:
+            has_13th_flag = True
+    except Exception:
+        has_13th_flag = False
+    ui_work_time_mode = (work_time_mode or "standard_35h")
+    wt_api = _map_worktime_mode_ui_to_api(ui_work_time_mode)
+    if (work_time_regime or "").lower() == "temps_partiel" and wt_api == "standard":
+        wt_api = "part_time"
+    _sal_weekly = weekly_hours
+    try:
+        if idcc == 16 and str(segment or '').strip().upper() == 'TRV' and (work_time_regime or '').lower() == 'temps_complet' and wt_api == 'standard':
+            _sal_weekly = 35.0
+    except Exception:
+        _sal_weekly = weekly_hours
+    sal_ctx = {
+        "idcc": idcc,
+        "categorie": categorie,
+        "coeff": coeff,
+        "work_time_mode": wt_api,
+        "weekly_hours": _sal_weekly,
+        "forfait_days_per_year": forfait_days_per_year,
+        "classification_level": classification_level,
+        "coeff_key": coeff_key,
+        "has_13th_month": has_13th_flag,
+        "as_of": contract_start,
+        "anciennete_months": anciennete_months,
+        "annexe": annexe,
+        "segment": segment,
+        "statut": statut,
+        "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
+    }
+    sal_res = _call_resolver("remuneration", sal_ctx)
+    sal_bounds = _norm_minima(sal_res.get("minima") or {})
+    floor = sal_bounds.get("monthly_min_eur")
+    if floor is not None and salary_gross_monthly is not None:
+        try:
+            if float(salary_gross_monthly) < float(floor):
+                conformity_issues.append({
+                    "key": "salaire_min_srv",
+                    "step": 8,
+                    "field": "salary_gross_monthly",
+                    "severity": "hard",
+                    "message": f"Salaire saisi ({float(salary_gross_monthly):.2f} €) < minimum applicable ({float(floor):.2f} €).",
+                    "ref": (sal_res.get("rule") or {}).get("source_ref"),
+                    "url": (sal_res.get("rule") or {}).get("url"),
+                    "suggested": float(floor),
+                })
+        except Exception:
+            pass
+
+    # Temps de travail — bornes (step 7 en CDD)
+    tt_ctx = {
+        "idcc": idcc,
+        "categorie": categorie,
+        "work_time_mode": wt_api,
+        "weekly_hours": weekly_hours,
+        "forfait_days_per_year": forfait_days_per_year,
+        "as_of": contract_start,
+        "segment": segment,
+        "statut": statut,
+        "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
+    }
+    part_time_data = {}
+    try:
+        if part_time_payload:
+            js = json.loads(part_time_payload)
+            if isinstance(js, dict):
+                part_time_data = js
+    except Exception:
+        part_time_data = {}
+    is_part_time = (work_time_regime or "").lower() == "temps_partiel"
+    tt_res = _call_resolver("temps_travail", tt_ctx)
+    tt_bounds = tt_res.get("bounds") or {}
+    if wt_api in {"standard", "part_time"} and weekly_hours is not None:
+        wmin = tt_bounds.get("weekly_hours_min")
+        wmax = tt_bounds.get("weekly_hours_max")
+        if wmin is not None and float(weekly_hours) < float(wmin):
+            conformity_issues.append({
+                "key": "tt_min_srv", "step": 8, "field": "weekly_hours", "severity": "hard",
+                "message": f"Heures/semaine saisies ({weekly_hours}) < minimum ({wmin}).",
+                "ref": (tt_res.get("rule") or {}).get("source_ref"), "suggested": wmin,
+            })
+        if wmax is not None and float(weekly_hours) > float(wmax):
+            conformity_issues.append({
+                "key": "tt_max_srv", "step": 8, "field": "weekly_hours", "severity": "hard",
+                "message": f"Heures/semaine saisies ({weekly_hours}) > plafond ({wmax}).",
+                "ref": (tt_res.get("rule") or {}).get("source_ref"), "suggested": wmax,
+            })
+    if wt_api == "forfait_days" and forfait_days_per_year is not None:
+        dmax = tt_bounds.get("days_per_year_max")
+        if dmax is not None and int(forfait_days_per_year) > int(dmax):
+            conformity_issues.append({
+                "key": "fj_max_srv", "step": 8, "field": "forfait_days_per_year", "severity": "hard",
+                "message": f"Forfait-jours saisi ({forfait_days_per_year}) > plafond ({dmax}).",
+                "ref": (tt_res.get("rule") or {}).get("source_ref"), "suggested": dmax,
+            })
+    if wt_api == "forfait_hours_mod2" and m2_days_cap is not None:
+        dmax = tt_bounds.get("days_per_year_max")
+        try:
+            if dmax is not None and int(m2_days_cap) > int(dmax):
+                conformity_issues.append({
+                    "key": "m2_jours_max_srv", "step": 8, "field": "m2_days_cap", "severity": "hard",
+                    "message": f"Plafond annuel saisi ({m2_days_cap}) > plafond ({dmax}).",
+                    "ref": (tt_res.get("rule") or {}).get("source_ref"), "suggested": dmax,
+                })
+        except Exception:
+            pass
+
+    # Congés payés (step 11 en CDD) — minimum
+    cp_ctx = {
+        "idcc": idcc,
+        "anciennete_months": anciennete_months,
+        "unit": cp_unit,
+        "as_of": contract_start,
+        "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
+    }
+    cp_res = _call_resolver("conges", cp_ctx)
+    cp_bounds = cp_res.get("conges") or cp_res.get("bounds") or {}
+    cp_min = cp_bounds.get("min_days")
+    cp_sugg = cp_bounds.get("suggested_days")
+    if cp_days_number is not None and cp_min is not None and int(cp_days_number) < int(cp_min):
+        conformity_issues.append({
+            "key": "cp_min_srv", "step": 11, "field": "cp_days_number", "severity": "hard",
+            "message": f"CP saisis ({cp_days_number} {cp_unit}) < minimum ({cp_min}).",
+            "ref": (cp_res.get("rule") or {}).get("source_ref"), "suggested": cp_min,
+        })
+
+    # ---------- Clauses ----------
+    selected_keys: list[str] = []
+    custom_clauses: list[dict[str, Any]] = []
+    clauses_params: dict[str, Any] = {}
+    try:
+        if clauses_selected_json:
+            data = json.loads(clauses_selected_json)
+            if isinstance(data, list):
+                seen = set()
+                for k in data:
+                    if isinstance(k, str):
+                        kk = k.strip()
+                        if kk and kk not in seen:
+                            selected_keys.append(kk); seen.add(kk)
+    except Exception:
+        selected_keys = []
+    try:
+        if clauses_custom_json:
+            data = json.loads(clauses_custom_json)
+            if isinstance(data, list):
+                for it in data[:10]:
+                    title = (it.get("title") or "").strip()
+                    text  = (it.get("text") or "").strip()
+                    if title or text:
+                        custom_clauses.append({"title": title, "text": text})
+    except Exception:
+        custom_clauses = []
+    try:
+        if clauses_params_json:
+            data = json.loads(clauses_params_json)
+            if isinstance(data, dict):
+                for k, params in list(data.items())[:30]:
+                    if not isinstance(params, dict):
+                        continue
+                    out = {}
+                    for pk, pv in list(params.items())[:30]:
+                        key = str(pk)
+                        if key.endswith("__label"):
+                            out[key] = str(pv)
+                        else:
+                            try:
+                                out[key] = pv if isinstance(pv, (str, int, float)) else json.dumps(pv)
+                            except Exception:
+                                out[key] = str(pv)
+                    clauses_params[str(k)] = out
+    except Exception:
+        clauses_params = {}
+
+    # Auto‑inclusions (branche) basées sur YAML — CDD
+    try:
+        from app.services.clauses_library import get_auto_include_keys as _auto_inc
+        for kk in _auto_inc(idcc, 'cdd'):
+            if kk not in selected_keys:
+                selected_keys.append(kk)
+    except Exception:
+        pass
+
+    # Charger les textes de clauses depuis la bibliothèque
+    selected_clause_texts = get_clause_texts(idcc, selected_keys, clauses_params, doc_type='cdd')
+    # Clauses automatiques si temps partiel (mêmes règles que CDI)
+    auto_clauses = []
+    if is_part_time:
+        try:
+            emp_name = employee_name
+            comp = employer_name
+            # 1) Égalité de traitement
+            auto_clauses.append({
+                "title": "Égalité de traitement",
+                "body": (
+                    f"{emp_name} bénéficiera de tous les droits et avantages reconnus aux salariés à temps plein "
+                    f"travaillant dans la société, résultant du Code du travail, des accords collectifs applicables "
+                    f"ou des usages, au prorata de son temps de travail. {comp} garantit un traitement équivalent "
+                    f"aux autres salariés de même qualification et ancienneté en matière de promotion, déroulement "
+                    f"de carrière et accès à la formation. À sa demande, {emp_name} pourra être reçu·e par la direction "
+                    f"pour examiner toute difficulté d’application de cette égalité."
+                )
+            })
+            # 2) Cumul d’emplois
+            auto_clauses.append({
+                "title": "Cumul d’emplois",
+                "body": (
+                    f"{emp_name} peut exercer une autre activité professionnelle, sous réserve d’en informer préalablement "
+                    f"{comp}. Cette activité ne devra pas porter atteinte aux intérêts légitimes de l’entreprise, "
+                    f"ni contrevenir aux obligations de loyauté et de confidentialité."
+                )
+            })
+            # 3) Priorité d’affectation
+            pr_days = None
+            try:
+                pr_days = int((part_time_data.get("priority") or {}).get("reply_days") or 0) or None
+            except Exception:
+                pr_days = None
+            delay_txt = f"dans un délai maximal de {pr_days} jours" if pr_days else "dans un délai raisonnable"
+            auto_clauses.append({
+                "title": "Priorité d’affectation",
+                "body": (
+                    f"{emp_name} bénéficie d’une priorité d’affectation aux emplois à temps complet ou à temps partiel "
+                    f"ressortissant de sa catégorie professionnelle ou équivalents qui seraient créés ou deviendraient vacants. "
+                    f"La liste de ces emplois est communiquée avant toute attribution. En cas de candidature, la demande "
+                    f"est examinée et une réponse motivée est donnée {delay_txt}."
+                )
+            })
+        except Exception:
+            auto_clauses = auto_clauses
+
+    # ---------- Normalisation CDD (contexte + checks basiques) ----------
+    reason = (cdd_reason or cdd_type or "").strip() or None
+    repl_name = None
+    if replaced_employee_name:
+        repl_name = replaced_employee_name
+    elif (cdd_replace_first_name or cdd_replace_last_name):
+        repl_name = " ".join([x for x in [(cdd_replace_first_name or '').strip(), (cdd_replace_last_name or '').strip()] if x]).strip() or None
+    repl_job = replaced_employee_position or cdd_replace_job
+    repl_reason = replacement_reason or cdd_replace_reason
+
+    term_kind = (cdd_term_kind or ("imprecise" if (no_term and str(no_term).lower() in {"on","true","oui","1"}) else None) or ("fixed" if contract_end else None))
+    min_dur_val = cdd_min_duration_value or minimum_duration
+    min_dur_unit = cdd_min_duration_unit or "jours"
+    renewable_flag = False
+    try:
+        if cdd_renewable and str(cdd_renewable).strip().lower() in {"on","true","oui","1"}:
+            renewable_flag = True
+    except Exception:
+        renewable_flag = False
+    renewals_max = cdd_renewals_max if cdd_renewals_max is not None else (renewal_count or 0)
+
+    # Checks basiques liés au CDD
+    if not reason:
+        conformity_issues.append({
+            "key": "cdd_reason_missing", "step": 4, "field": "cdd_reason",
+            "severity": "hard", "message": "Le motif du recours au CDD doit être renseigné (L1242‑2).",
+        })
+    if (reason == "remplacement") and not (repl_name or repl_job):
+        conformity_issues.append({
+            "key": "cdd_replacement_details_missing", "step": 4, "field": "cdd_replace_last_name",
+            "severity": "hard", "message": "En cas de remplacement, précisez la personne et/ou la fonction remplacée.",
+        })
+    if (term_kind == "fixed") and (contract_end is None):
+        conformity_issues.append({
+            "key": "cdd_end_date_missing", "step": 5, "field": "contract_end",
+            "severity": "hard", "message": "Date de fin requise pour un CDD à terme fixe.",
+        })
+    if (term_kind == "imprecise") and (min_dur_val is None):
+        conformity_issues.append({
+            "key": "cdd_min_duration_missing", "step": 5, "field": "cdd_min_duration_value",
+            "severity": "soft", "message": "Sans terme précis, indiquez une durée minimale (L1242‑7).",
+        })
+    if (term_kind == "imprecise") and not (cdd_term_event and str(cdd_term_event).strip()):
+        conformity_issues.append({
+            "key": "cdd_term_event_missing", "step": 5, "field": "cdd_term_event",
+            "severity": "soft", "message": "Sans terme précis, précisez l’événement déclencheur de fin (ex. retour du remplacé, fin de saison…).",
+        })
+    # Sans terme précis: motifs admis (remplacement, saisonnier, usage)
+    if (term_kind == "imprecise") and reason not in {"remplacement","saisonnier","usage"}:
+        conformity_issues.append({
+            "key": "cdd_imprecise_reason_forbidden", "step": 5, "field": "cdd_term_kind",
+            "severity": "hard", "message": "Sans terme précis uniquement pour remplacement, saisonnier ou usage (L1242‑7, D1242‑1).",
+        })
+    # Accroissement : interdiction présumée si licenciement éco ≤ 6 mois sur le même poste
+    try:
+        if (reason == 'accroissement') and cdd_eco_layoff_6m and str(cdd_eco_layoff_6m).strip().lower() in {'oui','on','true','1'}:
+            msg = "Accroissement : licenciement économique ≤ 6 mois sur le poste — CDD en principe interdit (sauf exception via accord/PSE)."
+            # S'il y a une note de justification, on conserve la sévérité hard (information forte) mais on facilite l'override côté UI
+            conformity_issues.append({
+                "key": "cdd_eco_layoff_recent",
+                "step": 4,
+                "field": "cdd_eco_layoff_6m",
+                "severity": "hard",
+                "message": msg,
+                "suggested": None,
+            })
+    except Exception:
+        pass
+
+    # ---------- Prime de précarité (détermination basique) ----------
+    # Par défaut 10% Code du travail. Possibilité de 6% si accord étendu (à brancher via table CCN ultérieurement).
+    try:
+        precarity_rate_val = float(precarity_rate_percent) if precarity_rate_percent is not None else None
+    except Exception:
+        precarity_rate_val = None
+    precarity_source_val = (precarity_rate_source or '').strip() or None
+    if precarity_rate_val is None:
+        # Fallback: 10% (code). Évolution: si idcc connu et table CCN fournie → 6% + source accord_etendu
+        precarity_rate_val = 10.0
+        if not precarity_source_val:
+            precarity_source_val = 'code'
+
+    # ---------- Contexte pour rendu ----------
+    context: Dict[str, Any] = {
+        # Type de document
+        "document": "CDD",
+        "contract_type": "CDD",
+        # Employeur
+        "employer_name": employer_name,
+        "employer_address": employer_address,
+        "urssaf_number": urssaf_number,
+        "rep_name": _smart_name_case(rep_name),
+        "rep_title": rep_title,
+        "rep_civility": rep_civility,
+        "rep_signatory_kind": rep_signatory_kind,
+        "rep_entity_name": rep_entity_name,
+        "rep_entity_legal_form": rep_entity_legal_form,
+        "rep_entity_siren": rep_entity_siren,
+        "rep_entity_rep_civility": rep_entity_rep_civility,
+        "rep_entity_rep_last_name": rep_entity_rep_last_name,
+        "rep_entity_rep_first_name": rep_entity_rep_first_name,
+        "rep_entity_rep_title": rep_entity_rep_title,
+        # Salarié
+        "employee_civility": employee_civility,
+        "employee_name": _smart_name_case(employee_name),
+        "birth_date": birth_date,
+        "birth_place": birth_place,
+        "nationality": nationality,
+        "employee_address": employee_address,
+        "employee_postal_code": employee_postal_code,
+        "employee_city": employee_city,
+        "ssn": ssn,
+        # CCN & classification
+        "idcc": idcc,
+        "categorie": categorie,
+        "classification_level": classification_level,
+        "annexe": annexe,
+        "segment": segment,
+        "statut": statut,
+        "coeff_key": coeff_key,
+        "adhesion_syndicat": adhesion_syndicat,
+        "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
+        # Étape CDD (motif & durée)
+        "cdd": {
+            "reason": reason,
+            "reason_other": (cdd_reason_other_text or None),
+            "replacement": {
+                "name": _smart_name_case(repl_name),
+                "job": repl_job,
+                "reason": repl_reason,
+            },
+            "term": {
+                "kind": term_kind,
+                "end_date": (contract_end.isoformat() if isinstance(contract_end, date) else None),
+                "min_duration_value": min_dur_val,
+                "min_duration_unit": min_dur_unit,
+                "event_desc": (cdd_term_event or None),
+            },
+            "renewable": renewable_flag,
+            "renewals_max": int(renewals_max or 0),
+        },
+        # Exposition directe pour le template (accès simple)
+        "contract_end": (contract_end.isoformat() if isinstance(contract_end, date) else None),
+        "no_term": (term_kind == "imprecise"),
+        "cdd_reason": reason,
+        "replaced_employee_name": _smart_name_case(repl_name),
+        "replaced_employee_position": repl_job,
+        "replacement_reason": repl_reason,
+        "renewal_count": int(renewals_max or 0),
+        "min_duration": min_dur_val,
+        "min_duration_unit": min_dur_unit,
+        # Emploi
+        "job_title": job_title,
+        "main_mission": main_mission,
+        "annex_activities": annex_activities,
+        "mission_in_contract": mission_in_contract,
+        "mission_in_annex": mission_in_annex,
+        # Temps de travail
+        "work_time_regime": work_time_regime,
+        "work_time_mode": work_time_mode,
+        "part_time": part_time_data if is_part_time else None,
+        "weekly_hours": weekly_hours,
+        "schedule_info": schedule_info,
+        "forfait_hours_per_year": forfait_hours_per_year,
+        "forfait_hours_ref": forfait_hours_ref,
+        "forfait_days_per_year": forfait_days_per_year,
+        "forfait_days_ref": forfait_days_ref,
+        "m2_days_cap": m2_days_cap,
+        "ref_period_desc": ref_period_desc,
+        "trv_fulltime_mode": trv_fulltime_mode,
+        "trv_rtt_days_per_year": trv_rtt_days_per_year,
+        "trv_ref_desc": trv_ref_desc,
+        "trm_service_kind": trm_service_kind,
+        "mod_annual_hours_max": mod_annual_hours_max,
+        "mod_weekly_hours_cap": mod_weekly_hours_cap,
+        "mod_ref_desc": mod_ref_desc,
+        # Dates & essai
+        "contract_start": contract_start,
+        "probation_months": probation_months,
+        "probation_renewal_requested": probation_renewal_requested,
+        # Rémunération
+        "salary_gross_monthly": salary_gross_monthly,
+        "has_13th_month": bool(has_13th_flag),
+        "remuneration_accessories": remuneration_accessories,
+        "expense_policy": expense_policy,
+        "bonus13_when": bonus13_when,
+        "bonus13_when_free": bonus13_when_free,
+        "bonus13_base": bonus13_base,
+        "bonus13_base_free": bonus13_base_free,
+        # Prime de précarité (CDD)
+        "precarity_rate_percent": precarity_rate_val,
+        "precarity_rate_source": precarity_source_val,
+        "precarity_notes": precarity_notes,
+        # Lieu / mobilité
+        "workplace_base": workplace_base,
+        "work_area": work_area,
+        "mobility_clause": mobility_clause,
+        # CDD accroissement — contexte carence/éco
+        "cdd_eco_layoff_6m": (str(cdd_eco_layoff_6m).strip().lower() if cdd_eco_layoff_6m is not None else None),
+        "cdd_eco_layoff_notes": cdd_eco_layoff_notes,
+        "employer_postal_code": employer_postal_code,
+        "employer_city": employer_city,
+        "legal_form": legal_form,
+        "siren_number": siren_number,
+        # Congés / organismes
+        "cp_days_number": cp_days_number,
+        "cp_unit": cp_unit,
+        "retirement_org": retirement_org,
+        "retirement_org_address": retirement_org_address,
+        "health_org": health_org,
+        "health_org_address": health_org_address,
+        "welfare_org": welfare_org,
+        "welfare_org_address": welfare_org_address,
+        # Santé & sécurité
+        "poste_risques_particuliers": poste_risques_particuliers,
+        # Entretien pro
+        "entretien_periodicity": entretien_periodicity,
+        # Clauses
+        "clauses_selected": selected_clause_texts,
+        "clauses_custom": custom_clauses,
+        "auto_clauses": auto_clauses,
+        # DPAE / signatures
+        "dpae_urssaf_city": dpae_urssaf_city,
+        "dpae_date": dpae_date,
+        "place_of_signature": place_of_signature,
+        "date_of_signature": date_of_signature,
+        "copies_count": copies_count,
+        # Meta & conformité
+        "generated_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "conformity_issues": conformity_issues,
+        "overrides_steps": list(override_steps_set),
+        # Rappels bornes/valeurs (annexe)
+        "probation_max": max_essai,
+        "probation_max_total": ess_bounds.get("max_total_months"),
+        "worktime_bounds": tt_bounds,
+        "leave_min_days": cp_min,
+        "leave_suggested_days": cp_sugg,
+        # Préavis (CDD → neutre)
+        "notice_dismissal_months": None,
+        "notice_resignation_months": None,
+    }
+
+    # Aperçu PDF inline (si demandé)
+    is_preview = False
+    try:
+        if preview and str(preview).strip().lower() in {"1","true","on","yes","oui"}:
+            is_preview = True
+    except Exception:
+        is_preview = False
+    if is_preview:
+        try:
+            # utiliser le template CDD si disponible, sinon fallback CDI
+            tpl_rel = "pdf/cdd.html.j2"
+            tpl_path = UI_TEMPLATES_DIR.parent / "pdf" / "cdd.html.j2"
+            if not tpl_path.exists():
+                tpl_rel = "pdf/cdi.html.j2"
+            pdf_bytes = render_pdf_bytes(tpl_rel, context)
+            headers = {"Content-Disposition": 'inline; filename="cdd_preview.pdf"'}
+            return StreamingResponse(BytesIO(pdf_bytes), media_type="application/pdf", headers=headers)
+        except Exception as e:
+            logger.exception("cdd preview render failed: %s", e)
+            return JSONResponse({"error": "preview_failed", "detail": str(e)}, status_code=500)
+
+    # 5) PDF (fichier)
+    tpl_rel = "pdf/cdd.html.j2"
+    tpl_path = UI_TEMPLATES_DIR.parent / "pdf" / "cdd.html.j2"
+    if not tpl_path.exists():
+        # fallback best-effort tant que le template CDD n'est pas prêt
+        tpl_rel = "pdf/cdi.html.j2"
+    pdf_path = await run_in_threadpool(render_pdf, tpl_rel, context, out_name=None)
+    # Renommer intelligemment en cdd_*.pdf si défaut
+    try:
+        if pdf_path.endswith(".pdf") and ("/cdi_" in pdf_path or pdf_path.split('/')[-1].startswith("cdi_")):
+            from pathlib import Path as _P
+            p = _P(pdf_path)
+            newp = str(p.with_name(p.name.replace("cdi_", "cdd_")))
+            import os as _os
+            _os.rename(pdf_path, newp)
+            pdf_path = newp
+    except Exception:
+        pass
+
+    # 6) Snapshot (best effort)
+    try:
+        snapshot = {
+            "document": "CDD",
+            "context": {k: v for k, v in context.items()
+                        if k not in ("remuneration_accessories", "expense_policy")},
+            "ae": {"exists": ae_exists_flag, "count": ae_count_val, "items": ae_items},
+            "clauses": {"selected_keys": selected_keys, "custom_count": len(custom_clauses)},
+            "rules_applied": [
+                {
+                    "theme": "periode_essai",
+                    "source": (ess_res.get("rule") or {}).get("source"),
+                    "source_ref": (ess_res.get("rule") or {}).get("source_ref"),
+                    "bloc": (ess_res.get("rule") or {}).get("bloc"),
+                },
+                {
+                    "theme": "salaire",
+                    "source": (sal_res.get("rule") or {}).get("source"),
+                    "source_ref": (sal_res.get("rule") or {}).get("source_ref"),
+                    "bloc": (sal_res.get("rule") or {}).get("bloc"),
+                },
+                {
+                    "theme": "temps_travail",
+                    "source": (tt_res.get("rule") or {}).get("source"),
+                    "source_ref": (tt_res.get("rule") or {}).get("source_ref"),
+                    "bloc": (tt_res.get("rule") or {}).get("bloc"),
+                },
+                {
+                    "theme": "conges_payes",
+                    "source": (cp_res.get("rule") or {}).get("source"),
+                    "source_ref": (cp_res.get("rule") or {}).get("source_ref"),
+                    "bloc": (cp_res.get("rule") or {}).get("bloc"),
+                },
+            ],
+            "generated_at": context["generated_at"],
+        }
+        snap_path = pdf_path.replace(".pdf", "_snapshot.json")
+        with open(snap_path, "w", encoding="utf-8") as f:
+            json.dump(snapshot, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.warning("cdd snapshot write failed: %s", e)
+
+    return FileResponse(pdf_path, media_type="application/pdf", filename="cdd.pdf")
