@@ -51,33 +51,66 @@ Ouvre http://127.0.0.1:8000
 
 ## Arborescence
 ```
-app/                   # FastAPI + logique métier
-  main.py              # routes UI+API (CDI, thèmes, génération PDF)
-  services/            # moteurs et services
-    rules_engine.py    # calculs bas-niveau (essai, préavis, salaire, temps, congés)
-    rules_resolver.py  # résolveur unifié (capabilities, explain, suggest)
-    legifrance_client.py  # client PISTE/Légifrance (OAuth/ping/consult)
-    pdf_renderer.py    # rendu WeasyPrint (fichier et bytes)
-    clauses_library.py # catalogue de clauses (paramétrable)
-    ccn_registry.py    # liste/recherche CCN depuis les YAML
-    ui_hints.py        # encarts CCN (ui_hints.yml)
+Connaissances/          # notes et matrices métier
+  Dossier_CDD.md
+  Modèles_CDD_LAMY.md
+  Code du travail/      # thèmes (durée du travail, rémunération, ...)
+  ccn/
+    ccn_0016_transports_routiers/
+    ccn_syntec/
+
+app/                    # FastAPI + logique métier
+  main.py               # routes UI+API (CDI, CDD, thèmes, génération PDF)
+  routers/              # routes modulaires
+  schemas/              # schémas d'IO
+  schemas.py            # schémas combinés (réponses helpers)
+  services/             # moteurs et services
+    rules_engine.py
+    rules_resolver.py
+    legifrance_client.py
+    pdf_renderer.py
+    clauses_library.py
+    ccn_registry.py
+    doc_registry.py
+    ui_hints.py
   templates/
-    ui/                # formulaires Jinja (ex. cdi_form.html.j2)
-    pdf/               # templates PDF (ex. cdi.html.j2)
+    ui/                 # formulaires Jinja
+      cdi_form.html.j2
+      cdd_form.html.j2
+      convocation_ep_form.html.j2
+      documents_list.html.j2
+      index.html.j2
+      layout.html.j2
+      components/macros.html.j2
+    pdf/
+      cdi.html.j2
+      cdd.html.j2
+      base.css
   static/
-    css/, js/          # scripts communs (worktime, salaire, etc.)
+    css/
+    js/
+      cdi.js
+      cdd.js
+      common/           # helpers (worktime, salaire, essai, etc.)
 
-rules/                 # règles YAML (Code du travail / CCN)
-  code_travail/        # par thème (salaire, temps_travail, ...)
-  ccn/<idcc>-<slug>/   # par convention (classification, ...)
-  clauses/             # clauses contractuelles (common.yml)
+rules/                  # règles YAML (Code du travail / CCN)
+  code_travail/
+  ccn/
+    1486-syntec/
+    0016-transports-routiers/
+    1979-hcr/
+    2216-predominance-alimentaire/
+    1501-restauration-rapide/
+  clauses/
 
-docs/                  # catalogues et notes
-  catalog.yml          # documents exposés dans l’UI
+docs/                   # catalogues et notes
+  catalog.yml           # documents exposés dans l’UI
+  decisions/
+    readme.md
 
-scripts/               # outils (lint, validation Légifrance, ping)
-tests/                 # tests Pytest (exemples)
-var/generated/         # sorties (PDF + JSON snapshot)
+scripts/                # outils (lint, validation Légifrance, ping)
+tests/                  # tests Pytest (exemples)
+var/generated/          # sorties (PDF + JSON snapshot)
 ```
 
 ## Légifrance / PISTE — Validation et veille des références

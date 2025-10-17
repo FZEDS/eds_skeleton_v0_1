@@ -11,7 +11,7 @@ documents:
     template: "cdd_form.html.j2"     # stub ci-dessous
     pdf_template: "pdf/cdd.html.j2"  # stub (à créer plus tard)
     description: "Bientôt disponible."
-    status: "wip"
+    status: "ready"
 
   - key: convocation_ep
     label: "Convocation à entretien préalable"
