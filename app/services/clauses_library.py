@@ -7,18 +7,27 @@ import yaml
 import html
 import re
 import unicodedata
+from functools import lru_cache
 
 APP_DIR = Path(__file__).resolve().parents[1]
 RULES_DIR = APP_DIR.parent / "rules"
 
 
-def _load_yaml(p: Path) -> Dict[str, Any]:
+def _mtime(p: Path) -> float:
+    try:
+        return p.stat().st_mtime
+    except Exception:
+        return 0.0
+
+@lru_cache(maxsize=256)
+def _load_yaml_cached(path_str: str, mtime: float) -> Dict[str, Any]:
     """
-    Charge un YAML robuste, et normalise les différentes formes possibles :
+    Chargement YAML robuste avec cache mtime‑aware, et normalisation:
       - liste brute de clauses -> {"clauses":[...]}
       - {"items":[...]}        -> {"clauses":[...]}
       - {"clauses":[...]}      -> inchangé
     """
+    p = Path(path_str)
     if not p.exists():
         return {}
     try:
@@ -33,6 +42,9 @@ def _load_yaml(p: Path) -> Dict[str, Any]:
             data["clauses"] = data.get("items") or []
         return data
     return {}
+
+def _load_yaml(p: Path) -> Dict[str, Any]:
+    return _load_yaml_cached(str(p), _mtime(p))
 
 
 

@@ -12,8 +12,14 @@ RULES_DIR = APP_DIR.parent / "rules"
 SYNTEC_IDCC = 1486
 
 
+def _mtime(p: Path) -> float:
+    try:
+        return p.stat().st_mtime
+    except Exception:
+        return 0.0
+
 @lru_cache(maxsize=128)
-def _load_yaml_cached(path_str: str) -> Dict[str, Any]:
+def _load_yaml_cached(path_str: str, mtime: float) -> Dict[str, Any]:
     p = Path(path_str)
     if not p.exists():
         return {}
@@ -175,7 +181,7 @@ def load_ui_hints(idcc: Optional[int], theme: str, ctx: Dict[str, Any]) -> List[
     hints_path = _pick_hints_path(ccn_dir, ctx)
     if not hints_path:
         return []
-    hints_doc = _load_yaml_cached(str(hints_path))
+    hints_doc = _load_yaml_cached(str(hints_path), _mtime(hints_path))
     raw_hints = hints_doc.get("hints") if isinstance(hints_doc, dict) else (hints_doc or [])
     if not isinstance(raw_hints, list):
         return []
